@@ -1,0 +1,94 @@
+<!doctype html>
+<html class="no-js" lang="">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <title>Application - Amused to Death</title>
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link rel="manifest" href="site.webmanifest">
+    <meta name="msapplication-TileColor" content="#ffffff">
+    <meta name="theme-color" content="#ffffff">
+
+    <link rel="stylesheet" href="styling/site.min.css">
+</head>
+
+<body>
+    <!--[if lte IE 9]>
+            <p class="browserupgrade">You are using an <strong>outdated</strong> browser. Please <a href="https://browsehappy.com/">upgrade your browser</a> to improve your experience and security.</p>
+        <![endif]-->
+    <!-- Add your site or application content here -->
+    <div>
+        <form class="form" method="POST" action="/api/form.php">
+            <label class="form__label">
+                Character name and BattleTag (we will contact you through battle-tag, so doublecheck it please)
+                <input type="text" class="form__input" name="name"/>
+            </label>
+            <hr class="form__hr" />
+            <label class="form__label">
+                Class
+                <input type="text" class="form__input"  name="class" required/>
+            </label>
+            <hr class="form__hr" />
+            <label class="form__label">
+                Primary spec
+                <input type="text" class="form__input"  name="spec" required/>
+            </label>
+            <hr class="form__hr" />
+            <label class="form__label">
+                Link to your Armory profile
+                <input type="text" class="form__input"  name="armory" required/>
+            </label>
+            <hr class="form__hr" />
+            <label class="form__label">
+                Link to relevant Warcraftlogs
+                <input type="text" class="form__input"  name="logs" required/>
+            </label>
+            <hr class="form__hr" />
+            <label class="form__label">
+                Raid UI screenshot
+                <input type="text" class="form__input"  name="ui" required/>
+            </label>
+            <hr class="form__hr" />
+            <label class="form__label">
+                What addons do you use? Do you have any coding experience to assist in creating custom WeakAuras and/or
+                addons?
+                <textarea class="form__textarea" rows="6" name="addons" required></textarea>
+            </label>
+            <hr class="form__hr" />
+            <label class="form__label">
+                What made you consider applying to Amused to Death?
+                <textarea class="form__textarea" rows="6" name="why" required></textarea>
+            </label>
+            <hr class="form__hr" />
+            <label class="form__label">
+                Tell us about your last guild. Why are you choosing us over them? Do you have any references?
+                <textarea class="form__textarea" rows="6" name="lastguild" required></textarea>
+            </label>
+            <hr class="form__hr" />
+            <label class="form__label">
+                Tell us about the rest of your raiding history. What content have you cleared in the past? Which guilds
+                did you do it with? Do you have any experience in guild leadership positions or other positions of
+                responsibility?
+                <textarea class="form__textarea" rows="6" name="history" required></textarea>
+            </label>
+            <hr class="form__hr" />
+            <label class="form__label">
+                What secondary specs or alternative characters do you feel you play at a similar level to your main? Do
+                you have sufficient gear to be raid viable with these specs/characters? What recent experience do you
+                have playing them?
+                <textarea class="form__textarea" rows="6" name="alts" required></textarea>
+            </label>
+            <hr class="form__hr" />
+            <label class="form__label">
+                <input type="submit" class="form__submit" value="Send" />
+            </label>
+        </form>
+    </div>
+
+    <script src="script/site.min.js"></script>
+</body>
+
+</html>
