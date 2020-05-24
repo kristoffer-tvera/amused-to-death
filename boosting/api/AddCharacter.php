@@ -16,5 +16,18 @@
     $main = $_POST["main"];
     $main = htmlspecialchars(strip_tags($main));
 
-    echo json_encode(AddCharacter($dbservername, $dbusername, $dbpassword, $dbname, $dbtable_characters, $name, $class, $main));
+    $conn = new mysqli($dbservername, $dbusername, $dbpassword, $dbname);
+    if ($conn->connect_error) {
+        die("Connection failed: " . $conn->connect_error);
+    } 
+
+    if(!empty($main)){
+        $stmt = $conn->prepare("INSERT INTO `$dbtable_characters` (name, class, main) VALUES (?, ?, ?)");
+        $stmt->bind_param('sii', $name, $class, $main);
+    } else {
+        $stmt = $conn->prepare("INSERT INTO `$dbtable_characters` (name, class) VALUES (?, ?)");
+        $stmt->bind_param('si', $name, $class);
+    }
+
+    echo json_encode($stmt->execute());
 ?>

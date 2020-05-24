@@ -12,9 +12,10 @@
         die("Connection failed: " . $conn->connect_error);
     } 
 
-    $sql = "SELECT * FROM `$dbtable_characters`";
+    $stmt = $conn->prepare("SELECT * FROM `$dbtable_attendance` WHERE raidId=?");
+    $stmt->bind_param('i', $raid);
+    $stmt->execute();
+    $result = $stmt->get_result();
     
-    $result = $conn->query($sql);
-    
-    echo json_encode(mysqli_fetch_all($result, MYSQLI_ASSOC));
+    echo json_encode($result->fetch_assoc());
 ?>

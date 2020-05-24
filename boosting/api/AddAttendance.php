@@ -16,5 +16,13 @@
     $bosses = $_POST["bosses"];
     $bosses = htmlspecialchars(strip_tags($bosses));
 
-    echo json_encode(AddAttendance($dbservername, $dbusername, $dbpassword, $dbname, $dbtable_attendance, $name, $raid, $bosses));
+    $conn = new mysqli($dbservername, $dbusername, $dbpassword, $dbname);
+    if ($conn->connect_error) {
+        die("Connection failed: " . $conn->connect_error);
+    } 
+
+    $stmt = $conn->prepare("INSERT INTO `$dbtable_attendance` (characterId, raidId, bosses) VALUES (?, ?, ?)");
+    $stmt->bind_param('iii', $character, $raid, $bosses);
+
+    echo json_encode($stmt->execute());
 ?>

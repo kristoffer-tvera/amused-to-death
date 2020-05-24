@@ -13,5 +13,14 @@
     $gold = $_POST["gold"];
     $gold = htmlspecialchars(strip_tags($gold));
 
-    echo json_encode(AddRaid($dbservername, $dbusername, $dbpassword, $dbname, $dbtable_raids, $name, $gold));
+    
+    $conn = new mysqli($dbservername, $dbusername, $dbpassword, $dbname);
+    if ($conn->connect_error) {
+        die("Connection failed: " . $conn->connect_error);
+    } 
+    
+    $stmt = $conn->prepare("INSERT INTO `$dbtable_raids` (name, class) VALUES (?, ?)");
+    $stmt->bind_param('si', $name, $gold);
+    
+    echo json_encode($stmt->execute());
 ?>

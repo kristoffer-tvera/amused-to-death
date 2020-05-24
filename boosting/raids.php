@@ -50,10 +50,10 @@
                         <div class="col-lg order-lg-first">
                             <ul class="nav nav-tabs border-0 flex-column flex-lg-row">
                                 <li class="nav-item">
-                                    <a href="./index.php" class="nav-link active"><i class="fe fe-home"></i>Home</a>
+                                    <a href="./index.php" class="nav-link"><i class="fe fe-home"></i>Home</a>
                                 </li>
                                 <li class="nav-item">
-                                    <a href="./raids.php" class="nav-link"><i class="fe fe-home"></i>Raids</a>
+                                    <a href="./raids.php" class="nav-link active"><i class="fe fe-home"></i>Raids</a>
                                 </li>
                                 <li class="nav-item">
                                     <a href="./characters.php" class="nav-link"><i class="fe fe-home"></i>Characters</a>
@@ -95,47 +95,6 @@
                                                 <td><a href="raid.php?id=1" class="text-inherit">Raid1</a></td>
                                                 <td>
                                                     1000
-                                                </td>
-                                                <td>
-                                                    15 Dec 2017
-                                                </td>
-                                                <td>
-                                                    15 Dec 2017
-                                                </td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-                                </div> <!-- table-responsive -->
-                            </div> <!-- card -->
-                        </div> <!-- col-12 -->
-
-                        <div class="col-12">
-                            <div class="card">
-                                <div class="card-header">
-                                    <h3 class="card-title">Characters</h3>
-                                </div>
-                                <div class="table-responsive">
-                                    <table class="table card-table table-vcenter text-nowrap">
-                                        <thead>
-                                            <tr>
-                                                <th class="w-1">Id.</th>
-                                                <th>Name</th>
-                                                <th>Main</th>
-                                                <th>Class</th>
-                                                <th>Created</th>
-                                                <th>Updated</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <tr>
-                                                <td><span class="text-muted">1</span></td>
-                                                <td><a href="character.php?id=1" class="text-inherit">Character1</a>
-                                                </td>
-                                                <td>
-                                                    1000
-                                                </td>
-                                                <td>
-                                                    Warclock
                                                 </td>
                                                 <td>
                                                     15 Dec 2017
