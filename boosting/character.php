@@ -53,11 +53,10 @@
                                     <a href="./index.php" class="nav-link"><i class="fe fe-home"></i>Home</a>
                                 </li>
                                 <li class="nav-item">
-                                    <a href="./raids.php" class="nav-link"><i class="fe fe-home"></i>Raids</a>
+                                    <a href="./raids.php" class="nav-link"><i class="fe fe-database"></i>Raids</a>
                                 </li>
                                 <li class="nav-item">
-                                    <a href="./characters.php" class="nav-link active"><i
-                                            class="fe fe-home"></i>Characters</a>
+                                    <a href="./characters.php" class="nav-link active"><i class="fe fe-users"></i>Characters</a>
                                 </li>
                             </ul>
                         </div>
@@ -75,9 +74,65 @@
                     <div class="row row-cards row-deck">
 
                         <div class="col-12">
+                            <form action="/boosting/api/AddOrUpdateCharacter.php" method="post" class="card" id="characterform">
+                                <div class="card-header">
+                                    <h3 class="card-title">Form elements</h3>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-12">
+                                            <div class="form-group">
+                                                <label class="form-label">Id</label>
+                                                <div class="form-control-plaintext">-1</div>
+                                                <input type="hidden" name="id" value=""/>
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="form-label">Name</label>
+                                                <input type="text" class="form-control" name="name"
+                                                    placeholder="Name.." required="required">
+                                            </div>
+
+                                            <div class="form-group">
+                                                <label class="form-label">Class</label>
+                                                <select name="class" id="select-class" class="form-control custom-select">
+                                                <option value="1">Mage</option>
+                                                <option value="4">Druid</option>
+                                                </select>
+                                            </div>
+
+                                            <div class="form-group">
+                                                <label class="form-label">Main</label>
+                                                <select name="main" id="select-main" class="form-control custom-select">
+                                                <option value="" selected>None</option>
+                                                <option value="1">Mage</option>
+                                                <option value="4">Druid</option>
+                                                </select>
+                                            </div>
+
+                                            <div class="form-group">
+                                                <label class="form-label">Created</label>
+                                                <div class="form-control-plaintext">00/00/0000 00:00</div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="form-label">Updated</label>
+                                                <div class="form-control-plaintext">00/00/0000 00:00</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="card-footer text-right">
+                                    <div class="d-flex">
+                                        <button type="submit" class="btn btn-primary ml-auto">Save</button>
+                                    </div>
+                                </div>
+                            </form>
+
+                        </div> <!-- col-12 -->
+
+                        <div class="col-12">
                             <div class="card">
                                 <div class="card-header">
-                                    <h3 class="card-title">Characters</h3>
+                                    <h3 class="card-title">Raids</h3>
                                 </div>
                                 <div class="table-responsive">
                                     <table class="table card-table table-vcenter text-nowrap">
@@ -85,28 +140,29 @@
                                             <tr>
                                                 <th class="w-1">Id.</th>
                                                 <th>Name</th>
-                                                <th>Main</th>
-                                                <th>Class</th>
-                                                <th>Created</th>
-                                                <th>Updated</th>
+                                                <th>Bosses</th>
+                                                <th>Paid</th>
+                                                <th></th>
                                             </tr>
                                         </thead>
                                         <tbody>
                                             <tr>
                                                 <td><span class="text-muted">1</span></td>
-                                                <td><a href="character.php?id=1" class="text-inherit">Character1</a>
+                                                <td><a href="raid.php?id=1" class="text-inherit">Char1</a></td>
+                                                <td>
+                                                    12
                                                 </td>
                                                 <td>
-                                                    1000
+                                                    <div class="custom-controls-stacked">
+                                                        <label class="custom-control custom-checkbox">
+                                                            <input type="checkbox" class="custom-control-input"
+                                                                name="example-checkbox1" value="option1" checked="">
+                                                            <span class="custom-control-label"></span>
+                                                        </label>
+                                                    </div>
                                                 </td>
                                                 <td>
-                                                    Warclock
-                                                </td>
-                                                <td>
-                                                    15 Dec 2017
-                                                </td>
-                                                <td>
-                                                    15 Dec 2017
+                                                    <button type="submit" class="btn btn-primary">Update</button>
                                                 </td>
                                             </tr>
                                         </tbody>
@@ -129,6 +185,47 @@
             </div>
         </footer>
     </div> <!-- page -->
+    <script>
+        require(['jquery', 'selectize'], function ($, selectize) {
+            $(document).ready(function () {
+                $('#input-tags').selectize({
+                    delimiter: ',',
+                    persist: false,
+                    create: function (input) {
+                        return {
+                            value: input,
+                            text: input
+                        }
+                    }
+                });
+        
+                $('#select-class').selectize({});
+                $('#select-main').selectize({});
+            });
+        });
+
+        var form = document.querySelector('#characterform');
+        if (form) {
+            form.addEventListener("submit", function(evt){
+                evt.preventDefault();
+
+                let formData = new FormData(form);
+                let xhr = new XMLHttpRequest();
+                xhr.open("POST", form.getAttribute('action'));
+                xhr.onreadystatechange = function() {
+                    if (this.readyState == 4) {
+                        if(this.status == 200){
+                            alert(xhr.responseText);
+
+                        } else {
+                            alert('error');
+                        }
+                    }
+                };
+                xhr.send(formData)
+            }, true);
+        }
+    </script>
 </body>
 
 </html>

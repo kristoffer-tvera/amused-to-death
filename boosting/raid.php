@@ -53,10 +53,12 @@
                                     <a href="./index.php" class="nav-link"><i class="fe fe-home"></i>Home</a>
                                 </li>
                                 <li class="nav-item">
-                                    <a href="./raids.php" class="nav-link active"><i class="fe fe-home"></i>Raids</a>
+                                    <a href="./raids.php" class="nav-link active"><i
+                                            class="fe fe-database"></i>Raids</a>
                                 </li>
                                 <li class="nav-item">
-                                    <a href="./characters.php" class="nav-link"><i class="fe fe-home"></i>Characters</a>
+                                    <a href="./characters.php" class="nav-link"><i
+                                            class="fe fe-users"></i>Characters</a>
                                 </li>
                             </ul>
                         </div>
@@ -67,16 +69,58 @@
                 <div class="container">
                     <div class="page-header">
                         <h1 class="page-title">
-                            Dashboard
+                            Add/Update raid
                         </h1>
                     </div>
 
-                    <div class="row row-cards row-deck">
+                    <div class="col-12">
+                        <form action="https://httpbin.org/post" method="post" class="card">
+                            <div class="card-header">
+                                <h3 class="card-title">Form elements</h3>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-12">
+                                        <div class="form-group">
+                                            <label class="form-label">Id</label>
+                                            <div class="form-control-plaintext">-1</div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="form-label">Name</label>
+                                            <input type="text" class="form-control" name="example-text-input"
+                                                placeholder="Name..">
+                                        </div>
 
-                        <div class="col-12">
+                                        <div class="form-group">
+                                            <label class="form-label">Gold</label>
+                                            <input type="number" class="form-control" name="example-text-input"
+                                                placeholder="Gold..">
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label class="form-label">Created</label>
+                                            <div class="form-control-plaintext">00/00/0000 00:00</div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="form-label">Updated</label>
+                                            <div class="form-control-plaintext">00/00/0000 00:00</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-footer text-right">
+                                <div class="d-flex">
+                                    <button type="submit" class="btn btn-primary ml-auto">Save</button>
+                                </div>
+                            </div>
+                        </form>
+
+                    </div> <!-- col-12 -->
+
+                    <div class="col-12">
                             <div class="card">
                                 <div class="card-header">
-                                    <h3 class="card-title">Raids</h3>
+                                    <h3 class="card-title">Players</h3>
                                 </div>
                                 <div class="table-responsive">
                                     <table class="table card-table table-vcenter text-nowrap">
@@ -84,23 +128,32 @@
                                             <tr>
                                                 <th class="w-1">Id.</th>
                                                 <th>Name</th>
-                                                <th>Gold</th>
-                                                <th>Created</th>
-                                                <th>Updated</th>
+                                                <th>Class</th>
+                                                <th>Bosses</th>
+                                                <th>Paid</th>
+                                                <th></th>
                                             </tr>
                                         </thead>
                                         <tbody>
                                             <tr>
                                                 <td><span class="text-muted">1</span></td>
-                                                <td><a href="raid.php?id=1" class="text-inherit">Raid1</a></td>
+                                                <td><a href="raid.php?id=1" class="text-inherit">Char1</a></td>
                                                 <td>
-                                                    1000
+                                                    Warclock
                                                 </td>
                                                 <td>
-                                                    15 Dec 2017
+                                                    12
                                                 </td>
                                                 <td>
-                                                    15 Dec 2017
+                                                <div class="custom-controls-stacked">
+                                                        <label class="custom-control custom-checkbox">
+                                                            <input type="checkbox" class="custom-control-input" name="example-checkbox1" value="option1" checked="">
+                                                            <span class="custom-control-label"></span>
+                                                        </label>
+                                                        </div>
+                                                </td>
+                                                <td>
+                                                <button type="submit" class="btn btn-primary">Update</button>
                                                 </td>
                                             </tr>
                                         </tbody>
@@ -109,19 +162,19 @@
                             </div> <!-- card -->
                         </div> <!-- col-12 -->
 
-                    </div> <!-- row -->
-                </div> <!-- container -->
-            </div> <!-- my-3 my-md-5 -->
-        </div> <!-- page-main -->
-        <footer class="footer">
-            <div class="container">
-                <div class="row align-items-center flex-row-reverse">
-                    <div class="col-12 col-lg-auto mt-3 mt-lg-0 text-center">
-                        Copyright © <?php echo date("Y"); ?> <a href=".">Amused to Death</a>. All rights reserved.
-                    </div>
+                </div> <!-- row -->
+            </div> <!-- container -->
+        </div> <!-- my-3 my-md-5 -->
+    </div> <!-- page-main -->
+    <footer class="footer">
+        <div class="container">
+            <div class="row align-items-center flex-row-reverse">
+                <div class="col-12 col-lg-auto mt-3 mt-lg-0 text-center">
+                    Copyright © <?php echo date("Y"); ?> <a href=".">Amused to Death</a>. All rights reserved.
                 </div>
             </div>
-        </footer>
+        </div>
+    </footer>
     </div> <!-- page -->
 </body>
 

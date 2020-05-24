@@ -53,10 +53,10 @@
                                     <a href="./index.php" class="nav-link"><i class="fe fe-home"></i>Home</a>
                                 </li>
                                 <li class="nav-item">
-                                    <a href="./raids.php" class="nav-link active"><i class="fe fe-home"></i>Raids</a>
+                                    <a href="./raids.php" class="nav-link active"><i class="fe fe-database"></i>Raids</a>
                                 </li>
                                 <li class="nav-item">
-                                    <a href="./characters.php" class="nav-link"><i class="fe fe-home"></i>Characters</a>
+                                    <a href="./characters.php" class="nav-link"><i class="fe fe-users"></i>Characters</a>
                                 </li>
                             </ul>
                         </div>
@@ -72,6 +72,14 @@
                     </div>
 
                     <div class="row row-cards row-deck">
+
+                        <div class="col-12">
+                            <div class="card">
+																																<a href="raid.php" class="card-header text-default justify-content-center">
+                                    <h3 class="card-title">New raid</h3>
+                                </a>
+                            </div>
+                        </div>
 
                         <div class="col-12">
                             <div class="card">

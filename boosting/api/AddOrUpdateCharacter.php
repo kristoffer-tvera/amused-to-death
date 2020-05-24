@@ -7,6 +7,9 @@
 
     include_once 'db.php';
 
+    $id = $_POST["id"];
+    $id = htmlspecialchars(strip_tags($id));
+
     $name = $_POST["name"];
     $name = htmlspecialchars(strip_tags($name));
 
@@ -21,7 +24,14 @@
         die("Connection failed: " . $conn->connect_error);
     } 
 
-    if(!empty($main)){
+    if(!empty($id) && !empty($main)){
+        $stmt = $conn->prepare("UPDATE `$dbtable_characters` SET name=?, class=?, main=? WHERE id=?");
+        $stmt->bind_param('siii', $name, $class, $main, $id);
+    } elseif(!empty($id) && empty($main)){
+        $stmt = $conn->prepare("UPDATE `$dbtable_characters` SET name=?, class=? WHERE id=?");
+        $stmt->bind_param('siii', $name, $class, $id);
+    }
+    elseif(!empty($main)){
         $stmt = $conn->prepare("INSERT INTO `$dbtable_characters` (name, class, main) VALUES (?, ?, ?)");
         $stmt->bind_param('sii', $name, $class, $main);
     } else {
