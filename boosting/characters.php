@@ -76,7 +76,7 @@
 
                     <div class="col-12">
                             <div class="card">
-																																<a href="character.php" class="card-header text-default justify-content-center">
+                                <a href="character.php" class="card-header text-default justify-content-center">
                                     <h3 class="card-title">New character</h3>
                                 </a>
                             </div>
@@ -100,23 +100,33 @@
                                             </tr>
                                         </thead>
                                         <tbody>
+                                        <?php
+                                            include_once './api/db.php';
+                                            include_once './api/db_helper.php';
+                                            $characters = GetCharacters($dbservername, $dbusername, $dbpassword, $dbname, $dbtable_characters);
+
+                                            foreach($characters as $character){
+                                             ?>
                                             <tr>
-                                                <td><span class="text-muted">1</span></td>
-                                                <td><a href="character.php?id=1" class="text-inherit">Character1</a>
+                                                <td><span class="text-muted"> <?php echo $character['id']; ?> </span></td>
+                                                <td><a href="character.php?id=1" class="text-inherit"><?php echo $character['name']; ?></a>
                                                 </td>
                                                 <td>
-                                                    1000
+                                                    <?php echo $character['main']; ?>
                                                 </td>
                                                 <td>
-                                                    Warclock
+                                                    <?php echo ClassFromId($character['class']); ?>
                                                 </td>
                                                 <td>
-                                                    15 Dec 2017
+                                                    <?php echo $character['added_date']; ?>
                                                 </td>
                                                 <td>
-                                                    15 Dec 2017
+                                                    <?php echo $character['change_date']; ?>
                                                 </td>
                                             </tr>
+                                            <?php 
+                                            }
+                                            ?>
                                         </tbody>
                                     </table>
                                 </div> <!-- table-responsive -->
