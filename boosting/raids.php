@@ -75,7 +75,7 @@
 
                         <div class="col-12">
                             <div class="card">
-																																<a href="raid.php" class="card-header text-default justify-content-center">
+                                    <a href="raid.php" class="card-header text-default justify-content-center">
                                     <h3 class="card-title">New raid</h3>
                                 </a>
                             </div>
@@ -98,19 +98,26 @@
                                             </tr>
                                         </thead>
                                         <tbody>
+                                        <?php
+                                            include_once './api/db.php';
+                                            include_once './api/db_helper.php';
+                                            $raids = GetRaids($dbservername, $dbusername, $dbpassword, $dbname, $dbtable_raids);
+                                            foreach($raids as $raid):
+                                             ?>
                                             <tr>
-                                                <td><span class="text-muted">1</span></td>
-                                                <td><a href="raid.php?id=1" class="text-inherit">Raid1</a></td>
+                                                <td><span class="text-muted"><?php echo $raid['id']; ?></span></td>
+                                                <td><a href="raid.php?id=<?php echo $raid['id']; ?>" class="text-inherit"><?php echo $raid['name']; ?></a></td>
                                                 <td>
-                                                    1000
+                                                    <?php echo $raid['gold']; ?>
                                                 </td>
                                                 <td>
-                                                    15 Dec 2017
+                                                    <?php echo $raid['added_date']; ?>
                                                 </td>
                                                 <td>
-                                                    15 Dec 2017
+                                                    <?php echo $raid['change_date']; ?>
                                                 </td>
                                             </tr>
+                                            <?php endforeach; ?>
                                         </tbody>
                                     </table>
                                 </div> <!-- table-responsive -->

@@ -79,6 +79,7 @@
                             include_once './api/db.php';
                             include_once './api/db_helper.php';
                             $id = 0;
+                            $ilvl = 0;
                             $name = "";
                             $class = 0;
                             $main = 0;
@@ -90,6 +91,7 @@
                                 $character = GetCharacter($dbservername, $dbusername, $dbpassword, $dbname, $dbtable_characters, $id);
                                 if(!empty($character)){
                                     $id = $character["id"];
+                                    $ilvl = $character["ilvl"];
                                     $name = $character["name"];
                                     $class = $character["class"];
                                     $main = $character["main"];
@@ -111,6 +113,10 @@
                                                 <label class="form-label">Id</label>
                                                 <div class="form-control-plaintext"><?php echo $id ?></div>
                                                 <input type="hidden" name="id" value="<?php echo $id ?>"/>
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="form-label">Id</label>
+                                                <div class="form-control-plaintext"><?php echo $ilvl ?></div>
                                             </div>
                                             <div class="form-group">
                                                 <label class="form-label">Name</label>

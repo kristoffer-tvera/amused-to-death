@@ -75,32 +75,39 @@
 										<h3 class="card-title">Raids</h3>
 									</div>
 									<div class="table-responsive">
-										<table class="table card-table table-vcenter text-nowrap">
-											<thead>
-												<tr>
-													<th class="w-1">Id.</th>
-													<th>Name</th>
-													<th>Gold</th>
-													<th>Created</th>
-													<th>Updated</th>
-												</tr>
-											</thead>
-											<tbody>
-												<tr>
-													<td><span class="text-muted">1</span></td>
-													<td><a href="raid.php?id=1" class="text-inherit">Raid1</a></td>
-													<td>
-														1000
-													</td>
-													<td>
-														15 Dec 2017
-													</td>
-													<td>
-														15 Dec 2017
-													</td>
-												</tr>
-											</tbody>
-										</table>
+									<table class="table card-table table-vcenter text-nowrap">
+                                        <thead>
+                                            <tr>
+                                                <th class="w-1">Id.</th>
+                                                <th>Name</th>
+                                                <th>Gold</th>
+                                                <th>Created</th>
+                                                <th>Updated</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                        <?php
+                                            include_once './api/db.php';
+                                            include_once './api/db_helper.php';
+                                            $raids = GetRaids($dbservername, $dbusername, $dbpassword, $dbname, $dbtable_raids);
+                                            foreach($raids as $raid):
+                                             ?>
+                                            <tr>
+                                                <td><span class="text-muted"><?php echo $raid['id']; ?></span></td>
+                                                <td><a href="raid.php?id=<?php echo $raid['id']; ?>" class="text-inherit"><?php echo $raid['name']; ?></a></td>
+                                                <td>
+                                                    <?php echo $raid['gold']; ?>
+                                                </td>
+                                                <td>
+                                                    <?php echo $raid['added_date']; ?>
+                                                </td>
+                                                <td>
+                                                    <?php echo $raid['change_date']; ?>
+                                                </td>
+                                            </tr>
+                                            <?php endforeach; ?>
+                                        </tbody>
+                                    </table>
 									</div>
 									<!-- table-responsive -->
 								</div>
@@ -120,28 +127,52 @@
 													<th>Name</th>
 													<th>Main</th>
 													<th>Class</th>
+													<th>ilvl</th>
 													<th>Created</th>
 													<th>Updated</th>
 												</tr>
 											</thead>
 											<tbody>
+											<?php
+												include_once './api/db.php';
+												include_once './api/db_helper.php';
+												$characters = GetCharacters($dbservername, $dbusername, $dbpassword, $dbname, $dbtable_characters);
+
+												foreach($characters as $character):
+												?>
 												<tr>
-													<td><span class="text-muted">1</span></td>
-													<td><a href="character.php?id=1" class="text-inherit">Character1</a>
+													<td>
+														<span class="text-muted"> <?php echo $character['id']; ?> </span>
 													</td>
 													<td>
-														1000
+													<a href="character.php?id=<?php echo $character['id']; ?>" class="text-inherit"><?php echo $character['name']; ?></a>
 													</td>
 													<td>
-														Warclock
+														<?php 
+														$main = $character['main'];
+														foreach($characters as $mainCharacter){
+															if($mainCharacter["id"] == $main){
+																?>
+																<a href="character.php?id=<?php echo $character['id']; ?>" class="text-inherit"><?php echo $character['name']; ?></a>
+																<?php
+															}
+														}
+														?>
 													</td>
 													<td>
-														15 Dec 2017
+														<?php echo ClassFromId($character['class']); ?>
 													</td>
 													<td>
-														15 Dec 2017
+														<?php echo $character['ilvl']; ?>
+													</td>
+													<td>
+														<?php echo $character['added_date']; ?>
+													</td>
+													<td>
+														<?php echo $character['change_date']; ?>
 													</td>
 												</tr>
+												<?php endforeach; ?>
 											</tbody>
 										</table>
 									</div>

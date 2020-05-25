@@ -95,6 +95,7 @@
                                                 <th>Name</th>
                                                 <th>Main</th>
                                                 <th>Class</th>
+                                                <th>ilvl</th>
                                                 <th>Created</th>
                                                 <th>Updated</th>
                                             </tr>
@@ -117,8 +118,8 @@
                                                 <td>
                                                     <?php 
                                                     $main = $character['main'];
-                                                    foreach($characters as $character){
-                                                        if($character["id"] == $main){
+                                                    foreach($characters as $mainCharacter){
+                                                        if($mainCharacter["id"] == $main){
                                                             ?>
                                                             <a href="character.php?id=<?php echo $character['id']; ?>" class="text-inherit"><?php echo $character['name']; ?></a>
                                                             <?php
@@ -128,6 +129,9 @@
                                                 </td>
                                                 <td>
                                                     <?php echo ClassFromId($character['class']); ?>
+                                                </td>
+                                                <td>
+                                                    <?php echo $character['ilvl']; ?>
                                                 </td>
                                                 <td>
                                                     <?php echo $character['added_date']; ?>

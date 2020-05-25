@@ -28,6 +28,7 @@ function Initialize_tables($dbservername, $dbusername, $dbpassword, $dbname, $db
     
     $charactersSql = "CREATE TABLE $dbtable_characters (
         id INT(6) AUTO_INCREMENT PRIMARY KEY, 
+        ilvl INT(3) NOT NULL DEFAULT '0',
         main INT(6), 
         FOREIGN KEY (main) REFERENCES $dbtable_characters(id),
         name VARCHAR(30) NOT NULL,
@@ -66,7 +67,7 @@ function Initialize_tables($dbservername, $dbusername, $dbpassword, $dbname, $db
         raidId INT(6) NOT NULL,
         FOREIGN KEY (raidId) REFERENCES $dbtable_raids(id) ON DELETE CASCADE,
         bosses INT(2) NOT NULL,
-        paid BOOLEAN NOT NULL,
+        paid TINYINT(1) NOT NULL DEFAULT '0',
         added_date DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
         change_date DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
         )";

@@ -27,21 +27,6 @@
         die("Connection failed: " . $conn->connect_error);
     } 
 
-    // if(!empty($id) && !empty($main)){
-    //     $stmt = $conn->prepare("UPDATE `$dbtable_characters` SET change_date=now(), name=?, class=?, main=? WHERE id=?");
-    //     $stmt->bind_param('siii', $name, $class, $main, $id);
-    // } elseif(!empty($id) && empty($main)){
-    //     $stmt = $conn->prepare("UPDATE `$dbtable_characters` SET change_date=now(), name=?, class=? WHERE id=?");
-    //     $stmt->bind_param('sii', $name, $class, $id);
-    // }
-    // elseif(!empty($main)){
-    //     $stmt = $conn->prepare("INSERT INTO `$dbtable_characters` (name, class, main) VALUES (?, ?, ?)");
-    //     $stmt->bind_param('sii', $name, $class, $main);
-    // } else {
-    //     $stmt = $conn->prepare("INSERT INTO `$dbtable_characters` (name, class) VALUES (?, ?)");
-    //     $stmt->bind_param('si', $name, $class);
-    // }
-
     if(!empty($id)){
         $stmt = $conn->prepare("UPDATE `$dbtable_characters` SET change_date=now(), name=?, class=?, main=? WHERE id=?");
         $stmt->bind_param('siii', $name, $class, $main, $id);

@@ -7,20 +7,27 @@
 
     include_once 'db.php';
 
+    $id = $_POST["id"];
+    $id = htmlspecialchars(strip_tags($id));
+
     $name = $_POST["name"];
     $name = htmlspecialchars(strip_tags($name));
 
     $gold = $_POST["gold"];
     $gold = htmlspecialchars(strip_tags($gold));
 
-    
     $conn = new mysqli($dbservername, $dbusername, $dbpassword, $dbname);
     if ($conn->connect_error) {
         die("Connection failed: " . $conn->connect_error);
     } 
-    
-    $stmt = $conn->prepare("INSERT INTO `$dbtable_raids` (name, class) VALUES (?, ?)");
-    $stmt->bind_param('si', $name, $gold);
-    
+
+    if(!empty($id)){
+        $stmt = $conn->prepare("UPDATE `$dbtable_raids` SET change_date=now(), name=?, gold=? WHERE id=?");
+        $stmt->bind_param('sii', $name, $gold, $id);
+    } else {
+        $stmt = $conn->prepare("INSERT INTO `$dbtable_raids` (name, gold) VALUES (?, ?)");
+        $stmt->bind_param('si', $name, $gold);
+    }
+
     echo json_encode($stmt->execute());
 ?>

@@ -6,11 +6,10 @@ function GetCharacters($dbservername, $dbusername, $dbpassword, $dbname, $dbtabl
         die("Connection failed: ".$conn-> connect_error);
     }
 
-    $sql = "SELECT * FROM `$dbtable_characters`";
-
-    $result = $conn-> query($sql);
-
-    return mysqli_fetch_all($result, MYSQLI_ASSOC);
+    $stmt = $conn->prepare("SELECT * FROM `$dbtable_characters`");
+    $stmt->execute();
+    $result = $stmt->get_result();
+    return $result->fetch_all(MYSQLI_ASSOC);
 }
 
 function GetCharacter($dbservername, $dbusername, $dbpassword, $dbname, $dbtable_characters, $id) {
@@ -24,6 +23,44 @@ function GetCharacter($dbservername, $dbusername, $dbpassword, $dbname, $dbtable
     $stmt->execute();
     $result = $stmt->get_result();
     return $result->fetch_assoc();
+}
+
+function GetRaid($dbservername, $dbusername, $dbpassword, $dbname, $dbtable_raids, $id) {
+    $conn = new mysqli($dbservername, $dbusername, $dbpassword, $dbname);
+    if ($conn-> connect_error) {
+        die("Connection failed: ".$conn-> connect_error);
+    }
+
+    $stmt = $conn->prepare("SELECT * FROM `$dbtable_raids` where id=?");
+    $stmt->bind_param('i', $id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    return $result->fetch_assoc();
+}
+
+function GetRaids($dbservername, $dbusername, $dbpassword, $dbname, $dbtable_raids) {
+    $conn = new mysqli($dbservername, $dbusername, $dbpassword, $dbname);
+    if ($conn-> connect_error) {
+        die("Connection failed: ".$conn-> connect_error);
+    }
+
+    $stmt = $conn->prepare("SELECT * FROM `$dbtable_raids`");
+    $stmt->execute();
+    $result = $stmt->get_result();
+    return $result->fetch_all(MYSQLI_ASSOC);
+}
+
+function GetAttendanceForRaid($dbservername, $dbusername, $dbpassword, $dbname, $dbtable_attendance, $dbtable_characters, $id){
+    $conn = new mysqli($dbservername, $dbusername, $dbpassword, $dbname);
+    if ($conn->connect_error) {
+        die("Connection failed: " . $conn->connect_error);
+    }
+
+    $stmt = $conn->prepare("SELECT * FROM `$dbtable_attendance` INNER JOIN `$dbtable_characters` ON `$dbtable_attendance`.`characterId`=`$dbtable_characters`.`id` WHERE `$dbtable_attendance`.`raidId`=?");
+    $stmt->bind_param('i', $id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    return $result->fetch_all(MYSQLI_ASSOC);
 }
 
 function ClassFromId($id) {
