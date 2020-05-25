@@ -13,6 +13,19 @@ function GetCharacters($dbservername, $dbusername, $dbpassword, $dbname, $dbtabl
     return mysqli_fetch_all($result, MYSQLI_ASSOC);
 }
 
+function GetCharacter($dbservername, $dbusername, $dbpassword, $dbname, $dbtable_characters, $id) {
+    $conn = new mysqli($dbservername, $dbusername, $dbpassword, $dbname);
+    if ($conn-> connect_error) {
+        die("Connection failed: ".$conn-> connect_error);
+    }
+
+    $stmt = $conn->prepare("SELECT * FROM `$dbtable_characters` where id=?");
+    $stmt->bind_param('i', $id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    return $result->fetch_assoc();
+}
+
 function ClassFromId($id) {
     switch ($id) {
         case 0:

@@ -105,14 +105,26 @@
                                             include_once './api/db_helper.php';
                                             $characters = GetCharacters($dbservername, $dbusername, $dbpassword, $dbname, $dbtable_characters);
 
-                                            foreach($characters as $character){
+                                            foreach($characters as $character):
                                              ?>
                                             <tr>
-                                                <td><span class="text-muted"> <?php echo $character['id']; ?> </span></td>
-                                                <td><a href="character.php?id=1" class="text-inherit"><?php echo $character['name']; ?></a>
+                                                <td>
+                                                    <span class="text-muted"> <?php echo $character['id']; ?> </span>
                                                 </td>
                                                 <td>
-                                                    <?php echo $character['main']; ?>
+                                                <a href="character.php?id=<?php echo $character['id']; ?>" class="text-inherit"><?php echo $character['name']; ?></a>
+                                                </td>
+                                                <td>
+                                                    <?php 
+                                                    $main = $character['main'];
+                                                    foreach($characters as $character){
+                                                        if($character["id"] == $main){
+                                                            ?>
+                                                            <a href="character.php?id=<?php echo $character['id']; ?>" class="text-inherit"><?php echo $character['name']; ?></a>
+                                                            <?php
+                                                        }
+                                                    }
+                                                    ?>
                                                 </td>
                                                 <td>
                                                     <?php echo ClassFromId($character['class']); ?>
@@ -124,9 +136,7 @@
                                                     <?php echo $character['change_date']; ?>
                                                 </td>
                                             </tr>
-                                            <?php 
-                                            }
-                                            ?>
+                                            <?php endforeach; ?>
                                         </tbody>
                                     </table>
                                 </div> <!-- table-responsive -->

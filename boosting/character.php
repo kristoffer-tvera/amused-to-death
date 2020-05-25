@@ -39,6 +39,7 @@
     <script src="./assets/plugins/maps-google/plugin.js"></script>
     <!-- Input Mask Plugin -->
     <script src="./assets/plugins/input-mask/plugin.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" integrity="sha256-ENFZrbVzylNbgnXx0n3I1g//2WeO47XxoPe0vkp3NC8=" crossorigin="anonymous" />
 </head>
 
 <body class="">
@@ -74,6 +75,31 @@
                     <div class="row row-cards row-deck">
 
                         <div class="col-12">
+                            <?php 
+                            include_once './api/db.php';
+                            include_once './api/db_helper.php';
+                            $id = 0;
+                            $name = "";
+                            $class = 0;
+                            $main = 0;
+                            $created = date("d-m-Y H:i:s");
+                            $updated = date("d-m-Y H:i:s");
+
+                            if(isset($_GET['id'])){
+                                $id = htmlspecialchars($_GET["id"]);
+                                $character = GetCharacter($dbservername, $dbusername, $dbpassword, $dbname, $dbtable_characters, $id);
+                                if(!empty($character)){
+                                    $id = $character["id"];
+                                    $name = $character["name"];
+                                    $class = $character["class"];
+                                    $main = $character["main"];
+                                    $created = $character["added_date"];
+                                    $updated = $character["change_date"];
+                                } else {
+                                    $id = "";
+                                }
+                            }
+                            ?>
                             <form action="/boosting/api/AddOrUpdateCharacter.php" method="post" class="card" id="characterform">
                                 <div class="card-header">
                                     <h3 class="card-title">Form elements</h3>
@@ -83,39 +109,53 @@
                                         <div class="col-12">
                                             <div class="form-group">
                                                 <label class="form-label">Id</label>
-                                                <div class="form-control-plaintext">-1</div>
-                                                <input type="hidden" name="id" value=""/>
+                                                <div class="form-control-plaintext"><?php echo $id ?></div>
+                                                <input type="hidden" name="id" value="<?php echo $id ?>"/>
                                             </div>
                                             <div class="form-group">
                                                 <label class="form-label">Name</label>
                                                 <input type="text" class="form-control" name="name"
-                                                    placeholder="Name.." required="required">
+                                                    placeholder="Name.." required="required" value="<?php echo $name ?>">
                                             </div>
 
                                             <div class="form-group">
                                                 <label class="form-label">Class</label>
                                                 <select name="class" id="select-class" class="form-control custom-select">
-                                                <option value="1">Mage</option>
-                                                <option value="4">Druid</option>
+                                                <option value="0" <?php if($class == 0) echo "selected=\"selected\""?>>Druid</option>
+                                                <option value="1" <?php if($class == 1) echo "selected=\"selected\""?>>Paladin</option>
+                                                <option value="2" <?php if($class == 2) echo "selected=\"selected\""?>>Warrior</option>
+                                                <option value="3" <?php if($class == 3) echo "selected=\"selected\""?>>Demon Hunter</option>
+                                                <option value="4" <?php if($class == 4) echo "selected=\"selected\""?>>Hunter</option>
+                                                <option value="5" <?php if($class == 5) echo "selected=\"selected\""?>>Mage</option>
+                                                <option value="6" <?php if($class == 6) echo "selected=\"selected\""?>>Rogue</option>
+                                                <option value="7" <?php if($class == 7) echo "selected=\"selected\""?>>Death Knight</option>
+                                                <option value="8" <?php if($class == 8) echo "selected=\"selected\""?>>Priest</option>
+                                                <option value="9" <?php if($class == 9) echo "selected=\"selected\""?>>Warlock</option>
+                                                <option value="10" <?php if($class == 10) echo "selected=\"selected\""?>>Shaman</option>
+                                                <option value="11" <?php if($class == 11) echo "selected=\"selected\""?>>Monk</option>
                                                 </select>
                                             </div>
 
                                             <div class="form-group">
                                                 <label class="form-label">Main</label>
                                                 <select name="main" id="select-main" class="form-control custom-select">
-                                                <option value="" selected>None</option>
-                                                <option value="1">Mage</option>
-                                                <option value="4">Druid</option>
+                                                <option value="-1" <?php if($main == 0) echo "selected=\"selected\"" ?>>None</option>
+                                                <?php
+                                                $characters = GetCharacters($dbservername, $dbusername, $dbpassword, $dbname, $dbtable_characters);
+                                                foreach($characters as $character):
+                                                ?>
+                                                <option value="<?php echo $character["id"] ?>" <?php if($main == $character["id"]) echo "selected=\"selected\"" ?> ><?php echo $character["name"] ?></option>
+                                                <?php endforeach; ?>
                                                 </select>
                                             </div>
 
                                             <div class="form-group">
                                                 <label class="form-label">Created</label>
-                                                <div class="form-control-plaintext">00/00/0000 00:00</div>
+                                                <div class="form-control-plaintext"><?php echo $created ?></div>
                                             </div>
                                             <div class="form-group">
                                                 <label class="form-label">Updated</label>
-                                                <div class="form-control-plaintext">00/00/0000 00:00</div>
+                                                <div class="form-control-plaintext"><?php echo $updated ?></div>
                                             </div>
                                         </div>
                                     </div>
@@ -204,6 +244,8 @@
             });
         });
 
+        require(['toastr']);
+
         var form = document.querySelector('#characterform');
         if (form) {
             form.addEventListener("submit", function(evt){
@@ -215,10 +257,9 @@
                 xhr.onreadystatechange = function() {
                     if (this.readyState == 4) {
                         if(this.status == 200){
-                            alert(xhr.responseText);
-
+                            toastr.success('Have fun storming the castle!', 'Miracle Max Says')
                         } else {
-                            alert('error');
+                            toastr.error('I do not think that word means what you think it means.', 'Inconceivable!')
                         }
                     }
                 };
