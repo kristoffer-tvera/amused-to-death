@@ -58,7 +58,7 @@
                                                     <span class="text-muted"> <?php echo $character['id']; ?> </span>
                                                 </td>
                                                 <td>
-                                                    <a href="character.php?id=<?php echo $character['id']; ?>"
+                                                    <a href="/boosting/character/?id=<?php echo $character['id']; ?>"
                                                         class="text-inherit"><?php echo $character['name']; ?></a>
                                                 </td>
                                                 <td>

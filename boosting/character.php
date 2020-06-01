@@ -179,7 +179,7 @@
                                                 <td>
                                                     <span class="text-muted"><?php echo $raid["raidId"] ?></span></td>
                                                 <td>
-                                                    <a href="raid.php?id=<?php echo $raid["raidId"] ?>"
+                                                    <a href="/boosting/raid/?id=<?php echo $raid["raidId"] ?>"
                                                         class="text-inherit"><?php echo $raid["name"] ?></a></td>
                                                 <td>
                                                     <?php echo $raid["bosses"] ?>

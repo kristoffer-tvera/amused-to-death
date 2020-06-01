@@ -42,7 +42,7 @@
                                              ?>
                                             <tr>
                                                 <td><span class="text-muted"><?php echo $raid['id']; ?></span></td>
-                                                <td><a href="raid.php?id=<?php echo $raid['id']; ?>"
+                                                <td><a href="/boosting/raid/?id=<?php echo $raid['id']; ?>"
                                                         class="text-inherit"><?php echo $raid['name']; ?></a></td>
                                                 <td>
                                                     <?php echo $raid['gold']; ?>
@@ -94,7 +94,7 @@
                                                     <span class="text-muted"> <?php echo $character['id']; ?> </span>
                                                 </td>
                                                 <td>
-                                                    <a href="character.php?id=<?php echo $character['id']; ?>"
+                                                    <a href="/boosting/character/?id=<?php echo $character['id']; ?>"
                                                         class="text-inherit"><?php echo $character['name']; ?></a>
                                                 </td>
                                                 <td>
@@ -103,7 +103,7 @@
                                                             foreach($characters as $mainCharacter){
                                                                 if($mainCharacter['id'] == $character['main']){
                                                                     ?>
-                                                    <a href="character.php?id=<?php echo $mainCharacter['id']; ?>"
+                                                    <a href="/boosting/character/?id=<?php echo $mainCharacter['id']; ?>"
                                                         class="text-inherit"><?php echo $mainCharacter['name']; ?></a>
                                                     <?php
                                                                 }

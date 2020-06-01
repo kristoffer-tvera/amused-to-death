@@ -120,7 +120,7 @@
                                         <input type="hidden" name="raid" value="<?php echo $attendee["raidId"]?>" />
                                     </div>
                                     <div class="col-6 col-lg-3 my-2 my-lg-0">
-                                        <a href="character.php?id=<?php echo $attendee["characterId"]?>"
+                                        <a href="/boosting/character/?id=<?php echo $attendee["characterId"]?>"
                                             class="text-inherit"><?php echo $attendee["name"]?></a>
                                     </div>
                                     <div class="col-5 col-lg-3 my-2 my-lg-0">

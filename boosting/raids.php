@@ -53,7 +53,7 @@
                                              ?>
                                             <tr>
                                                 <td><span class="text-muted"><?php echo $raid['id']; ?></span></td>
-                                                <td><a href="raid.php?id=<?php echo $raid['id']; ?>"
+                                                <td><a href="/boosting/raid/?id=<?php echo $raid['id']; ?>"
                                                         class="text-inherit"><?php echo $raid['name']; ?></a></td>
                                                 <td>
                                                     <?php echo $raid['gold']; ?>
