@@ -21,7 +21,7 @@
 
                         <div class="col-12">
                             <div class="card">
-                                <a href="character.php" class="card-header text-default justify-content-center">
+                                <a href="/boosting/character/" class="card-header text-default justify-content-center">
                                     <h3 class="card-title">New character</h3>
                                 </a>
                             </div>

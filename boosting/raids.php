@@ -22,7 +22,7 @@
 
                         <div class="col-12">
                             <div class="card">
-                                <a href="raid.php" class="card-header text-default justify-content-center">
+                                <a href="/boosting/raid/" class="card-header text-default justify-content-center">
                                     <h3 class="card-title">New raid</h3>
                                 </a>
                             </div>
