@@ -74,7 +74,7 @@
                     </div>
 
                     <div class="col-12">
-                    <?php 
+                        <?php 
                         include_once './api/db.php';
                         include_once './api/db_helper.php';
                         $id = "";
@@ -95,7 +95,8 @@
                             }
                         }
                         ?>
-                        <form action="/boosting/api/AddOrUpdateRaid.php" method="post" class="card" id="AddOrUpdateRaid">
+                        <form action="/boosting/api/AddOrUpdateRaid.php" method="post" class="card"
+                            id="AddOrUpdateRaid">
                             <div class="card-header">
                                 <h3 class="card-title">Form elements</h3>
                             </div>
@@ -105,18 +106,18 @@
                                         <div class="form-group">
                                             <label class="form-label">Id</label>
                                             <div class="form-control-plaintext"><?php echo $id ?></div>
-                                            <input type="hidden" name="id" value="<?php echo $id ?>"/>
+                                            <input type="hidden" name="id" value="<?php echo $id ?>" />
                                         </div>
                                         <div class="form-group">
                                             <label class="form-label">Name</label>
-                                            <input type="text" class="form-control" name="name"
-                                                placeholder="Name.." value="<?php echo $name ?>">
+                                            <input type="text" class="form-control" name="name" placeholder="Name.."
+                                                value="<?php echo $name ?>">
                                         </div>
 
                                         <div class="form-group">
                                             <label class="form-label">Gold</label>
-                                            <input type="number" class="form-control" name="gold"
-                                                placeholder="Gold.." value="<?php echo $gold ?>">
+                                            <input type="number" class="form-control" name="gold" placeholder="Gold.."
+                                                value="<?php echo $gold ?>">
                                         </div>
 
                                         <div class="form-group">
@@ -140,25 +141,22 @@
                     </div> <!-- col-12 -->
 
                     <?php if(!empty($raid)): ?>
+                    
                     <div class="col-12">
-                            <div class="card">
-                                <div class="card-header">
-                                    <h3 class="card-title">Players</h3>
+                        <div class="card">
+                            <div class="card-header">
+                                <h3 class="card-title">Players</h3>
+                            </div>
+                            <div class="card-body">
+                                <div class="row d-none d-lg-flex py-2 text-muted">
+                                    <div class="col-1 col-lg-1">Id</div>
+                                    <div class="col-6 col-lg-3">Name</div>
+                                    <div class="col-5 col-lg-3">Class</div>
+                                    <div class="col-6 col-lg-2">Bosses</div>
+                                    <div class="col-6 col-lg-1">Paid</div>
+                                    <div class="col-6 col-lg-1"></div>
+                                    <div class="col-6 col-lg-1"></div>
                                 </div>
-                                <div class="table-responsive">
-                                    <table class="table card-table table-vcenter text-nowrap">
-                                        <thead>
-                                            <tr>
-                                                <th class="w-1">Id.</th>
-                                                <th>Name</th>
-                                                <th>Class</th>
-                                                <th>Bosses</th>
-                                                <th>Paid</th>
-                                                <th></th>
-                                                <th></th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
                                         <?php 
                                         include_once './api/db.php';
                                         include_once './api/db_helper.php';
@@ -168,54 +166,58 @@
                                         if(!empty($attendees)){
                                         foreach($attendees as $attendee):
                                         ?>
-                                            <tr>
-                                                <td>
-                                                    <span class="text-muted"><?php echo $attendee["id"]?></span></td>
-                                                <td>
-                                                    <a href="raid.php?id=<?php echo $attendee["characterId"]?>" class="text-inherit"><?php echo $attendee["name"]?></a></td>
-                                                <td>
-                                                    <?php echo ClassFromId($attendee["class"]) ?>
-                                                </td>
-                                                <td>
-                                                    <label>
-                                                        <input type="number" value="<?php echo $attendee["bosses"]?>" />
-                                                    </label>
-                                                </td>
-                                                <td>
-                                                    <div class="custom-controls-stacked">
-                                                        <label class="custom-control custom-checkbox">
-                                                            <input type="checkbox" class="custom-control-input" name="example-checkbox1" value="option1" <?php $attendee["paid"] == 0 ? "" : "checked=\"checkek\""?>>
-                                                            <span class="custom-control-label"></span>
-                                                        </label>
-                                                    </div>
-                                                </td>
-                                                <td>
-                                                    <button type="submit" class="btn btn-primary">Update</button>
-                                                </td>
-                                                <td>
-                                                    <a href="/boosting/api/DeleteAttendanceForCharacter.php?characterId=<?php echo $attendee["characterId"]?>&raidId=<?php echo $id ?>&return=/boosting/raid.php&returnId=<?php echo $id ?>" class="btn btn-danger">Remove</a>
-                                                </td>
-                                            </tr>
-                                            <?php endforeach;} ?>
-                                        </tbody>
-                                    </table>
-                                </div> <!-- table-responsive -->
-                            </div> <!-- card -->
-                        </div> <!-- col-12 -->
+                                        <form class="row border-top py-2 update-attendance" action="/boosting/api/UpdateAttendance.php">
+                                            <div class="col-1 col-lg-1 my-2 my-lg-0">
+                                                <span class="text-muted"><?php echo $attendee["id"]?></span>
+                                                <input type="hidden" name="character" value="<?php echo $attendee["characterId"]?>" />
+                                                <input type="hidden" name="raid" value="<?php echo $attendee["raidId"]?>" />
+                                            </div>
+                                            <div class="col-6 col-lg-3 my-2 my-lg-0">
+                                                <a href="character.php?id=<?php echo $attendee["characterId"]?>"
+                                                    class="text-inherit"><?php echo $attendee["name"]?></a>
+                                            </div>
+                                            <div class="col-5 col-lg-3 my-2 my-lg-0">
+                                            <?php echo ClassFromId($attendee["class"]) ?>
 
-                        <div class="col-12">
-                            <div class="card">
-                                <div class="card-header">
-                                    <h3 class="card-title">Add players</h3>
-                                </div>
-                                <div class="card-body">
+                                            </div>
+                                            <div class="col-6 col-lg-2 my-2 my-lg-0">
+                                                <label class="mb-0 w-100">
+                                                    <input type="number" name="bosses" class="w-100" value="<?php echo $attendee["bosses"]?>" />
+                                                </label>
+                                            </div>
+                                            <div class="col-6 col-lg-1 my-2 my-lg-0">
+                                                <input type="checkbox" name="paid" value="1" <?php echo $attendee["paid"] == 0 ? "" : "checked=\"checked\""?> style="height: 22px; width: 22px;">
+                                                <span class="d-inline-block d-lg-none align-top"> (Paid) </span>
+                                            </div>
+                                            <div class="col-6 col-lg-1 my-2 my-lg-0">
+                                                <button type="submit" class="btn btn-primary btn-sm">Update</button>
+                                            </div>
+                                            <div class="col-6 col-lg-1 my-2 my-lg-0">
+                                            <a href="/boosting/api/DeleteAttendanceForCharacter.php?characterId=<?php echo $attendee["characterId"]?>&raidId=<?php echo $id ?>&return=/boosting/raid.php&returnId=<?php echo $id ?>"
+                                                    class="btn btn-danger btn-sm">Remove</a>
+                                            </div>
+                                        </form>
+
+                                        <?php endforeach;} ?>
+                                    
+                            </div> <!-- table-body -->
+                        </div> <!-- card -->
+                    </div> <!-- col-12 -->
+
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-header">
+                                <h3 class="card-title">Add players</h3>
+                            </div>
+                            <div class="card-body">
                                 <div class="row">
                                     <div class="col-12">
                                         <form action="/boosting/api/AddAttendance.php" method="post" id="AddAttendance">
                                             <div class="form-group">
                                                 <label class="form-label">Main</label>
-                                                <select name="character" id="select-character" class="form-control custom-select">
-                                                <?php
+                                                <select name="character" id="select-character"
+                                                    class="form-control custom-select">
+                                                    <?php
                                                 $characters = GetCharacters($dbservername, $dbusername, $dbpassword, $dbname, $dbtable_characters);
                                                 foreach($characters as $character):
                                                     $alreadyInTheRaid = false;
@@ -227,14 +229,15 @@
 
                                                     if($alreadyInTheRaid) continue;
                                                 ?>
-                                                <option value="<?php echo $character["id"] ?>"><?php echo $character["name"] ?></option>
-                                                <?php endforeach; ?>
+                                                    <option value="<?php echo $character["id"] ?>">
+                                                        <?php echo $character["name"] ?></option>
+                                                    <?php endforeach; ?>
                                                 </select>
                                             </div>
                                             <div class="form-group">
-                                                    <input type="hidden" name="raid" value="<?php echo $id ?>" />
-                                                    <input type="hidden" name="bosses" value="0" />
-                                                    <input type="hidden" name="return" value="/boosting/raid.php" />
+                                                <input type="hidden" name="raid" value="<?php echo $id ?>" />
+                                                <input type="hidden" name="bosses" value="0" />
+                                                <input type="hidden" name="return" value="/boosting/raid.php" />
                                             </div>
                                             <div class="form-group">
                                                 <input class="btn btn-primary" type="submit" value="Add">
@@ -243,9 +246,9 @@
                                     </div>
                                 </div>
                             </div>
-                            </div> <!-- card -->
-                        </div> <!-- col-12 -->
-                                                <?php endif; ?>
+                        </div> <!-- card -->
+                    </div> <!-- col-12 -->
+                    <?php endif; ?>
                 </div> <!-- row -->
             </div> <!-- container -->
         </div> <!-- my-3 my-md-5 -->
@@ -274,22 +277,22 @@
                         }
                     }
                 });
-        
+
                 $('#select-character').selectize({});
             });
         });
 
         var AddOrUpdateRaid = document.querySelector('#AddOrUpdateRaid');
-        if (AddOrUpdateRaid){
-            AddOrUpdateRaid.addEventListener("submit", function(evt){
+        if (AddOrUpdateRaid) {
+            AddOrUpdateRaid.addEventListener("submit", function (evt) {
                 evt.preventDefault();
 
                 let formData = new FormData(AddOrUpdateRaid);
                 let xhr = new XMLHttpRequest();
                 xhr.open("POST", AddOrUpdateRaid.getAttribute('action'));
-                xhr.onreadystatechange = function() {
+                xhr.onreadystatechange = function () {
                     if (this.readyState == 4) {
-                        if(this.status == 200){
+                        if (this.status == 200) {
                             alert('Raid Saved');
                         } else {
                             alert('error');
@@ -298,6 +301,31 @@
                 };
                 xhr.send(formData)
             }, true);
+        }
+    
+        var UpdateAttendance = document.querySelectorAll('form.update-attendance');
+        if (UpdateAttendance && UpdateAttendance.length > 0){
+            for(let i = 0; i < UpdateAttendance.length; i++){
+                let currentForm = UpdateAttendance[i];
+                currentForm.addEventListener("submit", function (evt) {
+                    evt.preventDefault();
+
+                    let formData = new FormData(currentForm);
+                    let xhr = new XMLHttpRequest();
+                    xhr.open("POST", currentForm.getAttribute('action'));
+                    xhr.onreadystatechange = function () {
+                        if (this.readyState == 4) {
+                            if (this.status == 200) {
+                                console.log(this)
+                                alert('attendance updated');
+                            } else {
+                                alert('error');
+                            }
+                        }
+                    };
+                    xhr.send(formData)
+                }, true);
+            }
         }
 
         // var AddAttendance = document.querySelector('#AddAttendance');
@@ -320,6 +348,7 @@
         //         xhr.send(formData)
         //     }, true);
         // }
+
     </script>
 </body>
 

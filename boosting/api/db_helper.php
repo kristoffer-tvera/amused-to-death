@@ -63,6 +63,19 @@ function GetAttendanceForRaid($dbservername, $dbusername, $dbpassword, $dbname, 
     return $result->fetch_all(MYSQLI_ASSOC);
 }
 
+function GetAttendanceForCharacter($dbservername, $dbusername, $dbpassword, $dbname, $dbtable_attendance, $dbtable_raids, $id){
+    $conn = new mysqli($dbservername, $dbusername, $dbpassword, $dbname);
+    if ($conn->connect_error) {
+        die("Connection failed: " . $conn->connect_error);
+    }
+
+    $stmt = $conn->prepare("SELECT * FROM `$dbtable_attendance` INNER JOIN `$dbtable_raids` ON `$dbtable_attendance`.`raidId`=`$dbtable_raids`.`id` WHERE `characterId`=?");
+    $stmt->bind_param('i', $id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    return $result->fetch_all(MYSQLI_ASSOC);
+}
+
 function ClassFromId($id) {
     switch ($id) {
         case 0:

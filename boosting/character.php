@@ -184,33 +184,41 @@
                                     <table class="table card-table table-vcenter text-nowrap">
                                         <thead>
                                             <tr>
-                                                <th class="w-1">Id.</th>
+                                                <th class="w-1">Id</th>
                                                 <th>Name</th>
                                                 <th>Bosses</th>
                                                 <th>Paid</th>
-                                                <th></th>
                                             </tr>
                                         </thead>
                                         <tbody>
+                                            <?php 
+                                            include_once './api/db.php';
+                                            include_once './api/db_helper.php';
+    
+                                            $raids = GetAttendanceForCharacter($dbservername, $dbusername, $dbpassword, $dbname, $dbtable_attendance, $dbtable_raids, $id);
+                                            
+                                            if(!empty($raids)){
+                                            foreach($raids as $raid):
+                                            ?>
                                             <tr>
-                                                <td><span class="text-muted">1</span></td>
-                                                <td><a href="raid.php?id=1" class="text-inherit">Char1</a></td>
                                                 <td>
-                                                    12
+                                                    <span class="text-muted"><?php echo $raid["raidId"] ?></span></td>
+                                                <td>
+                                                    <a href="raid.php?id=<?php echo $raid["raidId"] ?>" class="text-inherit"><?php echo $raid["name"] ?></a></td>
+                                                <td>
+                                                    <?php echo $raid["bosses"] ?>
                                                 </td>
                                                 <td>
                                                     <div class="custom-controls-stacked">
                                                         <label class="custom-control custom-checkbox">
-                                                            <input type="checkbox" class="custom-control-input"
-                                                                name="example-checkbox1" value="option1" checked="">
+                                                            <input type="checkbox" class="custom-control-input" <?php echo $raid["paid"] == 0 ? "" : "checked=\"checked\""?> disabled readonly>
                                                             <span class="custom-control-label"></span>
                                                         </label>
                                                     </div>
                                                 </td>
-                                                <td>
-                                                    <button type="submit" class="btn btn-primary">Update</button>
-                                                </td>
                                             </tr>
+                                            <?php endforeach;} ?>
+
                                         </tbody>
                                     </table>
                                 </div> <!-- table-responsive -->
@@ -250,28 +258,31 @@
             });
         });
 
-        require(['toastr']);
+        require(['toastr'], function(toastr) {
+            toastr.options.progressBar = true;
+            toastr.options.positionClass = "toast-bottom-center";
+            let form = document.querySelector('#characterform');
+            if (form) {
+                form.addEventListener("submit", function(evt){
+                    evt.preventDefault();
 
-        var form = document.querySelector('#characterform');
-        if (form) {
-            form.addEventListener("submit", function(evt){
-                evt.preventDefault();
-
-                let formData = new FormData(form);
-                let xhr = new XMLHttpRequest();
-                xhr.open("POST", form.getAttribute('action'));
-                xhr.onreadystatechange = function() {
-                    if (this.readyState == 4) {
-                        if(this.status == 200){
-                            toastr.success('Have fun storming the castle!', 'Miracle Max Says')
-                        } else {
-                            toastr.error('I do not think that word means what you think it means.', 'Inconceivable!')
+                    let formData = new FormData(form);
+                    let xhr = new XMLHttpRequest();
+                    xhr.open("POST", form.getAttribute('action'));
+                    xhr.onreadystatechange = function() {
+                        if (this.readyState == 4) {
+                            if(this.status == 200){
+                                toastr.success('Character was saved', 'A2D Boosting')
+                            } else {
+                                toastr.error('Character was NOT saved', 'A2D Boosting')
+                            }
                         }
-                    }
-                };
-                xhr.send(formData)
-            }, true);
-        }
+                    };
+                    xhr.send(formData)
+                }, true);
+            }
+        });
+
     </script>
 </body>
 

@@ -117,14 +117,15 @@
                                                 </td>
                                                 <td>
                                                     <?php 
-                                                    $main = $character['main'];
-                                                    foreach($characters as $mainCharacter){
-                                                        if($mainCharacter["id"] == $main){
-                                                            ?>
-                                                            <a href="character.php?id=<?php echo $character['id']; ?>" class="text-inherit"><?php echo $character['name']; ?></a>
-                                                            <?php
+                                                        if(!empty($character['main'])){
+                                                            foreach($characters as $mainCharacter){
+                                                                if($mainCharacter['id'] == $character['main']){
+                                                                    ?>
+                                                                    <a href="character.php?id=<?php echo $mainCharacter['id']; ?>" class="text-inherit"><?php echo $mainCharacter['name']; ?></a>
+                                                                    <?php
+                                                                }
+                                                            }
                                                         }
-                                                    }
                                                     ?>
                                                 </td>
                                                 <td>
