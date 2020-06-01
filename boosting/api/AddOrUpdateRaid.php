@@ -16,6 +16,9 @@
     $gold = $_POST["gold"];
     $gold = htmlspecialchars(strip_tags($gold));
 
+    $returnPath = $_POST["return"];
+    $returnPath = htmlspecialchars($returnPath);
+
     $conn = new mysqli($dbservername, $dbusername, $dbpassword, $dbname);
     if ($conn->connect_error) {
         die("Connection failed: " . $conn->connect_error);
@@ -29,5 +32,12 @@
         $stmt->bind_param('si', $name, $gold);
     }
 
-    echo json_encode($stmt->execute());
+    $stmt->execute();
+
+    if(empty($id)){
+        $id = $stmt->insert_id;
+    }
+
+    header('Location: ' . $returnPath . '?id=' . $id);
+    exit;
 ?>
