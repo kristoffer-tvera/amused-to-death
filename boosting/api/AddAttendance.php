@@ -5,6 +5,9 @@
     header("Access-Control-Max-Age: 3600");
     header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With");
 
+    $return = $_POST["return"];
+    $return = htmlspecialchars($return);
+
     include_once 'db.php';
 
     $character = $_POST["character"];
@@ -24,5 +27,8 @@
     $stmt = $conn->prepare("INSERT INTO `$dbtable_attendance` (characterId, raidId, bosses) VALUES (?, ?, ?)");
     $stmt->bind_param('iii', $character, $raid, $bosses);
 
-    echo json_encode($stmt->execute());
+    $stmt->execute();
+
+    header('Location: ' . $return . '?id=' . $raid);
+    exit;
 ?>

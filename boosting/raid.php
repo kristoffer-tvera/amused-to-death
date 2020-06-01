@@ -155,6 +155,7 @@
                                                 <th>Bosses</th>
                                                 <th>Paid</th>
                                                 <th></th>
+                                                <th></th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -164,14 +165,14 @@
 
                                         $attendees = GetAttendanceForRaid($dbservername, $dbusername, $dbpassword, $dbname, $dbtable_attendance, $dbtable_characters, $id);
 
-                                        var_dump($attendees);
-
                                         if(!empty($attendees)){
                                         foreach($attendees as $attendee):
                                         ?>
                                             <tr>
-                                                <td><span class="text-muted"><?php echo $attendee["id"]?></span></td>
-                                                <td><a href="raid.php?id=<?php echo $attendee["characterId"]?>" class="text-inherit"><?php echo $attendee["name"]?></a></td>
+                                                <td>
+                                                    <span class="text-muted"><?php echo $attendee["id"]?></span></td>
+                                                <td>
+                                                    <a href="raid.php?id=<?php echo $attendee["characterId"]?>" class="text-inherit"><?php echo $attendee["name"]?></a></td>
                                                 <td>
                                                     <?php echo ClassFromId($attendee["class"]) ?>
                                                 </td>
@@ -181,15 +182,18 @@
                                                     </label>
                                                 </td>
                                                 <td>
-                                                <div class="custom-controls-stacked">
-                                                    <label class="custom-control custom-checkbox">
-                                                        <input type="checkbox" class="custom-control-input" name="example-checkbox1" value="option1" <?php $attendee["paid"] == 0 ? "" : "checked=\"checkek\""?>>
-                                                        <span class="custom-control-label"></span>
-                                                    </label>
-                                                </div>
+                                                    <div class="custom-controls-stacked">
+                                                        <label class="custom-control custom-checkbox">
+                                                            <input type="checkbox" class="custom-control-input" name="example-checkbox1" value="option1" <?php $attendee["paid"] == 0 ? "" : "checked=\"checkek\""?>>
+                                                            <span class="custom-control-label"></span>
+                                                        </label>
+                                                    </div>
                                                 </td>
                                                 <td>
                                                     <button type="submit" class="btn btn-primary">Update</button>
+                                                </td>
+                                                <td>
+                                                    <a href="/boosting/api/DeleteAttendanceForCharacter.php?characterId=<?php echo $attendee["characterId"]?>&raidId=<?php echo $id ?>&return=/boosting/raid.php&returnId=<?php echo $id ?>" class="btn btn-danger">Remove</a>
                                                 </td>
                                             </tr>
                                             <?php endforeach;} ?>
@@ -207,13 +211,21 @@
                                 <div class="card-body">
                                 <div class="row">
                                     <div class="col-12">
-                                        <form action="/boosting/api/AddAttendance.php" id="AddAttendance">
+                                        <form action="/boosting/api/AddAttendance.php" method="post" id="AddAttendance">
                                             <div class="form-group">
                                                 <label class="form-label">Main</label>
                                                 <select name="character" id="select-character" class="form-control custom-select">
                                                 <?php
                                                 $characters = GetCharacters($dbservername, $dbusername, $dbpassword, $dbname, $dbtable_characters);
                                                 foreach($characters as $character):
+                                                    $alreadyInTheRaid = false;
+                                                    foreach($attendees as $attendee){
+                                                        if($attendee["id"] == $character["id"]){
+                                                            $alreadyInTheRaid = true;
+                                                        }
+                                                    }
+
+                                                    if($alreadyInTheRaid) continue;
                                                 ?>
                                                 <option value="<?php echo $character["id"] ?>"><?php echo $character["name"] ?></option>
                                                 <?php endforeach; ?>
@@ -222,9 +234,10 @@
                                             <div class="form-group">
                                                     <input type="hidden" name="raid" value="<?php echo $id ?>" />
                                                     <input type="hidden" name="bosses" value="0" />
+                                                    <input type="hidden" name="return" value="/boosting/raid.php" />
                                             </div>
                                             <div class="form-group">
-                                                <input class="btn btn-primary" type="submit" value="Submit">
+                                                <input class="btn btn-primary" type="submit" value="Add">
                                             </div>
                                         </form>
                                     </div>
@@ -287,26 +300,26 @@
             }, true);
         }
 
-        var AddAttendance = document.querySelector('#AddAttendance');
-        if (AddAttendance) {
-            AddAttendance.addEventListener("submit", function(evt){
-                evt.preventDefault();
+        // var AddAttendance = document.querySelector('#AddAttendance');
+        // if (AddAttendance) {
+        //     AddAttendance.addEventListener("submit", function(evt){
+        //         evt.preventDefault();
 
-                let formData = new FormData(AddAttendance);
-                let xhr = new XMLHttpRequest();
-                xhr.open("POST", AddAttendance.getAttribute('action'));
-                xhr.onreadystatechange = function() {
-                    if (this.readyState == 4) {
-                        if(this.status == 200){
-                            alert('added new char');
-                        } else {
-                            alert('error');
-                        }
-                    }
-                };
-                xhr.send(formData)
-            }, true);
-        }
+        //         let formData = new FormData(AddAttendance);
+        //         let xhr = new XMLHttpRequest();
+        //         xhr.open("POST", AddAttendance.getAttribute('action'));
+        //         xhr.onreadystatechange = function() {
+        //             if (this.readyState == 4) {
+        //                 if(this.status == 200){
+        //                     alert('added new char');
+        //                 } else {
+        //                     alert('error');
+        //                 }
+        //             }
+        //         };
+        //         xhr.send(formData)
+        //     }, true);
+        // }
     </script>
 </body>
 

@@ -115,7 +115,7 @@
                                                 <input type="hidden" name="id" value="<?php echo $id ?>"/>
                                             </div>
                                             <div class="form-group">
-                                                <label class="form-label">Id</label>
+                                                <label class="form-label">Ilvl</label>
                                                 <div class="form-control-plaintext"><?php echo $ilvl ?></div>
                                             </div>
                                             <div class="form-group">
