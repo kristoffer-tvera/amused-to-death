@@ -2,6 +2,7 @@
     $nav[] = array('name' => 'Home', 'icon' => 'fe fe-home', 'href' => '');
     $nav[] = array('name' => 'Raids', 'icon' => 'fe fe-database', 'href' => 'raids/');
     $nav[] = array('name' => 'Characters', 'icon' => 'fe fe-users', 'href' => 'characters/');
+    $nav[] = array('name' => 'Battle.net', 'icon' => 'fe fe-users', 'href' => 'bnet/');
     $including_filename = pathinfo(debug_backtrace()[0]['file'])['basename'];
 ?>
 <div class="header collapse d-lg-flex p-0" id="headerMenuCollapse">

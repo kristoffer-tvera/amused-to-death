@@ -138,6 +138,11 @@
                                                 <label class="form-label">Updated</label>
                                                 <div class="form-control-plaintext"><?php echo $updated ?></div>
                                             </div>
+                                            <?php if(!empty($id)):?>
+                                            <div class="form-group">
+                                                <div class="form-control-plaintext"><a class="btn btn-success" href="/boosting/api/BattleNetUpdateCharacter/?id=<?php echo $id ?>&return=/boosting/character/?id=<?php echo $id ?>">Update ilvl</a></div>
+                                            </div>
+                                            <?php endif;?>
                                         </div>
                                     </div>
                                 </div>
