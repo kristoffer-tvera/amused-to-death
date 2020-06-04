@@ -26,7 +26,11 @@
                             $id = 0;
                             $ilvl = 0;
                             $name = "";
+                            $realm = "draenor";
                             $class = 0;
+                            $role_tank = 0;
+                            $role_heal = 0;
+                            $role_dps = 0;
                             $main = 0;
                             $created = date("d-m-Y H:i:s");
                             $updated = date("d-m-Y H:i:s");
@@ -38,7 +42,11 @@
                                     $id = $character["id"];
                                     $ilvl = $character["ilvl"];
                                     $name = $character["name"];
+                                    $realm = $character["realm"];
                                     $class = $character["class"];
+                                    $role_tank = $character["role_tank"];
+                                    $role_heal = $character["role_heal"];
+                                    $role_dps = $character["role_dps"];
                                     $main = $character["main"];
                                     $created = $character["added_date"];
                                     $updated = $character["change_date"];
@@ -68,6 +76,12 @@
                                                 <label class="form-label">Name</label>
                                                 <input type="text" class="form-control" name="name" placeholder="Name.."
                                                     required="required" value="<?php echo $name ?>">
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="form-label">Realm</label>
+                                                <input list="realms" type="text" class="form-control" name="realm" placeholder="Realm (lowercase, shorthand, eg draenor, defias-brotherhood)"
+                                                    required="required" value="<?php echo $realm ?>">
+                                                <?php include('./partials/_realmlist.php') ?>
                                             </div>
 
                                             <div class="form-group">
@@ -128,6 +142,21 @@
                                                         <?php echo $character["name"] ?></option>
                                                     <?php endforeach; ?>
                                                 </select>
+                                            </div>
+                                            
+                                            <div class="form-group">
+                                                <div class="form-check form-check-inline">
+                                                    <input class="form-check-input" type="checkbox" id="role_tank" name="role_tank" value="1" <?php if($role_tank == 1) echo "checked" ?>>
+                                                    <label class="form-check-label" for="role_tank">Tank</label>
+                                                </div>
+                                                <div class="form-check form-check-inline">
+                                                    <input class="form-check-input" type="checkbox" id="role_heal" name="role_heal" value="1" <?php if($role_heal == 1) echo "checked" ?>>
+                                                    <label class="form-check-label" for="role_heal">Healer</label>
+                                                </div>
+                                                <div class="form-check form-check-inline">
+                                                    <input class="form-check-input" type="checkbox" id="role_dps" name="role_dps" value="1" <?php if($role_dps == 1) echo "checked" ?>>
+                                                    <label class="form-check-label" for="role_dps">Dps</label>
+                                                </div>
                                             </div>
 
                                             <div class="form-group">

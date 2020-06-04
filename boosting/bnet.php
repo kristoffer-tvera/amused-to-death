@@ -48,10 +48,6 @@
                         </div> <!-- card -->
                     </div> <!-- col-12 -->
 
-<?php echo '<pre>';
-var_dump($_SESSION);
-echo '</pre>'; ?>
-
                 </div> <!-- row -->
             </div> <!-- container -->
         </div> <!-- my-3 my-md-5 -->

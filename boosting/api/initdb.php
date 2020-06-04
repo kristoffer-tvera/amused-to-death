@@ -33,7 +33,11 @@ function Initialize_tables($dbservername, $dbusername, $dbpassword, $dbname, $db
         FOREIGN KEY (main) REFERENCES $dbtable_characters(id),
         name VARCHAR(30) NOT NULL,
         class INT(2) NOT NULL,
-        hidden BIT DEFAULT 0,
+        realm VARCHAR(50) NOT NULL DEFAULT 'draenor',
+        role_tank BIT NOT NULL DEFAULT 0,
+        role_heal BIT NOT NULL DEFAULT 0,
+        role_dps BIT NOT NULL DEFAULT 0,
+        hidden BIT NOT NULL DEFAULT 0,
         added_date DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
         change_date DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
         )";

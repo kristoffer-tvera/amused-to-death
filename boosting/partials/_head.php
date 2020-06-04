@@ -21,7 +21,7 @@
     <script src="/boosting/assets/js/require.min.js"></script>
     <script>
         requirejs.config({
-            baseUrl: '.'
+            baseUrl: '/boosting'
         });
         
     </script>

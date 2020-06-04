@@ -1,5 +1,7 @@
 <?php  session_start();
 
+    include_once 'db.php';
+    
     $return = '';
     if(isset($_GET["return"]) && !empty($_GET["return"])){
         $return = htmlspecialchars($_GET["return"]);
@@ -12,13 +14,25 @@
         $id = strtolower(htmlspecialchars($_GET["id"]));
     }
 
-    $name = 'bsl';
+    $conn = new mysqli($dbservername, $dbusername, $dbpassword, $dbname);
+    if ($conn->connect_error) {
+        die("Connection failed: " . $conn->connect_error);
+    } 
 
+    $stmt = $conn->prepare("SELECT * FROM `$dbtable_characters` WHERE id=?");
+    $stmt->bind_param('i', $id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    
+    $char = $result->fetch_assoc();
+
+    $name = strtolower($char["name"]);
+    $realm = strtolower($char["realm"]);
     //=======================================================================================================
     // Blizzard oAuth endpoint URL
     //=======================================================================================================
 
-    $url = "https://eu.api.blizzard.com/profile/wow/character/draenor/" . $name . "?namespace=profile-eu&locale=en_GB&access_token=" . $_SESSION['token'];
+    $url = "https://eu.api.blizzard.com/profile/wow/character/" . $realm . "/" . $name . "?namespace=profile-eu&locale=en_GB&access_token=" . $_SESSION['token'];
 
     $ch = curl_init( $url );
     curl_setopt( $ch, CURLOPT_RETURNTRANSFER, true);
@@ -37,6 +51,9 @@
 
     $ilvl = $decoded->average_item_level;
 
+    $stmt = $conn->prepare("UPDATE `$dbtable_characters` SET change_date=now(), ilvl=? WHERE id=?");
+    $stmt->bind_param('ii', $ilvl, $id);
+    $stmt->execute();
 
     header('Location: ' . $return);
     // exit;
