@@ -43,7 +43,8 @@
     curl_close( $ch );
 
     if ($status !== 200) {
-        throw new Exception('Failed to get character profile.');
+        // throw new Exception('Failed to get character profile.');
+        header('Location: ' . $return . '&error=true');
     }
 
     $decoded = json_decode($response);

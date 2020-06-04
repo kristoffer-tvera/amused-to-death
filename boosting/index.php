@@ -23,7 +23,7 @@
                                     <h3 class="card-title">Raids</h3>
                                 </div>
                                 <div class="table-responsive">
-                                    <table class="table card-table table-vcenter text-nowrap">
+                                    <table class="table card-table table-vcenter text-nowrap sortable">
                                         <thead>
                                             <tr>
                                                 <th class="w-1">Id.</th>
@@ -69,7 +69,7 @@
                                     <h3 class="card-title">Characters</h3>
                                 </div>
                                 <div class="table-responsive">
-                                    <table class="table card-table table-vcenter text-nowrap">
+                                    <table class="table card-table table-vcenter text-nowrap sortable">
                                         <thead>
                                             <tr>
                                                 <th class="w-1">Id.</th>
@@ -144,6 +144,11 @@
         <?php require './partials/_footer.php' ?>
     </div>
     <!-- page -->
+    <script>
+        require(['assets/js/vendors/sortable.min'], function (sortable) {
+            console.log('sortable loaded');
+        });
+    </script>
 </body>
 
 </html>

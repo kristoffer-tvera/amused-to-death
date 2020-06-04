@@ -26,7 +26,6 @@
         requirejs.config({
             baseUrl: '/boosting'
         });
-        
     </script>
     <!-- Dashboard Core -->
     <link href="/boosting/assets/css/dashboard.css" rel="stylesheet" />
@@ -39,5 +38,8 @@
     <script src="/boosting/assets/plugins/maps-google/plugin.js"></script>
     <!-- Input Mask Plugin -->
     <script src="/boosting/assets/plugins/input-mask/plugin.js"></script>
+    <!-- https://github.com/tofsjonas/sortable -->
+    <link href="/boosting/assets/css/sortable.min.css" rel="stylesheet" />
+    <!-- toastr -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" integrity="sha256-ENFZrbVzylNbgnXx0n3I1g//2WeO47XxoPe0vkp3NC8=" crossorigin="anonymous" />
 </head>

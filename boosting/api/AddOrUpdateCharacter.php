@@ -50,7 +50,7 @@
         $stmt = $conn->prepare("UPDATE `$dbtable_characters` SET change_date=now(), name=?, class=?, main=?, realm=?, role_tank=?, role_heal=?, role_dps=? WHERE id=?");
         $stmt->bind_param('siisiiii', $name, $class, $main, $realm, $tank, $heal, $dps, $id);
     } else {
-        $stmt = $conn->prepare("INSERT INTO `$dbtable_characters` (name, class, main, realm, role_tank, role_heal, role_dps) VALUES (?, ?, ?)");
+        $stmt = $conn->prepare("INSERT INTO `$dbtable_characters` (name, class, main, realm, role_tank, role_heal, role_dps) VALUES (?, ?, ?, ?, ?, ?, ?)");
         $stmt->bind_param('siisiii', $name, $class, $main, $realm, $tank, $heal, $dps);
     }
 
