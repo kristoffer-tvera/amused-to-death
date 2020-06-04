@@ -11,8 +11,11 @@
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="HandheldFriendly" content="True">
     <meta name="MobileOptimized" content="320">
-    <link rel="icon" href="./favicon.ico" type="image/x-icon" />
-    <link rel="shortcut icon" type="image/x-icon" href="/boosting/favicon.ico" />
+    <link rel="icon" type="image/x-icon" href="/boosting/assets/favicon.ico" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/boosting/assets/images/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/boosting/assets/images/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/boosting/assets/images/favicon-16x16.png">
+    <link rel="shortcut icon" type="image/x-icon" href="/boosting/assets/favicon.ico" />
     <!-- Generated: 2018-04-16 09:29:05 +0200 -->
     <title><?php echo $title ?></title>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">

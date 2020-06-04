@@ -42,7 +42,7 @@
                         <form action="/boosting/api/AddOrUpdateRaid.php" method="post" class="card"
                             id="AddOrUpdateRaid">
                             <div class="card-header">
-                                <h3 class="card-title">Form elements</h3>
+                                <h3 class="card-title">Raid</h3>
                             </div>
                             <div class="card-body">
                                 <div class="row">

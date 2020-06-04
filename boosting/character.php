@@ -1,3 +1,4 @@
+<?php session_start(); ?>
 <!doctype html>
 <html lang="en" dir="ltr">
 <?php 
@@ -58,7 +59,7 @@
                             <form action="/boosting/api/AddOrUpdateCharacter.php" method="post" class="card"
                                 id="characterform">
                                 <div class="card-header">
-                                    <h3 class="card-title">Form elements</h3>
+                                    <h3 class="card-title">Character</h3>
                                 </div>
                                 <div class="card-body">
                                     <div class="row">
@@ -167,11 +168,19 @@
                                                 <label class="form-label">Updated</label>
                                                 <div class="form-control-plaintext"><?php echo $updated ?></div>
                                             </div>
-                                            <?php if(!empty($id)):?>
+
+                                            <?php 
+                                                $token = '';
+                                                if(isset($_SESSION['token'])) $token = $_SESSION['token'];
+                                            ?>
+
+                                            <?php 
+                                            if(!empty($id) && ($_SESSION['token_create'] + $_SESSION['token_expire'])-time() > 0):
+                                            ?>
                                             <div class="form-group">
                                                 <div class="form-control-plaintext"><a class="btn btn-success" href="/boosting/api/BattleNetUpdateCharacter/?id=<?php echo $id ?>&return=/boosting/character/?id=<?php echo $id ?>">Update ilvl</a></div>
                                             </div>
-                                            <?php endif;?>
+                                            <?php endif; ?>
                                         </div>
                                     </div>
                                 </div>
