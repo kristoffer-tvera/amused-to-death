@@ -18,7 +18,8 @@ function Initialize_database($dbservername, $dbusername, $dbpassword, $dbname){
     }
 }
 
-function Initialize_tables($dbservername, $dbusername, $dbpassword, $dbname, $dbtable_characters, $dbtable_raids, $dbtable_attendance){    
+function Initialize_tables($dbservername, $dbusername, $dbpassword, $dbname, $dbtable_characters, $dbtable_raids, $dbtable_attendance, $dbtable_auth){   
+    $error = false; 
     // Create connection
     $conn = new mysqli($dbservername, $dbusername, $dbpassword, $dbname);
     // Check connection
@@ -46,7 +47,7 @@ function Initialize_tables($dbservername, $dbusername, $dbpassword, $dbname, $db
         echo "\n$dbtable_characters successfully created";
     } else {
         echo "\n$dbtable_characters was NOT created";
-        return false;
+        $error = true; 
     }
 
     $raidSql = "CREATE TABLE $dbtable_raids (
@@ -61,7 +62,21 @@ function Initialize_tables($dbservername, $dbusername, $dbpassword, $dbname, $db
         echo "\n$dbtable_raids successfully created";
     } else {
         echo "\n$dbtable_raids was NOT created";
-        return false;
+        $error = true; 
+    }
+
+    $authSql = "CREATE TABLE $dbtable_auth (
+        id INT(6) AUTO_INCREMENT PRIMARY KEY, 
+        token VARCHAR(26),
+        discord VARCHAR(50),
+        expire_date DATETIME NOT NULL
+        )";
+        
+    if ($conn->query($authSql) === TRUE) {
+        echo "\n$dbtable_auth successfully created";
+    } else {
+        echo "\n$dbtable_auth was NOT created";
+        $error = true; 
     }
 
     $attendanceSql = "CREATE TABLE $dbtable_attendance (
@@ -80,7 +95,11 @@ function Initialize_tables($dbservername, $dbusername, $dbpassword, $dbname, $db
         echo "\n$dbtable_raids successfully created";
     } else {
         echo "\n$dbtable_raids was NOT created";
-        return false;
+        $error = true; 
+    }
+
+    if($error){
+        echo 'One or more tables has NOT been created';
     }
 
     return true;
@@ -92,7 +111,7 @@ if(Initialize_database($dbservername, $dbusername, $dbpassword, $dbname)){
     echo "\nfailure in creating db";
 }
 
-if(Initialize_tables($dbservername, $dbusername, $dbpassword, $dbname, $dbtable_characters, $dbtable_raids, $dbtable_attendance)){
+if(Initialize_tables($dbservername, $dbusername, $dbpassword, $dbname, $dbtable_characters, $dbtable_raids, $dbtable_attendance, $dbtable_auth)){
     echo "\nTables created successfully";
 } else {
     echo "\nfailure in creating tables";

@@ -15,6 +15,11 @@
                         <a href="/boosting/<?php echo $navElement["href"]; ?>" class="nav-link <?php if($including_filename == $navElement["href"]) echo "active" ?>"><i class="<?php echo $navElement["icon"]; ?>"></i><?php echo $navElement["name"]; ?></a>
                     </li>
                     <?php endforeach; ?>
+                    <?php
+                    $user = $_SESSION['auth'];
+                    if(!empty($user)):?>
+                        <li class="nav-item ml-auto"> Hi, <?php echo $user ?></li>
+                    <?php endif;?>
                 </ul>
             </div>
         </div>

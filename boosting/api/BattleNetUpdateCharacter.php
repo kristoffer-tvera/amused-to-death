@@ -1,4 +1,9 @@
-<?php  session_start();
+<?php session_start();
+
+    if(empty($_SESSION['auth'])){
+        http_response_code(401);
+        exit;
+    }
 
     include_once 'db.php';
     

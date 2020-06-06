@@ -1,4 +1,10 @@
-<?php
+<?php session_start();
+
+    if(empty($_SESSION['auth'])){
+        http_response_code(401);
+        exit;
+    }
+
     header("Access-Control-Allow-Origin: *");
     header("Content-Type: application/json; charset=UTF-8");
     header("Access-Control-Allow-Methods: POST");
@@ -41,6 +47,9 @@
         $main = NULL;
     }
 
+    $returnPath = $_POST["return"];
+    $returnPath = htmlspecialchars($returnPath);
+
     $conn = new mysqli($dbservername, $dbusername, $dbpassword, $dbname);
     if ($conn->connect_error) {
         die("Connection failed: " . $conn->connect_error);
@@ -54,5 +63,12 @@
         $stmt->bind_param('siisiii', $name, $class, $main, $realm, $tank, $heal, $dps);
     }
 
-    echo json_encode($stmt->execute());
+    $stmt->execute();
+
+    if(empty($id)){
+        $id = $stmt->insert_id;
+    }
+
+    header('Location: ' . $returnPath . '?id=' . $id);
+    exit;
 ?>

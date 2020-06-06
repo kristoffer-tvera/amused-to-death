@@ -1,3 +1,4 @@
+<?php session_start(); ?>
 <!doctype html>
 <html lang="en" dir="ltr">
 <?php 
@@ -77,7 +78,7 @@
                             </div>
                             <div class="card-footer text-right">
                                 <div class="d-flex">
-                                    <input type="hidden" name="return" value="/boosting/raid.php" />
+                                    <input type="hidden" name="return" value="/boosting/raid/" />
                                     <button type="submit" class="btn btn-primary ml-auto">Save</button>
                                 </div>
                             </div>

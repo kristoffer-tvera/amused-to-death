@@ -186,6 +186,7 @@
                                 </div>
                                 <div class="card-footer text-right">
                                     <div class="d-flex">
+                                    <input type="hidden" name="return" value="/boosting/character/" />
                                         <button type="submit" class="btn btn-primary ml-auto">Save</button>
                                     </div>
                                 </div>
@@ -269,31 +270,6 @@
                 $('#select-class').selectize({});
                 $('#select-main').selectize({});
             });
-        });
-
-        require(['toastr'], function (toastr) {
-            toastr.options.progressBar = true;
-            toastr.options.positionClass = "toast-bottom-center";
-            let form = document.querySelector('#characterform');
-            if (form) {
-                form.addEventListener("submit", function (evt) {
-                    evt.preventDefault();
-
-                    let formData = new FormData(form);
-                    let xhr = new XMLHttpRequest();
-                    xhr.open("POST", form.getAttribute('action'));
-                    xhr.onreadystatechange = function () {
-                        if (this.readyState == 4) {
-                            if (this.status == 200) {
-                                toastr.success('Character was saved', 'A2D Boosting')
-                            } else {
-                                toastr.error('Character was NOT saved', 'A2D Boosting')
-                            }
-                        }
-                    };
-                    xhr.send(formData)
-                }, true);
-            }
         });
 
     </script>
