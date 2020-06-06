@@ -1,3 +1,4 @@
+<?php session_start(); ?>
 <!doctype html>
 <html lang="en" dir="ltr">
 <?php 
@@ -116,22 +117,26 @@
                             <div class="card">
                                 <div class="card-body">
                                     <div class="row row-sm align-items-center">
-                                        <div class="col-auto">
+                                        <div class="col-auto pr-0">
                                             <span class="avatar avatar-md" style="background-image: url(/boosting/assets/images/classes/<?php echo $main['class']; ?>.png)"></span>
                                         </div>
-                                        <div class="col">
-                                            <h3 class="mb-0">
-                                                <a href="/boosting/character/?id=<?php echo $main['id']; ?>"><?php echo $main["name"] ?></a>
+                                        <div class="col d-flex">
+                                            <h3 class="mb-0 mr-1">
+                                                <a href="/boosting/character/?id=<?php echo $main['id']; ?>" title="Ilvl: <?php echo $main['ilvl']; ?>"><?php echo $main["name"] ?></a>
                                                 <?php if($main['role_tank'] == 1): ?>
-                                                    <span class="avatar avatar-sm mx-2" style="background-image: url(/boosting/assets/images/roles/role_tank.png)"> </span>
+                                                    <span class="avatar avatar-sm" style="background-image: url(/boosting/assets/images/roles/role_tank.png)"> </span>
                                                 <?php endif; ?>
                                                 <?php if($main['role_heal'] == 1): ?>
-                                                    <span class="avatar avatar-sm mx-2" style="background-image: url(/boosting/assets/images/roles/role_heal.png)"> </span>
+                                                    <span class="avatar avatar-sm" style="background-image: url(/boosting/assets/images/roles/role_heal.png)"> </span>
                                                 <?php endif; ?>
                                                 <?php if($main['role_dps'] == 1): ?>
-                                                    <span class="avatar avatar-sm mx-2" style="background-image: url(/boosting/assets/images/roles/role_dps.png)"> </span>
+                                                    <span class="avatar avatar-sm" style="background-image: url(/boosting/assets/images/roles/role_dps.png)"> </span>
                                                 <?php endif; ?>
                                             </h3>
+
+                                            <a href="https://worldofwarcraft.com/en-gb/character/eu/<?php echo $main["realm"] ?>/<?php echo $main["name"] ?>" target="_blank" rel="noopener" class="px-1 border-left"><span class="avatar avatar-sm" style="background-image: url(/boosting/assets/images/external-sources/warcraft.png)"></a>
+                                            <a href="https://www.warcraftlogs.com/character/eu/<?php echo $main["realm"] ?>/<?php echo $main["name"] ?>" target="_blank" rel="noopener" class="px-1"><span class="avatar avatar-sm" style="background-image: url(/boosting/assets/images/external-sources/warcraftlogs.png)"></a>
+                                            <a href="https://raider.io/characters/eu/<?php echo $main["realm"] ?>/<?php echo $main["name"] ?>" target="_blank" rel="noopener" class="px-1"><span class="avatar avatar-sm" style="background-image: url(/boosting/assets/images/external-sources/raiderio.png)"></a>
                                         </div>
                                     </div>
                                     <hr class="my-3"/>
@@ -144,23 +149,26 @@
 
                                         foreach($alts as $alt):
                                         ?>
-                                        <div class="ml-2 row">
-                                            <div class="col-auto">
+                                        <div class="ml-2 row w-100">
+                                            <div class="col-auto px-0">
                                                 <span class="avatar avatar-sm" style="background-image: url(/boosting/assets/images/classes/<?php echo $alt['class']; ?>.png)"></span>
                                             </div>
-                                            <div class="col">
-                                                <h3 class="mb-0">
-                                                    <a href="/boosting/character/?id=<?php echo $alt['id']; ?>"><?php echo $alt["name"] ?></a>
+                                            <div class="col-auto d-flex px-1">
+                                                <h3 class="mb-0 mr-1">
+                                                    <a href="/boosting/character/?id=<?php echo $alt['id']; ?>" title="Ilvl: <?php echo $alt['ilvl']; ?>"><?php echo $alt["name"] ?></a>
                                                     <?php if($alt['role_tank'] == 1): ?>
-                                                        <span class="avatar avatar-sm mx-2" style="background-image: url(/boosting/assets/images/roles/role_tank.png)"> </span>
+                                                        <span class="avatar avatar-sm" style="background-image: url(/boosting/assets/images/roles/role_tank.png)"> </span>
                                                     <?php endif; ?>
                                                     <?php if($alt['role_heal'] == 1): ?>
-                                                        <span class="avatar avatar-sm mx-2" style="background-image: url(/boosting/assets/images/roles/role_heal.png)"> </span>
+                                                        <span class="avatar avatar-sm" style="background-image: url(/boosting/assets/images/roles/role_heal.png)"> </span>
                                                     <?php endif; ?>
                                                     <?php if($alt['role_dps'] == 1): ?>
-                                                        <span class="avatar avatar-sm mx-2" style="background-image: url(/boosting/assets/images/roles/role_dps.png)"> </span>
+                                                        <span class="avatar avatar-sm" style="background-image: url(/boosting/assets/images/roles/role_dps.png)"> </span>
                                                     <?php endif; ?>
                                                 </h3>
+                                                <a href="https://worldofwarcraft.com/en-gb/character/eu/<?php echo $alt["realm"] ?>/<?php echo $alt["name"] ?>" target="_blank" rel="noopener" class="px-1 border-left"><span class="avatar avatar-sm" style="background-image: url(/boosting/assets/images/external-sources/warcraft.png)"></a>
+                                                <a href="https://www.warcraftlogs.com/character/eu/<?php echo $alt["realm"] ?>/<?php echo $alt["name"] ?>" target="_blank" rel="noopener" class="px-1"><span class="avatar avatar-sm" style="background-image: url(/boosting/assets/images/external-sources/warcraftlogs.png)"></a>
+                                                <a href="https://raider.io/characters/eu/<?php echo $alt["realm"] ?>/<?php echo $alt["name"] ?>" target="_blank" rel="noopener" class="px-1"><span class="avatar avatar-sm" style="background-image: url(/boosting/assets/images/external-sources/raiderio.png)"></a>
                                             </div>
                                         </div>
                                         <?php endforeach; ?>
