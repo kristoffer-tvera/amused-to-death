@@ -7,13 +7,13 @@
 
     $token = '';
     if(isset($_POST["token"]) && !empty($_POST["token"])){
-        $token = strtolower(htmlspecialchars($_POST["token"]));
+        $token = htmlspecialchars($_POST["token"]);
     }
     if(empty($token)) die('No token provided');
 
     $discord = '';
     if(isset($_POST["discord"]) && !empty($_POST["discord"])){
-        $discord = strtolower(htmlspecialchars($_POST["discord"]));
+        $discord = htmlspecialchars($_POST["discord"]);
     }
     if(empty($discord)) die('No token provided');
 
