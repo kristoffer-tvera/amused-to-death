@@ -4,6 +4,14 @@
 <?php 
 	$title = "Debug - A2D";
     require './partials/_head.php';
+    $command = '';
+    if(isset($_GET["command"])){
+        $command = $_GET["command"];
+    }
+
+    if($command == "destroy_session"){
+        session_destroy();
+    }
 ?>
 
 <body class="">
