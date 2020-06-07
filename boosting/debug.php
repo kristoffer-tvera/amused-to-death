@@ -35,6 +35,7 @@
                                 <?php echo '<pre>';
                                 var_dump($_SESSION);
                                 echo '</pre>'; ?>
+                                <a href="?command=destroy_session" class="btn btn-danger"> Destroy session <a>
                             </div> <!-- card-body -->
                         </div> <!-- card -->
                     </div> <!-- col-12 -->
