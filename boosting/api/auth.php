@@ -1,7 +1,7 @@
 <?php session_start();
     $token = '';
     if(isset($_GET["token"]) && !empty($_GET["token"])){
-        $token = strtolower(htmlspecialchars($_GET["token"]));
+        $token = htmlspecialchars($_GET["token"]);
     }
 
     if(empty($token)) die('No token provided');
@@ -20,7 +20,9 @@
     
     $auth = $result->fetch_assoc();
 
-    if(empty($auth)) die("Invalid or expired token");
+    if(empty($auth)) die("Invalid token");
+
+    if(strtotime($auth['expire_date']) < strtotime("now")) die("Expired token");
 
     $_SESSION['auth'] = $auth['discord'];
 
