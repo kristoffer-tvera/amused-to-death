@@ -18,7 +18,7 @@ function Initialize_database($dbservername, $dbusername, $dbpassword, $dbname){
     }
 }
 
-function Initialize_tables($dbservername, $dbusername, $dbpassword, $dbname, $dbtable_characters, $dbtable_raids, $dbtable_attendance, $dbtable_auth){   
+function Initialize_tables($dbservername, $dbusername, $dbpassword, $dbname, $dbtable_characters, $dbtable_raids, $dbtable_attendance, $dbtable_auth, $dbtable_log){   
     $error = false; 
     // Create connection
     $conn = new mysqli($dbservername, $dbusername, $dbpassword, $dbname);
@@ -98,11 +98,25 @@ function Initialize_tables($dbservername, $dbusername, $dbpassword, $dbname, $db
         $error = true; 
     }
 
-    if($error){
-        echo 'One or more tables has NOT been created';
+    $logSql = "CREATE TABLE $dbtable_log (
+        id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY, 
+        `query` TEXT NOT NULL,
+        `user` VARCHAR(40) NOT NULL,
+        `date` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+        )";
+
+    if ($conn->query($logSql) === TRUE) {
+        echo "\n$dbtable_log successfully created";
+    } else {
+        echo "\n$dbtable_log was NOT created";
+        $error = true; 
     }
 
-    return true;
+    if($error){
+        echo "\nOne or more tables has NOT been created";
+    }
+
+    return !$error;
 }
 
 if(Initialize_database($dbservername, $dbusername, $dbpassword, $dbname)){
@@ -111,7 +125,7 @@ if(Initialize_database($dbservername, $dbusername, $dbpassword, $dbname)){
     echo "\nfailure in creating db";
 }
 
-if(Initialize_tables($dbservername, $dbusername, $dbpassword, $dbname, $dbtable_characters, $dbtable_raids, $dbtable_attendance, $dbtable_auth)){
+if(Initialize_tables($dbservername, $dbusername, $dbpassword, $dbname, $dbtable_characters, $dbtable_raids, $dbtable_attendance, $dbtable_auth, $dbtable_log)){
     echo "\nTables created successfully";
 } else {
     echo "\nfailure in creating tables";

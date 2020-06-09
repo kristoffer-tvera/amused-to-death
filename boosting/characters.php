@@ -100,7 +100,7 @@
 
                     <div class="page-header">
                         <h1 class="page-title">
-                            Mains
+                            Players
                         </h1>
                     </div>
 

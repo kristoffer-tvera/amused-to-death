@@ -30,6 +30,12 @@
     $stmt->bind_param('ii', $characterId, $raidId);
     $stmt->execute();
     $result = $stmt->get_result();
+
+    // Query Logging
+    $sql = "DELETE FROM $dbtable_attendance WHERE characterId=$characterId AND raidId=$raidId";
+    $log = $conn->prepare("INSERT INTO `$dbtable_log` (query, user) VALUES (?, ?)");
+    $log->bind_param('ss', $sql, $_SESSION['auth']);
+    $log->execute();
     
     header('Location: ' . $returnPath . '?id=' . $returnId);
     exit;

@@ -91,7 +91,7 @@
                     <div class="col-12">
                         <div class="card">
                             <div class="card-header">
-                                <h3 class="card-title">Players</h3>
+                                <h3 class="card-title">Characters</h3>
                             </div>
                             <div class="card-body">
                                 <div class="row d-none d-lg-flex py-2 text-muted">
@@ -105,14 +105,14 @@
                                     <div class="col-6 col-lg-1"></div>
                                 </div>
                                 <?php 
-                                        include_once './api/db.php';
-                                        include_once './api/db_helper.php';
+                                    include_once './api/db.php';
+                                    include_once './api/db_helper.php';
 
-                                        $attendees = GetAttendanceForRaid($dbservername, $dbusername, $dbpassword, $dbname, $dbtable_attendance, $dbtable_characters, $id);
+                                    $attendees = GetAttendanceForRaid($dbservername, $dbusername, $dbpassword, $dbname, $dbtable_attendance, $dbtable_characters, $id);
 
-                                        if(!empty($attendees)){
-                                        foreach($attendees as $attendee):
-                                        ?>
+                                    if(!empty($attendees)){
+                                    foreach($attendees as $attendee):
+                                    ?>
                                 <form class="row border-top py-2 update-attendance"
                                     action="/boosting/api/UpdateAttendance.php">
                                     <div class="col-1 col-lg-1 my-2 my-lg-0">
@@ -160,17 +160,91 @@
                         </div> <!-- card -->
                     </div> <!-- col-12 -->
 
+                    <div class="page-header">
+                        <h1 class="page-title">
+                            Players
+                        </h1>
+                    </div>
+
+                    <div class="d-flex flex-wrap">
+                        <?php
+                        $mains = array(); 
+                        foreach($attendees as $attendee){
+                            if(empty($attendee["main"])) $mains[] = $attendee;
+                        }
+
+                        foreach($mains as $main):
+                        ?>
+                        <div class="col-md-6 col-lg-4">
+                            <div class="card">
+                                <div class="card-body">
+                                    <div class="row row-sm align-items-center">
+                                        <div class="col-auto pr-0">
+                                            <span class="avatar avatar-md" style="background-image: url(/boosting/assets/images/classes/<?php echo $main['class']; ?>.png)"></span>
+                                        </div>
+                                        <div class="col d-flex">
+                                            <h3 class="mb-0 mr-1">
+                                                <a href="/boosting/character/?id=<?php echo $main['id']; ?>" title="Ilvl: <?php echo $main['ilvl']; ?>"><?php echo $main["name"] ?></a>
+                                                <?php if($main['role_tank'] == 1): ?>
+                                                    <span class="avatar avatar-sm" style="background-image: url(/boosting/assets/images/roles/role_tank.png)"> </span>
+                                                <?php endif; ?>
+                                                <?php if($main['role_heal'] == 1): ?>
+                                                    <span class="avatar avatar-sm" style="background-image: url(/boosting/assets/images/roles/role_heal.png)"> </span>
+                                                <?php endif; ?>
+                                                <?php if($main['role_dps'] == 1): ?>
+                                                    <span class="avatar avatar-sm" style="background-image: url(/boosting/assets/images/roles/role_dps.png)"> </span>
+                                                <?php endif; ?>
+                                            </h3>
+                                        </div>
+                                    </div>
+                                    <hr class="my-3"/>
+                                    <div class="row align-items-center mt-4">
+                                        <?php 
+                                        $alts = array();
+                                        foreach($attendees as $attendee){
+                                            if($attendee["main"] == $main['id']) $alts[] = $attendee;
+                                        }
+
+                                        foreach($alts as $alt):
+                                        ?>
+                                        <div class="ml-2 row w-100">
+                                            <div class="col-auto px-0">
+                                                <span class="avatar avatar-sm" style="background-image: url(/boosting/assets/images/classes/<?php echo $alt['class']; ?>.png)"></span>
+                                            </div>
+                                            <div class="col-auto d-flex px-1">
+                                                <h3 class="mb-0 mr-1">
+                                                    <a href="/boosting/character/?id=<?php echo $alt['id']; ?>" title="Ilvl: <?php echo $alt['ilvl']; ?>"><?php echo $alt["name"] ?></a>
+                                                    <?php if($alt['role_tank'] == 1): ?>
+                                                        <span class="avatar avatar-sm" style="background-image: url(/boosting/assets/images/roles/role_tank.png)"> </span>
+                                                    <?php endif; ?>
+                                                    <?php if($alt['role_heal'] == 1): ?>
+                                                        <span class="avatar avatar-sm" style="background-image: url(/boosting/assets/images/roles/role_heal.png)"> </span>
+                                                    <?php endif; ?>
+                                                    <?php if($alt['role_dps'] == 1): ?>
+                                                        <span class="avatar avatar-sm" style="background-image: url(/boosting/assets/images/roles/role_dps.png)"> </span>
+                                                    <?php endif; ?>
+                                                </h3>
+                                            </div>
+                                        </div>
+                                        <?php endforeach; ?>
+                                    </div>
+                                </div><!-- card-body -->
+                            </div><!-- card -->
+                        </div> <!-- col-md-6 col-lg-4 -->
+                        <?php endforeach; ?>
+                    </div><!-- d-flex flex-wrap -->
+
                     <div class="col-12">
                         <div class="card">
                             <div class="card-header">
-                                <h3 class="card-title">Add players</h3>
+                                <h3 class="card-title">Add characters</h3>
                             </div>
                             <div class="card-body">
                                 <div class="row">
                                     <div class="col-12">
                                         <form action="/boosting/api/AddAttendance.php" method="post" id="AddAttendance">
                                             <div class="form-group">
-                                                <label class="form-label">Main</label>
+                                                <label class="form-label">Select character</label>
                                                 <select name="character" id="select-character"
                                                     class="form-control custom-select">
                                                     <?php
@@ -205,6 +279,8 @@
                         </div> <!-- card -->
                     </div> <!-- col-12 -->
                     <?php endif; ?>
+
+
                 </div> <!-- row -->
             </div> <!-- container -->
         </div> <!-- my-3 my-md-5 -->

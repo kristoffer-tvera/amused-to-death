@@ -58,12 +58,21 @@
     if(!empty($id)){
         $stmt = $conn->prepare("UPDATE `$dbtable_characters` SET change_date=now(), name=?, class=?, main=?, realm=?, role_tank=?, role_heal=?, role_dps=? WHERE id=?");
         $stmt->bind_param('siisiiii', $name, $class, $main, $realm, $tank, $heal, $dps, $id);
+
+        $sql = "UPDATE $dbtable_characters SET change_date=now(), name=$name, class=$class, main=$main, realm=$realm, role_tank=$tank, role_heal=$heal, role_dps=$dps WHERE id=$id";
     } else {
         $stmt = $conn->prepare("INSERT INTO `$dbtable_characters` (name, class, main, realm, role_tank, role_heal, role_dps) VALUES (?, ?, ?, ?, ?, ?, ?)");
         $stmt->bind_param('siisiii', $name, $class, $main, $realm, $tank, $heal, $dps);
+
+        $sql = "INSERT INTO $dbtable_characters (name, class, main, realm, role_tank, role_heal, role_dps) VALUES ($name, $class, $main, $realm, $tank, $heal, $dps)";
     }
 
     $stmt->execute();
+
+    // Query Logging
+    $log = $conn->prepare("INSERT INTO `$dbtable_log` (query, user) VALUES (?, ?)");
+    $log->bind_param('ss', $sql, $_SESSION['auth']);
+    $log->execute();
 
     if(empty($id)){
         $id = $stmt->insert_id;
