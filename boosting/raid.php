@@ -98,7 +98,8 @@
                                     <div class="col-1 col-lg-1">Id</div>
                                     <div class="col-6 col-lg-3">Name</div>
                                     <div class="col-5 col-lg-3">Class</div>
-                                    <div class="col-6 col-lg-2">Bosses</div>
+                                    <div class="col-6 col-lg-1">Cut</div>
+                                    <div class="col-6 col-lg-1">Bosses</div>
                                     <div class="col-6 col-lg-1">Paid</div>
                                     <div class="col-6 col-lg-1"></div>
                                     <div class="col-6 col-lg-1"></div>
@@ -126,9 +127,13 @@
                                     </div>
                                     <div class="col-5 col-lg-3 my-2 my-lg-0">
                                         <?php echo ClassFromId($attendee["class"]) ?>
-
                                     </div>
-                                    <div class="col-6 col-lg-2 my-2 my-lg-0">
+                                    <div class="col-6 col-lg-1 my-2 my-lg-0">
+                                        <label class="mb-0 w-100">
+                                            <input type="number" disabled="disabled" class="w-100" data-cut>
+                                        </label>
+                                    </div>
+                                    <div class="col-6 col-lg-1 my-2 my-lg-0">
                                         <label class="mb-0 w-100">
                                             <input type="number" name="bosses" class="w-100"
                                                 value="<?php echo $attendee["bosses"]?>" />
@@ -235,7 +240,7 @@
                     let currentForm = UpdateAttendance[i];
                     currentForm.addEventListener("submit", function (evt) {
                         evt.preventDefault();
-
+                        UpdateCut()
                         let formData = new FormData(currentForm);
                         let xhr = new XMLHttpRequest();
                         xhr.open("POST", currentForm.getAttribute('action'));
@@ -254,6 +259,56 @@
             }
 
         });
+
+        let goldField = document.querySelector('input[name="gold"]');
+        if (goldField) {
+            goldField.addEventListener('input', UpdateCut);
+        }
+
+        function UpdateCut(){
+            let gold = 0;
+            if (goldField) {
+                let value = goldField.value;
+                gold = Number.parseInt(value);
+            }
+            if(gold == 0) return;
+            let remainingGold = gold;
+
+            let bossCount = 0;
+            let attendance = document.querySelectorAll('form.update-attendance');
+            if (!attendance) return;
+            for(let i = 0; i < attendance.length; i++){
+                let currentBossCountField = attendance[i].querySelector('input[name="bosses"]');
+                if (!currentBossCountField) continue;
+
+                let currentBossCount = Number.parseInt(currentBossCountField.value);
+                bossCount += currentBossCount;
+            }
+
+            let share = gold / bossCount;
+
+            if(bossCount == 0) return;
+            
+            for(let i = 0; i < attendance.length; i++){
+                let currentBossCountField = attendance[i].querySelector('input[name="bosses"]');
+                if (!currentBossCountField) continue;
+                let currentBossCount = Number.parseInt(currentBossCountField.value);
+
+                let currentCutField = attendance[i].querySelector('input[data-cut]');
+                if (!currentCutField) continue;
+                //let currentCut = Number.parseInt(currentCutField.value);
+
+                let cut = share * currentBossCount;
+                
+                cut = Math.floor(cut / 5000) * 5000;
+
+                currentCutField.value = cut;
+                remainingGold -= cut;
+            }
+
+            console.log('GuildBank: ' + remainingGold);
+        }
+        UpdateCut();
 
     </script>
 </body>
