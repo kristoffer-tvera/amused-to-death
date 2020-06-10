@@ -23,7 +23,7 @@ async def on_ready():
 async def on_message(message):
     if message.author == client.user:
         return
-    if message.channel.id not in [718945308117303307, 433559219841531905]: #whitelist
+    if message.channel.id not in [692040942722482186, 433559219841531905]: #whitelist 692040942722482186
         return
 
     if message.content == '!mudkip':

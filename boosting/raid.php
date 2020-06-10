@@ -87,78 +87,7 @@
                     </div> <!-- col-12 -->
 
                     <?php if(!empty($raid)): ?>
-
-                    <div class="col-12">
-                        <div class="card">
-                            <div class="card-header">
-                                <h3 class="card-title">Characters</h3>
-                            </div>
-                            <div class="card-body">
-                                <div class="row d-none d-lg-flex py-2 text-muted">
-                                    <div class="col-1 col-lg-1">Id</div>
-                                    <div class="col-6 col-lg-3">Name</div>
-                                    <div class="col-5 col-lg-3">Class</div>
-                                    <div class="col-6 col-lg-1">Cut</div>
-                                    <div class="col-6 col-lg-1">Bosses</div>
-                                    <div class="col-6 col-lg-1">Paid</div>
-                                    <div class="col-6 col-lg-1"></div>
-                                    <div class="col-6 col-lg-1"></div>
-                                </div>
-                                <?php 
-                                    include_once './api/db.php';
-                                    include_once './api/db_helper.php';
-
-                                    $attendees = GetAttendanceForRaid($dbservername, $dbusername, $dbpassword, $dbname, $dbtable_attendance, $dbtable_characters, $id);
-
-                                    if(!empty($attendees)){
-                                    foreach($attendees as $attendee):
-                                    ?>
-                                <form class="row border-top py-2 update-attendance"
-                                    action="/boosting/api/UpdateAttendance.php">
-                                    <div class="col-1 col-lg-1 my-2 my-lg-0">
-                                        <span class="text-muted"><?php echo $attendee["id"]?></span>
-                                        <input type="hidden" name="character"
-                                            value="<?php echo $attendee["characterId"]?>" />
-                                        <input type="hidden" name="raid" value="<?php echo $attendee["raidId"]?>" />
-                                    </div>
-                                    <div class="col-6 col-lg-3 my-2 my-lg-0">
-                                        <a href="/boosting/character/?id=<?php echo $attendee["characterId"]?>"
-                                            class="text-inherit"><?php echo $attendee["name"]?></a>
-                                    </div>
-                                    <div class="col-5 col-lg-3 my-2 my-lg-0">
-                                        <?php echo ClassFromId($attendee["class"]) ?>
-                                    </div>
-                                    <div class="col-6 col-lg-1 my-2 my-lg-0">
-                                        <label class="mb-0 w-100">
-                                            <input type="number" disabled="disabled" class="w-100" data-cut>
-                                        </label>
-                                    </div>
-                                    <div class="col-6 col-lg-1 my-2 my-lg-0">
-                                        <label class="mb-0 w-100">
-                                            <input type="number" name="bosses" class="w-100"
-                                                value="<?php echo $attendee["bosses"]?>" />
-                                        </label>
-                                    </div>
-                                    <div class="col-6 col-lg-1 my-2 my-lg-0">
-                                        <input type="checkbox" name="paid" value="1"
-                                            <?php echo $attendee["paid"] == 0 ? "" : "checked=\"checked\""?>
-                                            style="height: 22px; width: 22px;">
-                                        <span class="d-inline-block d-lg-none align-top"> (Paid) </span>
-                                    </div>
-                                    <div class="col-6 col-lg-1 my-2 my-lg-0">
-                                        <button type="submit" class="btn btn-primary btn-sm">Update</button>
-                                    </div>
-                                    <div class="col-6 col-lg-1 my-2 my-lg-0">
-                                        <a href="/boosting/api/DeleteAttendanceForCharacter.php?characterId=<?php echo $attendee["characterId"]?>&raidId=<?php echo $id ?>&return=/boosting/raid.php&returnId=<?php echo $id ?>"
-                                            class="btn btn-danger btn-sm">Remove</a>
-                                    </div>
-                                </form>
-
-                                <?php endforeach;} ?>
-
-                            </div> <!-- table-body -->
-                        </div> <!-- card -->
-                    </div> <!-- col-12 -->
+                    <?php $attendees = GetAttendanceForRaid($dbservername, $dbusername, $dbpassword, $dbname, $dbtable_attendance, $dbtable_characters, $id); ?>
 
                     <div class="page-header">
                         <h1 class="page-title">
@@ -278,6 +207,74 @@
                             </div>
                         </div> <!-- card -->
                     </div> <!-- col-12 -->
+
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-header">
+                                <h3 class="card-title">Characters</h3>
+                            </div>
+                            <div class="card-body">
+                                <div class="row d-none d-lg-flex py-2 text-muted">
+                                    <div class="col-1 col-lg-1">Id</div>
+                                    <div class="col-6 col-lg-3">Name</div>
+                                    <div class="col-5 col-lg-3">Class</div>
+                                    <div class="col-6 col-lg-1">Cut</div>
+                                    <div class="col-6 col-lg-1">Bosses</div>
+                                    <div class="col-6 col-lg-1">Paid</div>
+                                    <div class="col-6 col-lg-1"></div>
+                                    <div class="col-6 col-lg-1"></div>
+                                </div>
+                                <?php 
+                                    if(!empty($attendees)){
+                                    foreach($attendees as $attendee):
+                                    ?>
+                                <form class="row border-top py-2 update-attendance"
+                                    action="/boosting/api/UpdateAttendance.php">
+                                    <div class="col-1 col-lg-1 my-2 my-lg-0">
+                                        <span class="text-muted"><?php echo $attendee["id"]?></span>
+                                        <input type="hidden" name="character"
+                                            value="<?php echo $attendee["characterId"]?>" />
+                                        <input type="hidden" name="raid" value="<?php echo $attendee["raidId"]?>" />
+                                    </div>
+                                    <div class="col-6 col-lg-3 my-2 my-lg-0">
+                                        <a href="/boosting/character/?id=<?php echo $attendee["characterId"]?>"
+                                            class="text-inherit"><?php echo $attendee["name"]?></a>
+                                    </div>
+                                    <div class="col-5 col-lg-3 my-2 my-lg-0">
+                                        <?php echo ClassFromId($attendee["class"]) ?>
+                                    </div>
+                                    <div class="col-6 col-lg-1 my-2 my-lg-0">
+                                        <label class="mb-0 w-100">
+                                            <input type="number" disabled="disabled" class="w-100" data-cut>
+                                        </label>
+                                    </div>
+                                    <div class="col-6 col-lg-1 my-2 my-lg-0">
+                                        <label class="mb-0 w-100">
+                                            <input type="number" name="bosses" class="w-100"
+                                                value="<?php echo $attendee["bosses"]?>" />
+                                        </label>
+                                    </div>
+                                    <div class="col-6 col-lg-1 my-2 my-lg-0">
+                                        <input type="checkbox" name="paid" value="1"
+                                            <?php echo $attendee["paid"] == 0 ? "" : "checked=\"checked\""?>
+                                            style="height: 22px; width: 22px;">
+                                        <span class="d-inline-block d-lg-none align-top"> (Paid) </span>
+                                    </div>
+                                    <div class="col-6 col-lg-1 my-2 my-lg-0">
+                                        <button type="submit" class="btn btn-primary btn-sm">Update</button>
+                                    </div>
+                                    <div class="col-6 col-lg-1 my-2 my-lg-0">
+                                        <a href="/boosting/api/DeleteAttendanceForCharacter.php?characterId=<?php echo $attendee["characterId"]?>&raidId=<?php echo $id ?>&return=/boosting/raid.php&returnId=<?php echo $id ?>"
+                                            class="btn btn-danger btn-sm">Remove</a>
+                                    </div>
+                                </form>
+
+                                <?php endforeach;} ?>
+
+                            </div> <!-- table-body -->
+                        </div> <!-- card -->
+                    </div> <!-- col-12 -->
+
                     <?php endif; ?>
 
 
