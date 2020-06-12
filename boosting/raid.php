@@ -89,23 +89,24 @@
                     <?php if(!empty($raid)): ?>
                     <?php $attendees = GetAttendanceForRaid($dbservername, $dbusername, $dbpassword, $dbname, $dbtable_attendance, $dbtable_characters, $id); ?>
 
-                    <div class="page-header">
+                    <div class="page-header" data-players-header>
                         <h1 class="page-title">
                             Players
                         </h1>
                     </div>
 
-                    <div class="d-flex flex-wrap">
+                    <div class="d-flex flex-wrap" data-players>
                         <?php
                         $mains = array(); 
                         foreach($attendees as $attendee){
                             if(empty($attendee["main"])) $mains[] = $attendee;
                         }
-
+                        $playerIndex = -1;
                         foreach($mains as $main):
+                            $playerIndex++;
                         ?>
                         <div class="col-md-6 col-lg-4">
-                            <div class="card">
+                            <div class="card" data-player-id="<?php echo $playerIndex ?>">
                                 <div class="card-body">
                                     <div class="row row-sm align-items-center">
                                         <div class="col-auto pr-0">
@@ -163,7 +164,7 @@
                         <?php endforeach; ?>
                     </div><!-- d-flex flex-wrap -->
 
-                    <div class="col-12">
+                    <div class="col-12" data-add>
                         <div class="card">
                             <div class="card-header">
                                 <h3 class="card-title">Add characters</h3>
@@ -208,7 +209,7 @@
                         </div> <!-- card -->
                     </div> <!-- col-12 -->
 
-                    <div class="col-12">
+                    <div class="col-12" data-characters>
                         <div class="card">
                             <div class="card-header">
                                 <h3 class="card-title">Characters</h3>
@@ -382,6 +383,19 @@
             console.log('GuildBank: ' + remainingGold);
         }
         UpdateCut();
+
+        let playerCards = document.querySelectorAll('[data-players] div.card');
+        if (playerCards && playerCards.length > 0){
+            let colors = ['rgb(208, 255, 254)', 'rgb(255, 253, 219)', 'rgb(228, 255, 222)', 'rgb(255, 211, 253)', 'rgb(255, 231, 211)', 'rgb(255, 255, 255)'];
+            for(let i = 0; i < playerCards.length; i++){
+                playerCards[i].addEventListener('click', function(e){
+                    let card = e.currentTarget;
+                    let currentColor = card.style.backgroundColor;
+                    var colorIndex = (colors.indexOf(currentColor) + 1) % colors.length;
+                    card.style.backgroundColor = colors[colorIndex];
+                });
+            }
+        }
 
     </script>
 </body>
