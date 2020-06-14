@@ -2,6 +2,7 @@
 
     if(empty($_SESSION['auth'])){
         http_response_code(401);
+        require './unauthorized.php';
         exit;
     }
 
