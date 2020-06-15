@@ -6,7 +6,7 @@ shim: {
 'vector-map': ['jquery'],
 'vector-map-de': ['vector-map', 'jquery'],
 'vector-map-world': ['vector-map', 'jquery'],
-'core': ['bootstrap', 'jquery', 'sortable'],
+'core': ['bootstrap', 'jquery'],
 },
 paths: {
 'core': 'assets/js/core',
@@ -20,7 +20,6 @@ paths: {
 'vector-map-world': 'assets/js/vendors/jquery-jvectormap-world-mill',
 'circle-progress': 'assets/js/vendors/circle-progress.min',
 'toastr': 'assets/js/vendors/toastr.min',
-'sortable': 'assets/js/vendors/sortable.min'
 }
 });
 window.tabler = {

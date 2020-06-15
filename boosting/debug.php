@@ -48,9 +48,7 @@
     </div> <!-- page-main -->
     <?php require './partials/_footer.php' ?>
     </div> <!-- page -->
-
-    <script>
-    </script>
+    <?php require './partials/_scripts.php' ?>
 </body>
 
 </html>

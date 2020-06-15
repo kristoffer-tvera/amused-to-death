@@ -80,6 +80,7 @@
         </div> <!-- page-main -->
         <?php require './partials/_footer.php' ?>
     </div> <!-- page -->
+    <?php require './partials/_scripts.php' ?>
     <script>
         require(['assets/js/vendors/sortable.min'], function (sortable) {
             console.log('sortable loaded');

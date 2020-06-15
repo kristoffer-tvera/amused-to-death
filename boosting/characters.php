@@ -184,11 +184,7 @@
         </div> <!-- page-main -->
         <?php require './partials/_footer.php' ?>
     </div> <!-- page -->
-    <script>
-        require(['assets/js/vendors/sortable.min'], function (sortable) {
-            console.log('sortable loaded');
-        });
-    </script>
+    <?php require './partials/_scripts.php' ?>
 </body>
 
 </html>
