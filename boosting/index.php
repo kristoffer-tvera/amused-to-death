@@ -22,118 +22,112 @@
                     </div>
                 </div>
 
-                <div class="row row-cards row-deck">
-                    <div class="col-12">
-                        <div class="card">
-                            <div class="card-header">
-                                <h3 class="card-title">Raids</h3>
-                            </div>
-                            <table class="table card-table table-vcenter text-nowrap datatable">
-                                <thead>
-                                    <tr>
-                                        <th class="w-1">Id.</th>
-                                        <th>Name</th>
-                                        <th>Gold</th>
-                                        <th>Created</th>
-                                        <th>Updated</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <?php
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Raids</h3>
+                    </div>
+                    <table class="table card-table table-vcenter text-nowrap datatable">
+                        <thead>
+                            <tr>
+                                <th class="w-1">Id.</th>
+                                <th>Name</th>
+                                <th>Gold</th>
+                                <th>Created</th>
+                                <th>Updated</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php
+                            include_once './api/db.php';
+                            include_once './api/db_helper.php';
+                            $raids = GetRaids($dbservername, $dbusername, $dbpassword, $dbname, $dbtable_raids);
+                            foreach($raids as $raid):
+                                ?>
+                            <tr>
+                                <td><span class="text-muted"><?php echo $raid['id']; ?></span></td>
+                                <td><a href="/boosting/raid/?id=<?php echo $raid['id']; ?>"
+                                        class="text-reset"><?php echo $raid['name']; ?></a></td>
+                                <td>
+                                    <?php echo $raid['gold']; ?>
+                                </td>
+                                <td>
+                                    <?php echo $raid['added_date']; ?>
+                                </td>
+                                <td>
+                                    <?php echo $raid['change_date']; ?>
+                                </td>
+                            </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                </div><!-- card -->
+
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Characters</h3>
+                    </div>
+                        <table class="table card-table table-vcenter text-nowrap datatable">
+                            <thead>
+                                <tr>
+                                    <th class="w-1">Id.</th>
+                                    <th>Name</th>
+                                    <th>Main</th>
+                                    <th>Class</th>
+                                    <th>ilvl</th>
+                                    <th>Created</th>
+                                    <th>Updated</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php
                                     include_once './api/db.php';
                                     include_once './api/db_helper.php';
-                                    $raids = GetRaids($dbservername, $dbusername, $dbpassword, $dbname, $dbtable_raids);
-                                    foreach($raids as $raid):
-                                        ?>
-                                    <tr>
-                                        <td><span class="text-muted"><?php echo $raid['id']; ?></span></td>
-                                        <td><a href="/boosting/raid/?id=<?php echo $raid['id']; ?>"
-                                                class="text-reset"><?php echo $raid['name']; ?></a></td>
-                                        <td>
-                                            <?php echo $raid['gold']; ?>
-                                        </td>
-                                        <td>
-                                            <?php echo $raid['added_date']; ?>
-                                        </td>
-                                        <td>
-                                            <?php echo $raid['change_date']; ?>
-                                        </td>
-                                    </tr>
-                                    <?php endforeach; ?>
-                                </tbody>
-                            </table>
-                        </div>
-                        <!-- card -->
-                    </div><!-- col-12 -->
-
-                    <div class="col-12">
-                        <div class="card">
-                            <div class="card-header">
-                                <h3 class="card-title">Characters</h3>
-                            </div>
-                                <table class="table card-table table-vcenter text-nowrap datatable">
-                                    <thead>
-                                        <tr>
-                                            <th class="w-1">Id.</th>
-                                            <th>Name</th>
-                                            <th>Main</th>
-                                            <th>Class</th>
-                                            <th>ilvl</th>
-                                            <th>Created</th>
-                                            <th>Updated</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
+                                    $characters = GetCharacters($dbservername, $dbusername, $dbpassword, $dbname, $dbtable_characters);
+                                    foreach($characters as $character):
+                                    ?>
+                                <tr>
+                                    <td>
+                                        <span class="text-muted"> <?php echo $character['id']; ?> </span>
+                                    </td>
+                                    <td>
+                                        <a href="/boosting/character/?id=<?php echo $character['id']; ?>"
+                                            class="text-reset"><?php echo $character['name']; ?></a>
+                                    </td>
+                                    <td>
+                                        <?php 
+                                            if(!empty($character['main'])){
+                                                foreach($characters as $mainCharacter){
+                                                    if($mainCharacter['id'] == $character['main']){
+                                                        ?>
+                                        <a href="/boosting/character/?id=<?php echo $mainCharacter['id']; ?>"
+                                            class="text-reset"><?php echo $mainCharacter['name']; ?></a>
                                         <?php
-                                            include_once './api/db.php';
-                                            include_once './api/db_helper.php';
-                                            $characters = GetCharacters($dbservername, $dbusername, $dbpassword, $dbname, $dbtable_characters);
-                                            foreach($characters as $character):
-                                            ?>
-                                        <tr>
-                                            <td>
-                                                <span class="text-muted"> <?php echo $character['id']; ?> </span>
-                                            </td>
-                                            <td>
-                                                <a href="/boosting/character/?id=<?php echo $character['id']; ?>"
-                                                    class="text-reset"><?php echo $character['name']; ?></a>
-                                            </td>
-                                            <td>
-                                                <?php 
-                                                    if(!empty($character['main'])){
-                                                        foreach($characters as $mainCharacter){
-                                                            if($mainCharacter['id'] == $character['main']){
-                                                                ?>
-                                                <a href="/boosting/character/?id=<?php echo $mainCharacter['id']; ?>"
-                                                    class="text-reset"><?php echo $mainCharacter['name']; ?></a>
-                                                <?php
-                                                            }
-                                                        }
                                                     }
-                                                ?>
-                                            </td>
-                                            <td>
-                                                <?php echo ClassFromId($character['class']); ?>
-                                            </td>
-                                            <td>
-                                                <?php echo $character['ilvl']; ?>
-                                            </td>
-                                            <td>
-                                                <?php echo $character['added_date']; ?>
-                                            </td>
-                                            <td>
-                                                <?php echo $character['change_date']; ?>
-                                            </td>
-                                        </tr>
-                                        <?php endforeach; ?>
-                                    </tbody>
-                                </table>
+                                                }
+                                            }
+                                        ?>
+                                    </td>
+                                    <td>
+                                        <?php echo ClassFromId($character['class']); ?>
+                                    </td>
+                                    <td>
+                                        <?php echo $character['ilvl']; ?>
+                                    </td>
+                                    <td>
+                                        <?php echo $character['added_date']; ?>
+                                    </td>
+                                    <td>
+                                        <?php echo $character['change_date']; ?>
+                                    </td>
+                                </tr>
+                                <?php endforeach; ?>
+                            </tbody>
+                        </table>
 
-                        </div><!-- card -->
-                    </div><!-- col-12 -->
-                </div><!-- row -->
+                </div><!-- card -->
 
             </div><!-- container-xl -->
+
         <?php require './partials/_footer.php' ?>
         </div><!-- content -->
     </div><!-- page -->

@@ -2,57 +2,58 @@
 <!doctype html>
 <html lang="en" dir="ltr">
 <?php 
-	$title = "Boosting - A2D";
+	$title = "Battle.net - A2D";
     require './partials/_head.php';
 ?>
 
-<body class="">
+<body class="antialiased theme-dark">
     <div class="page">
-        <div class="page-main">
-            <?php require './partials/_nav.php'; ?>
-            <div class="my-3 my-md-5">
-                <div class="container">
-                    <div class="page-header">
-                        <h1 class="page-title">
+        <?php require './partials/_nav.php'; ?>
+        <div class="content">
+            <div class="container-xl">
+                <!-- Page title -->
+                <div class="page-header">
+                    <div class="row align-items-center">
+                        <div class="col-auto">
+                            <h2 class="page-title">
                             Blizzard API Authentication status
-                        </h1>
+                            </h2>
+                        </div>
                     </div>
+                </div>
 
-                    <div class="col-12">
-                        <div class="card">
-                            <div class="card-header">
-                                <h3 class="card-title">API Status</h3>
-                            </div>
-                            <div class="card-body">
-                            <?php 
-                            $token = '';
-                            if(isset($_SESSION['token'])) $token = $_SESSION['token'];
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">API Status</h3>
+                    </div>
+                    <div class="card-body">
 
-                            if(!empty($token)):
-                            ?>
-                            <p> You have a active token! </p>
-                            <?php else: ?>
-                            <p>You do NOT have an active access-token.</p>
-                            <p> <a href="/boosting/api/BattleNetToken/?return=/boosting/bnet/">Click here</a> to get a new one.</p> 
-                            <?php endif;?>
+                    <p>Battle.net tokens are only used for updating <span class="bold">ilvl</span> of your already imported characters (for now)!
 
-                            <?php 
-                            $timeLeft = ($_SESSION['token_create'] + $_SESSION['token_expire'])-time();
-                            if($timeLeft > 0): ?>
-                                <p> Your token has <?php echo $timeLeft ?> seconds left </p>
-                            <?php else: ?>
-                                <p> Your token has expired. </p>
-                                <p> <a href="/boosting/api/BattleNetToken/?return=/boosting/bnet/">Click here</a> to get a new one.</p> 
-                            <?php endif;?>
-                            </div> <!-- card-body -->
-                        </div> <!-- card -->
-                    </div> <!-- col-12 -->
+                    <?php 
+                    $token = '';
+                    $timeLeft = 0;
+                    if(isset($_SESSION['token'])) {
+                        $token = $_SESSION['token'];
+                        $timeLeft = ($_SESSION['token_create'] + $_SESSION['token_expire'])-time();
+                    }
 
-                </div> <!-- row -->
+                    if(empty($token)):
+                    ?>
+                    <p>You do NOT have an active access-token.</p>
+                    <p> <a href="/boosting/api/BattleNetToken/?return=/boosting/bnet/">Click here</a> to get a new one.</p> 
+                    <?php elseif($timeLeft > 0):?>
+                    <p> Your token has <?php echo $timeLeft ?> seconds left </p>
+                    <?php else: ?>
+                        <p> Your token has expired. </p>
+                        <p> <a href="/boosting/api/BattleNetToken/?return=/boosting/bnet/">Click here</a> to get a new one.</p> 
+                    <?php endif;?>
+                    
+                    </div> <!-- card-body -->
+                </div> <!-- card -->
             </div> <!-- container -->
-        </div> <!-- my-3 my-md-5 -->
-    </div> <!-- page-main -->
-    <?php require './partials/_footer.php' ?>
+        <?php require './partials/_footer.php' ?>
+        </div> <!-- content -->
     </div> <!-- page -->
     <?php require './partials/_scripts.php' ?>
 </body>

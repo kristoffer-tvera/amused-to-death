@@ -14,39 +14,41 @@
     }
 ?>
 
-<body class="">
+<body class="antialiased theme-dark">
     <div class="page">
-        <div class="page-main">
-            <?php require './partials/_nav.php'; ?>
-            <div class="my-3 my-md-5">
-                <div class="container">
-                    <div class="page-header">
-                        <h1 class="page-title">
+    <?php require './partials/_nav.php'; ?>
+        <div class="content">
+            <div class="container-xl">
+
+                    <!-- Page title -->
+                <div class="page-header">
+                    <div class="row align-items-center">
+                        <div class="col-auto">
+                            <h2 class="page-title">
                             Debug
-                        </h1>
+                            </h2>
+                        </div>
                     </div>
+                </div>
 
-                    <div class="col-12">
-                        <div class="card">
-                            <div class="card-header">
-                                <h3 class="card-title">Session</h3>
-                            </div>
-                            <div class="card-body">
-                                <?php echo '<pre>';
-                                var_dump($_SESSION);
-                                echo '</pre>'; ?>
-                                <a href="?command=destroy_session" class="btn btn-danger"> Destroy session <a>
-                            </div> <!-- card-body -->
-                        </div> <!-- card -->
-                    </div> <!-- col-12 -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Session</h3>
+                    </div>
+                    <div class="card-body">
+                        <p>Session Keys:</p>
+                        <ul>
+                        <?php if(isset($_SESSION)): foreach($_SESSION as $key=>$value): ?>
+                            <li><?php echo $key ?></li>
+                        <?php endforeach; endif; ?>
+                        </ul>
+                        <a href="?command=destroy_session" class="btn btn-danger"> Destroy session <a>
+                    </div> <!-- card-body -->
+                </div> <!-- card -->
 
-
-
-                </div> <!-- row -->
             </div> <!-- container -->
-        </div> <!-- my-3 my-md-5 -->
-    </div> <!-- page-main -->
-    <?php require './partials/_footer.php' ?>
+        <?php require './partials/_footer.php' ?>
+        </div> <!-- content -->
     </div> <!-- page -->
     <?php require './partials/_scripts.php' ?>
 </body>
