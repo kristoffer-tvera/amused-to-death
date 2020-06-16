@@ -23,85 +23,88 @@
                     </div>
                 </div>
 
-                <div class="row row-cards row-deck">
+                <div class="card">
+                    <a href="/boosting/character/" class="card-header text-reset justify-content-center">
+                        <h3 class="card-title">New character</h3>
+                    </a>
+                </div>
 
-                    <div class="col-12">
-                        <div class="card">
-                            <a href="/boosting/character/" class="card-header text-default justify-content-center">
-                                <h3 class="card-title">New character</h3>
-                            </a>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Characters</h3>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table card-table table-vcenter text-nowrap datatable">
+                            <thead>
+                                <tr>
+                                    <th class="w-1">Id.</th>
+                                    <th>Name</th>
+                                    <th>Main</th>
+                                    <th>Class</th>
+                                    <th>ilvl</th>
+                                    <th>Created</th>
+                                    <th>Updated</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php
+                                    include_once './api/db.php';
+                                    include_once './api/db_helper.php';
+                                    $characters = GetCharacters($dbservername, $dbusername, $dbpassword, $dbname, $dbtable_characters);
+
+                                    foreach($characters as $character):
+                                    ?>
+                                <tr>
+                                    <td>
+                                        <span class="text-muted"> <?php echo $character['id']; ?> </span>
+                                    </td>
+                                    <td>
+                                        <a href="/boosting/character/?id=<?php echo $character['id']; ?>"
+                                            class="text-reset text-decoration-underline"><?php echo $character['name']; ?></a>
+                                    </td>
+                                    <td>
+                                        <?php 
+                                                if(!empty($character['main'])){
+                                                    foreach($characters as $mainCharacter){
+                                                        if($mainCharacter['id'] == $character['main']){
+                                                            ?>
+                                        <a href="character.php?id=<?php echo $mainCharacter['id']; ?>"
+                                            class="text-reset text-decoration-underline"><?php echo $mainCharacter['name']; ?></a>
+                                        <?php
+                                                        }
+                                                    }
+                                                }
+                                            ?>
+                                    </td>
+                                    <td>
+                                        <?php echo ClassFromId($character['class']); ?>
+                                    </td>
+                                    <td>
+                                        <?php echo $character['ilvl']; ?>
+                                    </td>
+                                    <td>
+                                        <?php echo $character['added_date']; ?>
+                                    </td>
+                                    <td>
+                                        <?php echo $character['change_date']; ?>
+                                    </td>
+                                </tr>
+                                <?php endforeach; ?>
+                            </tbody>
+                        </table>
+                    </div> <!-- table-responsive -->
+                </div> <!-- card -->
+
+                <div class="page-header" data-players-header>
+                    <div class="row align-items-center">
+                        <div class="col-auto">
+                            <h2 class="page-title">
+                                Players
+                            </h2>
                         </div>
                     </div>
-
-                    <div class="col-12">
-                        <div class="card">
-                            <div class="card-header">
-                                <h3 class="card-title">Characters</h3>
-                            </div>
-                            <div class="table-responsive">
-                                <table class="table card-table table-vcenter text-nowrap sortable">
-                                    <thead>
-                                        <tr>
-                                            <th class="w-1">Id.</th>
-                                            <th>Name</th>
-                                            <th>Main</th>
-                                            <th>Class</th>
-                                            <th>ilvl</th>
-                                            <th>Created</th>
-                                            <th>Updated</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <?php
-                                            include_once './api/db.php';
-                                            include_once './api/db_helper.php';
-                                            $characters = GetCharacters($dbservername, $dbusername, $dbpassword, $dbname, $dbtable_characters);
-
-                                            foreach($characters as $character):
-                                            ?>
-                                        <tr>
-                                            <td>
-                                                <span class="text-muted"> <?php echo $character['id']; ?> </span>
-                                            </td>
-                                            <td>
-                                                <a href="/boosting/character/?id=<?php echo $character['id']; ?>"
-                                                    class="text-reset"><?php echo $character['name']; ?></a>
-                                            </td>
-                                            <td>
-                                                <?php 
-                                                        if(!empty($character['main'])){
-                                                            foreach($characters as $mainCharacter){
-                                                                if($mainCharacter['id'] == $character['main']){
-                                                                    ?>
-                                                <a href="character.php?id=<?php echo $mainCharacter['id']; ?>"
-                                                    class="text-reset"><?php echo $mainCharacter['name']; ?></a>
-                                                <?php
-                                                                }
-                                                            }
-                                                        }
-                                                    ?>
-                                            </td>
-                                            <td>
-                                                <?php echo ClassFromId($character['class']); ?>
-                                            </td>
-                                            <td>
-                                                <?php echo $character['ilvl']; ?>
-                                            </td>
-                                            <td>
-                                                <?php echo $character['added_date']; ?>
-                                            </td>
-                                            <td>
-                                                <?php echo $character['change_date']; ?>
-                                            </td>
-                                        </tr>
-                                        <?php endforeach; ?>
-                                    </tbody>
-                                </table>
-                            </div> <!-- table-responsive -->
-                        </div> <!-- card -->
-                    </div> <!-- col-12 -->
-
-                </div> <!-- row -->
+                </div>
 
                 <div class="row">
                     <?php
@@ -123,7 +126,8 @@
                                     <div class="col d-flex">
                                         <h3 class="mb-0 mr-1">
                                             <a href="/boosting/character/?id=<?php echo $main['id']; ?>"
-                                                title="Ilvl: <?php echo $main['ilvl']; ?>"><?php echo $main["name"] ?></a>
+                                                title="Ilvl: <?php echo $main['ilvl']; ?>"
+                                                class="text-reset text-decoration-underline"><?php echo $main["name"] ?></a>
                                             <?php if($main['role_tank'] == 1): ?>
                                             <span class="avatar avatar-sm"
                                                 style="background-image: url(/boosting/assets/images/roles/role_tank.png)">
@@ -171,7 +175,8 @@
                                         <div class="col-auto d-flex px-1">
                                             <h3 class="mb-0 mr-1">
                                                 <a href="/boosting/character/?id=<?php echo $alt['id']; ?>"
-                                                    title="Ilvl: <?php echo $alt['ilvl']; ?>"><?php echo $alt["name"] ?></a>
+                                                    title="Ilvl: <?php echo $alt['ilvl']; ?>"
+                                                    class="text-reset text-decoration-underline"><?php echo $alt["name"] ?></a>
                                                 <?php if($alt['role_tank'] == 1): ?>
                                                 <span class="avatar avatar-sm"
                                                     style="background-image: url(/boosting/assets/images/roles/role_tank.png)">
@@ -210,17 +215,6 @@
                     <?php endforeach; ?>
                 </div><!-- row -->
 
-                <!-- Page title -->
-                <div class="page-header">
-                    <div class="row align-items-center">
-                        <div class="col-auto">
-                            <h2 class="page-title">
-                                Dashboard
-                            </h2>
-                        </div>
-                    </div>
-                </div>
-
             </div><!-- container-xl -->
             <?php require './partials/_footer.php' ?>
         </div><!-- content -->
@@ -233,6 +227,9 @@
             "pageLength": 20,
             "dom": "<'table-responsive' tr>" +
                 "<'card-footer d-flex align-items-center'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>",
+            "order": [
+                [6, "desc"]
+            ]
         });
 
     </script>

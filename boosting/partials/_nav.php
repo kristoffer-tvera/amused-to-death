@@ -17,29 +17,29 @@
             Amused to Death
         </a>
         <?php if(isset($_SESSION['auth']) && !empty($_SESSION['auth'])):?>
-            <div class="navbar-nav flex-row order-md-last">
+        <div class="navbar-nav flex-row order-md-last">
             <div class="nav-item">
-            <span class="nav-link-title">
-                Hi, <?php echo $_SESSION['auth'] ?>
-            </span>
+                <span class="nav-link-title">
+                    Hi, <?php echo $_SESSION['auth'] ?>
+                </span>
             </div>
         </div>
         <?php endif;?>
-        
+
         <div class="collapse navbar-collapse" id="navbar-menu">
             <div class="d-flex flex-column flex-md-row flex-fill align-items-stretch align-items-md-center">
                 <ul class="navbar-nav">
 
-                <?php foreach($nav as $navElement): ?>
+                    <?php foreach($nav as $navElement): ?>
 
                     <li class="nav-item <?php if($including_filename == $navElement["href"]) echo "active" ?>">
                         <a class="nav-link" href="/boosting/<?php echo $navElement["href"]; ?>">
-                        <span class="nav-link-icon d-md-none d-lg-inline-block"> 
-                        <?php echo $navElement["icon"]; ?>
-                        </span>
+                            <span class="nav-link-icon d-md-none d-lg-inline-block">
+                                <?php echo $navElement["icon"]; ?>
+                            </span>
 
                             <span class="nav-link-title">
-                            </i><?php echo $navElement["name"]; ?>
+                                </i><?php echo $navElement["name"]; ?>
                             </span>
                         </a>
                     </li>

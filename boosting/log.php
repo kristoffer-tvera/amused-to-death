@@ -2,7 +2,7 @@
 <!doctype html>
 <html lang="en" dir="ltr">
 <?php 
-	$title = "Raids - A2D";
+	$title = "Log - A2D";
 	require './partials/_head.php';
 ?>
 
@@ -17,57 +17,47 @@
                     <div class="row align-items-center">
                         <div class="col-auto">
                             <h2 class="page-title">
-                                Raids
+                                Log
                             </h2>
                         </div>
                     </div>
                 </div>
 
                 <div class="card">
-                    <a href="/boosting/raid/" class="card-header text-reset justify-content-center">
-                        <h3 class="card-title">New raid</h3>
-                    </a>
-                </div>
-
-                <div class="card">
                     <div class="card-header">
-                        <h3 class="card-title">Raids</h3>
+                        <h3 class="card-title">Logevents</h3>
                     </div>
                     <table class="table card-table table-vcenter text-nowrap datatable">
                         <thead>
                             <tr>
-                                <th class="w-1">Id.</th>
                                 <th>Name</th>
-                                <th>Gold</th>
-                                <th>Created</th>
-                                <th>Updated</th>
+                                <th>Time</th>
+                                <th>Command</th>
                             </tr>
                         </thead>
                         <tbody>
                             <?php
-                            include_once './api/db.php';
-                            include_once './api/db_helper.php';
-                            $raids = GetRaids($dbservername, $dbusername, $dbpassword, $dbname, $dbtable_raids);
-                            foreach($raids as $raid):
+                                include_once './api/db.php';
+                                include_once './api/db_helper.php';
+                                $log = GetLog($dbservername, $dbusername, $dbpassword, $dbname, $dbtable_log);
+
+                                foreach($log as $event):
                                 ?>
                             <tr>
-                                <td><span class="text-muted"><?php echo $raid['id']; ?></span></td>
-                                <td><a href="/boosting/raid/?id=<?php echo $raid['id']; ?>"
-                                        class="text-reset"><?php echo $raid['name']; ?></a></td>
                                 <td>
-                                    <?php echo $raid['gold']; ?>
+                                    <span class="text-muted"> <?php echo $event['user']; ?> </span>
                                 </td>
                                 <td>
-                                    <?php echo $raid['added_date']; ?>
+                                    <span class="text-muted"> <?php echo $event['date']; ?> </span>
                                 </td>
                                 <td>
-                                    <?php echo $raid['change_date']; ?>
+                                    <?php echo $event['query']; ?>
                                 </td>
                             </tr>
                             <?php endforeach; ?>
                         </tbody>
                     </table>
-                </div><!-- card -->
+                </div> <!-- card -->
 
             </div><!-- container-xl -->
             <?php require './partials/_footer.php' ?>
@@ -81,6 +71,9 @@
             "pageLength": 20,
             "dom": "<'table-responsive' tr>" +
                 "<'card-footer d-flex align-items-center'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>",
+            "order": [
+                [1, "desc"]
+            ]
         });
 
     </script>

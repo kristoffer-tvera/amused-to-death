@@ -50,6 +50,18 @@ function GetRaids($dbservername, $dbusername, $dbpassword, $dbname, $dbtable_rai
     return $result->fetch_all(MYSQLI_ASSOC);
 }
 
+function GetLog($dbservername, $dbusername, $dbpassword, $dbname, $dbtable_log) {
+    $conn = new mysqli($dbservername, $dbusername, $dbpassword, $dbname);
+    if ($conn-> connect_error) {
+        die("Connection failed: ".$conn-> connect_error);
+    }
+
+    $stmt = $conn->prepare("SELECT * FROM `$dbtable_log`");
+    $stmt->execute();
+    $result = $stmt->get_result();
+    return $result->fetch_all(MYSQLI_ASSOC);
+}
+
 function GetAttendanceForRaid($dbservername, $dbusername, $dbpassword, $dbname, $dbtable_attendance, $dbtable_characters, $id){
     $conn = new mysqli($dbservername, $dbusername, $dbpassword, $dbname);
     if ($conn->connect_error) {

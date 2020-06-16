@@ -16,7 +16,7 @@
                     <div class="row align-items-center">
                         <div class="col-auto">
                             <h2 class="page-title">
-                            Blizzard API Authentication status
+                                Blizzard API Authentication status
                             </h2>
                         </div>
                     </div>
@@ -28,9 +28,10 @@
                     </div>
                     <div class="card-body">
 
-                    <p>Battle.net tokens are only used for updating <span class="bold">ilvl</span> of your already imported characters (for now)!
+                        <p>Battle.net tokens are only used for updating <span class="bold">ilvl</span> of your already
+                            imported characters (for now)!
 
-                    <?php 
+                            <?php 
                     $token = '';
                     $timeLeft = 0;
                     if(isset($_SESSION['token'])) {
@@ -40,19 +41,21 @@
 
                     if(empty($token)):
                     ?>
-                    <p>You do NOT have an active access-token.</p>
-                    <p> <a href="/boosting/api/BattleNetToken/?return=/boosting/bnet/">Click here</a> to get a new one.</p> 
-                    <?php elseif($timeLeft > 0):?>
-                    <p> Your token has <?php echo $timeLeft ?> seconds left </p>
-                    <?php else: ?>
-                        <p> Your token has expired. </p>
-                        <p> <a href="/boosting/api/BattleNetToken/?return=/boosting/bnet/">Click here</a> to get a new one.</p> 
-                    <?php endif;?>
-                    
+                            <p>You do NOT have an active access-token.</p>
+                            <p> <a href="/boosting/api/BattleNetToken/?return=/boosting/bnet/"
+                                    class="text-reset text-decoration-underline">Click here</a> to get a new one.</p>
+                            <?php elseif($timeLeft > 0):?>
+                            <p> Your token has <?php echo $timeLeft ?> seconds left </p>
+                            <?php else: ?>
+                            <p> Your token has expired. </p>
+                            <p> <a href="/boosting/api/BattleNetToken/?return=/boosting/bnet/"
+                                    class="text-reset text-decoration-underline">Click here</a> to get a new one.</p>
+                            <?php endif;?>
+
                     </div> <!-- card-body -->
                 </div> <!-- card -->
             </div> <!-- container -->
-        <?php require './partials/_footer.php' ?>
+            <?php require './partials/_footer.php' ?>
         </div> <!-- content -->
     </div> <!-- page -->
     <?php require './partials/_scripts.php' ?>

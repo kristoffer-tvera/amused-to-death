@@ -189,7 +189,7 @@
                     <div class="card-header">
                         <h3 class="card-title">Raids</h3>
                     </div>
-                    <table class="table card-table table-vcenter text-nowrap">
+                    <table class="table card-table table-vcenter text-nowrap datatable">
                         <thead>
                             <tr>
                                 <th class="w-1">Id</th>
@@ -213,7 +213,8 @@
                                     <span class="text-muted"><?php echo $raid["raidId"] ?></span></td>
                                 <td>
                                     <a href="/boosting/raid/?id=<?php echo $raid["raidId"] ?>"
-                                        class="text-reset"><?php echo $raid["name"] ?></a></td>
+                                        class="text-reset text-decoration-underline"><?php echo $raid["name"] ?></a>
+                                </td>
                                 <td>
                                     <?php echo $raid["bosses"] ?>
                                 </td>
@@ -246,22 +247,6 @@
             "pageLength": 20,
             "dom": "<'table-responsive' tr>" +
                 "<'card-footer d-flex align-items-center'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>",
-        });
-
-        $(document).ready(function () {
-            $('#input-tags').selectize({
-                delimiter: ',',
-                persist: false,
-                create: function (input) {
-                    return {
-                        value: input,
-                        text: input
-                    }
-                }
-            });
-
-            $('#select-class').selectize({});
-            $('#select-main').selectize({});
         });
 
     </script>

@@ -8,8 +8,8 @@
 
 <body class="antialiased theme-dark">
     <div class="page">
+        <?php require './partials/_nav.php'; ?>
         <div class="content">
-            <?php require './partials/_nav.php'; ?>
             <div class="container-xl">
                 <!-- Page title -->
                 <div class="page-header">
@@ -93,13 +93,13 @@
                     <div class="row align-items-center">
                         <div class="col-auto">
                             <h2 class="page-title">
-                            Players
+                                Players
                             </h2>
                         </div>
                     </div>
                 </div>
 
-                <div class="d-flex flex-wrap" data-players>
+                <div class="row" data-players>
                     <?php
                     $mains = array(); 
                     foreach($attendees as $attendee){
@@ -114,24 +114,33 @@
                             <div class="card-body">
                                 <div class="row row-sm align-items-center">
                                     <div class="col-auto pr-0">
-                                        <span class="avatar avatar-md" style="background-image: url(/boosting/assets/images/classes/<?php echo $main['class']; ?>.png)"></span>
+                                        <span class="avatar avatar-md"
+                                            style="background-image: url(/boosting/assets/images/classes/<?php echo $main['class']; ?>.png)"></span>
                                     </div>
                                     <div class="col d-flex">
                                         <h3 class="mb-0 mr-1">
-                                            <a href="/boosting/character/?id=<?php echo $main['id']; ?>" title="Ilvl: <?php echo $main['ilvl']; ?>"><?php echo $main["name"] ?></a>
+                                            <a href="/boosting/character/?id=<?php echo $main['id']; ?>"
+                                                title="Ilvl: <?php echo $main['ilvl']; ?>"
+                                                class="text-reset text-decoration-underline"><?php echo $main["name"] ?></a>
                                             <?php if($main['role_tank'] == 1): ?>
-                                                <span class="avatar avatar-sm" style="background-image: url(/boosting/assets/images/roles/role_tank.png)"> </span>
+                                            <span class="avatar avatar-sm"
+                                                style="background-image: url(/boosting/assets/images/roles/role_tank.png)">
+                                            </span>
                                             <?php endif; ?>
                                             <?php if($main['role_heal'] == 1): ?>
-                                                <span class="avatar avatar-sm" style="background-image: url(/boosting/assets/images/roles/role_heal.png)"> </span>
+                                            <span class="avatar avatar-sm"
+                                                style="background-image: url(/boosting/assets/images/roles/role_heal.png)">
+                                            </span>
                                             <?php endif; ?>
                                             <?php if($main['role_dps'] == 1): ?>
-                                                <span class="avatar avatar-sm" style="background-image: url(/boosting/assets/images/roles/role_dps.png)"> </span>
+                                            <span class="avatar avatar-sm"
+                                                style="background-image: url(/boosting/assets/images/roles/role_dps.png)">
+                                            </span>
                                             <?php endif; ?>
                                         </h3>
                                     </div>
                                 </div>
-                                <hr class="my-3"/>
+                                <hr class="my-3" />
                                 <div class="row align-items-center mt-4">
                                     <?php 
                                     $alts = array();
@@ -143,19 +152,28 @@
                                     ?>
                                     <div class="ml-2 row w-100">
                                         <div class="col-auto px-0">
-                                            <span class="avatar avatar-sm" style="background-image: url(/boosting/assets/images/classes/<?php echo $alt['class']; ?>.png)"></span>
+                                            <span class="avatar avatar-sm"
+                                                style="background-image: url(/boosting/assets/images/classes/<?php echo $alt['class']; ?>.png)"></span>
                                         </div>
                                         <div class="col-auto d-flex px-1">
                                             <h3 class="mb-0 mr-1">
-                                                <a href="/boosting/character/?id=<?php echo $alt['id']; ?>" title="Ilvl: <?php echo $alt['ilvl']; ?>"><?php echo $alt["name"] ?></a>
+                                                <a href="/boosting/character/?id=<?php echo $alt['id']; ?>"
+                                                    title="Ilvl: <?php echo $alt['ilvl']; ?>"
+                                                    class="text-reset text-decoration-underline"><?php echo $alt["name"] ?></a>
                                                 <?php if($alt['role_tank'] == 1): ?>
-                                                    <span class="avatar avatar-sm" style="background-image: url(/boosting/assets/images/roles/role_tank.png)"> </span>
+                                                <span class="avatar avatar-sm"
+                                                    style="background-image: url(/boosting/assets/images/roles/role_tank.png)">
+                                                </span>
                                                 <?php endif; ?>
                                                 <?php if($alt['role_heal'] == 1): ?>
-                                                    <span class="avatar avatar-sm" style="background-image: url(/boosting/assets/images/roles/role_heal.png)"> </span>
+                                                <span class="avatar avatar-sm"
+                                                    style="background-image: url(/boosting/assets/images/roles/role_heal.png)">
+                                                </span>
                                                 <?php endif; ?>
                                                 <?php if($alt['role_dps'] == 1): ?>
-                                                    <span class="avatar avatar-sm" style="background-image: url(/boosting/assets/images/roles/role_dps.png)"> </span>
+                                                <span class="avatar avatar-sm"
+                                                    style="background-image: url(/boosting/assets/images/roles/role_dps.png)">
+                                                </span>
                                                 <?php endif; ?>
                                             </h3>
                                         </div>
@@ -230,17 +248,15 @@
                             if(!empty($attendees)){
                             foreach($attendees as $attendee):
                             ?>
-                        <form class="row border-top py-2 update-attendance"
-                            action="/boosting/api/UpdateAttendance.php">
+                        <form class="row border-top py-2 update-attendance" action="/boosting/api/UpdateAttendance.php">
                             <div class="col-1 col-lg-1 my-2 my-lg-0">
                                 <span class="text-muted"><?php echo $attendee["id"]?></span>
-                                <input type="hidden" name="character"
-                                    value="<?php echo $attendee["characterId"]?>" />
+                                <input type="hidden" name="character" value="<?php echo $attendee["characterId"]?>" />
                                 <input type="hidden" name="raid" value="<?php echo $attendee["raidId"]?>" />
                             </div>
                             <div class="col-6 col-lg-3 my-2 my-lg-0">
                                 <a href="/boosting/character/?id=<?php echo $attendee["characterId"]?>"
-                                    class="text-reset"><?php echo $attendee["name"]?></a>
+                                    class="text-reset text-decoration-underline"><?php echo $attendee["name"]?></a>
                             </div>
                             <div class="col-5 col-lg-3 my-2 my-lg-0">
                                 <?php echo ClassFromId($attendee["class"]) ?>
@@ -277,17 +293,16 @@
                 </div> <!-- card -->
 
                 <?php endif; ?>
-
             </div> <!-- container-xl -->
 
             <!-- Toast success -->
-            <div aria-live="polite" aria-atomic="true" style="position: absolute; top: 0; right: 0; width: 320px;">
+            <div aria-live="polite" aria-atomic="true" style="position: fixed; top: 0; right: 0; width: 320px;">
                 <div class="toast success" role="alert" aria-live="assertive" aria-atomic="true" data-delay="6000">
                     <div class="toast-header">
                         <strong class="mr-auto">A2D</strong>
                         <small class="text-muted">just now</small>
                         <button type="button" class="ml-2 mb-1 close" data-dismiss="toast" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
+                            <span aria-hidden="true">&times;</span>
                         </button>
                     </div>
                     <div class="toast-body bg-green">
@@ -297,13 +312,13 @@
             </div>
 
             <!-- Toast error -->
-            <div aria-live="polite" aria-atomic="true" style="position: absolute; top: 0; right: 0; width: 320px;">
+            <div aria-live="polite" aria-atomic="true" style="position: fixed; top: 0; right: 0; width: 320px;">
                 <div class="toast error" role="alert" aria-live="assertive" aria-atomic="true" data-delay="6000">
                     <div class="toast-header">
                         <strong class="mr-auto">A2D</strong>
                         <small class="text-muted">just now</small>
                         <button type="button" class="ml-2 mb-1 close" data-dismiss="toast" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
+                            <span aria-hidden="true">&times;</span>
                         </button>
                     </div>
                     <div class="toast-body bg-red">
@@ -312,68 +327,53 @@
                 </div><!-- toast -->
             </div>
 
-        <?php require './partials/_footer.php' ?>
+            <?php require './partials/_footer.php' ?>
         </div> <!-- content -->
     </div> <!-- page -->
     <?php require './partials/_scripts.php' ?>
     <script>
-        $(document).ready(function () {
-                $('#input-tags').selectize({
-                    delimiter: ',',
-                    persist: false,
-                    create: function (input) {
-                        return {
-                            value: input,
-                            text: input
-                        }
-                    }
-                });
-
-                $('#select-character').selectize({});
-            });
-
         var UpdateAttendance = document.querySelectorAll('form.update-attendance');
-            if (UpdateAttendance && UpdateAttendance.length > 0) {
-                for (let i = 0; i < UpdateAttendance.length; i++) {
-                    let currentForm = UpdateAttendance[i];
-                    currentForm.addEventListener("submit", function (evt) {
-                        evt.preventDefault();
-                        UpdateCut()
-                        let formData = new FormData(currentForm);
-                        let xhr = new XMLHttpRequest();
-                        xhr.open("POST", currentForm.getAttribute('action'));
-                        xhr.onreadystatechange = function () {
-                            if (this.readyState == 4) {
-                                if (this.status == 200) {
-                                    $('.toast.success').toast('show')
-                                } else {
-                                    $('.toast.error').toast('show')
-                                }
+        if (UpdateAttendance && UpdateAttendance.length > 0) {
+            for (let i = 0; i < UpdateAttendance.length; i++) {
+                let currentForm = UpdateAttendance[i];
+                currentForm.addEventListener("submit", function (evt) {
+                    evt.preventDefault();
+                    UpdateCut()
+                    let formData = new FormData(currentForm);
+                    let xhr = new XMLHttpRequest();
+                    xhr.open("POST", currentForm.getAttribute('action'));
+                    xhr.onreadystatechange = function () {
+                        if (this.readyState == 4) {
+                            if (this.status == 200) {
+                                $('.toast.success').toast('show')
+                            } else {
+                                $('.toast.error').toast('show')
                             }
-                        };
-                        xhr.send(formData)
-                    }, true);
-                }
+                        }
+                    };
+                    xhr.send(formData)
+                }, true);
             }
+        }
 
         let goldField = document.querySelector('input[name="gold"]');
         if (goldField) {
             goldField.addEventListener('input', UpdateCut);
         }
 
-        function UpdateCut(){
+        function UpdateCut() {
             let gold = 0;
             if (goldField) {
                 let value = goldField.value;
                 gold = Number.parseInt(value);
             }
-            if(gold == 0) return;
+            if (gold == 0) return;
             let remainingGold = gold;
 
             let bossCount = 0;
             let attendance = document.querySelectorAll('form.update-attendance');
             if (!attendance) return;
-            for(let i = 0; i < attendance.length; i++){
+            for (let i = 0; i < attendance.length; i++) {
                 let currentBossCountField = attendance[i].querySelector('input[name="bosses"]');
                 if (!currentBossCountField) continue;
 
@@ -383,9 +383,9 @@
 
             let share = gold / bossCount;
 
-            if(bossCount == 0) return;
-            
-            for(let i = 0; i < attendance.length; i++){
+            if (bossCount == 0) return;
+
+            for (let i = 0; i < attendance.length; i++) {
                 let currentBossCountField = attendance[i].querySelector('input[name="bosses"]');
                 if (!currentBossCountField) continue;
                 let currentBossCount = Number.parseInt(currentBossCountField.value);
@@ -395,7 +395,7 @@
                 //let currentCut = Number.parseInt(currentCutField.value);
 
                 let cut = share * currentBossCount;
-                
+
                 cut = Math.floor(cut / 5000) * 5000;
 
                 currentCutField.value = cut;
@@ -407,10 +407,13 @@
         UpdateCut();
 
         let playerCards = document.querySelectorAll('[data-players] div.card');
-        if (playerCards && playerCards.length > 0){
-            let colors = ['rgb(208, 255, 254)', 'rgb(255, 253, 219)', 'rgb(228, 255, 222)', 'rgb(255, 211, 253)', 'rgb(255, 231, 211)', 'rgb(255, 255, 255)'];
-            for(let i = 0; i < playerCards.length; i++){
-                playerCards[i].addEventListener('click', function(e){
+        if (playerCards && playerCards.length > 0) {
+            // let colors = ['rgb(208, 255, 254)', 'rgb(255, 253, 219)', 'rgb(228, 255, 222)', 'rgb(255, 211, 253)', 'rgb(255, 231, 211)', 'rgb(255, 255, 255)'];
+            let colors = ['rgb(45, 91, 107)', 'rgb(196, 122, 83)', 'rgb(143, 71, 49)', 'rgb(82, 73, 76)',
+                'rgb(123, 125, 42)', 'rgb(53, 64, 82)'
+            ];
+            for (let i = 0; i < playerCards.length; i++) {
+                playerCards[i].addEventListener('click', function (e) {
                     let card = e.currentTarget;
                     let currentColor = card.style.backgroundColor;
                     var colorIndex = (colors.indexOf(currentColor) + 1) % colors.length;
@@ -423,5 +426,3 @@
 </body>
 
 </html>
-
-
