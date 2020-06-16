@@ -89,11 +89,23 @@
                 <?php if(!empty($raid)): ?>
                 <?php $attendees = GetAttendanceForRaid($dbservername, $dbusername, $dbpassword, $dbname, $dbtable_attendance, $dbtable_characters, $id); ?>
 
+                <?php
+                $players = array();
+                foreach($attendees as $attendee){
+                    if(!in_array($attendee["id"], $players) && empty($attendee["main"])){
+                        $players[] = $attendee["id"]; // This is a main
+                    } 
+                    
+                    if(!in_array($attendee["main"], $players) && !empty($attendee["main"])) {
+                        $players[] = $attendee["main"]; //This puts mains in, if they are not there already.
+                    }
+                }
+                ?>
                 <div class="page-header" data-players-header>
                     <div class="row align-items-center">
                         <div class="col-auto">
                             <h2 class="page-title">
-                                Players
+                                Players (<?php echo sizeof($players) ?>)
                             </h2>
                         </div>
                     </div>
@@ -101,17 +113,6 @@
 
                 <div class="row" data-players>
                     <?php
-                    $players = array();
-                    foreach($attendees as $attendee){
-                        if(!in_array($attendee["id"], $players) && empty($attendee["main"])){
-                            $players[] = $attendee["id"]; // This is a main
-                        } 
-                        
-                        if(!in_array($attendee["main"], $players) && !empty($attendee["main"])) {
-                            $players[] = $attendee["main"]; //This puts mains in, if they are not there already.
-                        }
-                    }
-
                     for($i = 0; $i < sizeof($players); $i++):
                     ?>
                     <div class="col-md-6 col-lg-4">
