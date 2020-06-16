@@ -101,65 +101,49 @@
 
                 <div class="row" data-players>
                     <?php
-                    $mains = array(); 
+                    $players = array();
                     foreach($attendees as $attendee){
-                        if(empty($attendee["main"])) $mains[] = $attendee;
+                        if(!in_array($attendee["id"], $players) && empty($attendee["main"])){
+                            $players[] = $attendee["id"]; // This is a main
+                        } 
+                        
+                        if(!in_array($attendee["main"], $players) && !empty($attendee["main"])) {
+                            $players[] = $attendee["main"]; //This puts mains in, if they are not there already.
+                        }
                     }
-                    $playerIndex = -1;
-                    foreach($mains as $main):
-                        $playerIndex++;
+
+                    for($i = 0; $i < sizeof($players); $i++):
                     ?>
                     <div class="col-md-6 col-lg-4">
-                        <div class="card" data-player-id="<?php echo $playerIndex ?>">
+                        <div class="card" data-player-id="<?php echo $players[$i] ?>">
                             <div class="card-body">
-                                <div class="row row-sm align-items-center">
-                                    <div class="col-auto pr-0">
-                                        <span class="avatar avatar-md"
-                                            style="background-image: url(/boosting/assets/images/classes/<?php echo $main['class']; ?>.png)"></span>
-                                    </div>
-                                    <div class="col d-flex">
-                                        <h3 class="mb-0 mr-1">
-                                            <a href="/boosting/character/?id=<?php echo $main['id']; ?>"
-                                                title="Ilvl: <?php echo $main['ilvl']; ?>"
-                                                class="text-reset text-decoration-underline"><?php echo $main["name"] ?></a>
-                                            <?php if($main['role_tank'] == 1): ?>
-                                            <span class="avatar avatar-sm"
-                                                style="background-image: url(/boosting/assets/images/roles/role_tank.png)">
-                                            </span>
-                                            <?php endif; ?>
-                                            <?php if($main['role_heal'] == 1): ?>
-                                            <span class="avatar avatar-sm"
-                                                style="background-image: url(/boosting/assets/images/roles/role_heal.png)">
-                                            </span>
-                                            <?php endif; ?>
-                                            <?php if($main['role_dps'] == 1): ?>
-                                            <span class="avatar avatar-sm"
-                                                style="background-image: url(/boosting/assets/images/roles/role_dps.png)">
-                                            </span>
-                                            <?php endif; ?>
-                                        </h3>
-                                    </div>
-                                </div>
-                                <hr class="my-3" />
-                                <div class="row align-items-center mt-4">
+                                <div class="row align-items-center">
                                     <?php 
-                                    $alts = array();
+                                    $characters = array();
                                     foreach($attendees as $attendee){
-                                        if($attendee["main"] == $main['id']) $alts[] = $attendee;
+                                        if($attendee['id'] == $players[$i]){
+                                            $characters[] = $attendee;
+                                            continue;
+                                        };
+
+                                        if($attendee['main'] == $players[$i]){
+                                            $characters[] = $attendee;
+                                            continue;
+                                        }; 
                                     }
 
-                                    foreach($alts as $alt):
+                                    foreach($characters as $character):
                                     ?>
                                     <div class="ml-2 row w-100">
                                         <div class="col-auto px-0">
                                             <span class="avatar avatar-sm"
-                                                style="background-image: url(/boosting/assets/images/classes/<?php echo $alt['class']; ?>.png)"></span>
+                                                style="background-image: url(/boosting/assets/images/classes/<?php echo $character['class']; ?>.png)"></span>
                                         </div>
                                         <div class="col-auto d-flex px-1">
                                             <h3 class="mb-0 mr-1">
-                                                <a href="/boosting/character/?id=<?php echo $alt['id']; ?>"
-                                                    title="Ilvl: <?php echo $alt['ilvl']; ?>"
-                                                    class="text-reset text-decoration-underline"><?php echo $alt["name"] ?></a>
+                                                <a href="/boosting/character/?id=<?php echo $character['id']; ?>"
+                                                    title="Ilvl: <?php echo $character['ilvl']; ?>"
+                                                    class="text-reset text-decoration-underline"><?php echo $character["name"] ?></a>
                                                 <?php if($alt['role_tank'] == 1): ?>
                                                 <span class="avatar avatar-sm"
                                                     style="background-image: url(/boosting/assets/images/roles/role_tank.png)">
@@ -183,7 +167,7 @@
                             </div><!-- card-body -->
                         </div><!-- card -->
                     </div> <!-- col-md-6 col-lg-4 -->
-                    <?php endforeach; ?>
+                    <?php endfor; ?>
                 </div><!-- d-flex flex-wrap -->
 
                 <div class="card" data-add>
