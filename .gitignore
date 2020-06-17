@@ -352,3 +352,7 @@ MigrationBackup/
 boosting/api/db.php
 
 jaina-proudmoore/.env
+
+api/apps.txt
+
+api/secrets.php

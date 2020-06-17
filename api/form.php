@@ -1,65 +1,25 @@
-<?php
-session_start();
+<?php session_start();
 if(isset($_SESSION['alreadyposted'])){
-    header("Location: /thank-you?error=true");
+    header("Location: /thank-you/?error=true");
     exit;
 } else {
     $_SESSION["alreadyposted"] = true;
 }
 
-class Field {
-     public $name;
-     public $value;
-
-     function __construct($name, $value) {
-        $this->name = $name;
-        $this->value = $value;
-      }
-}
-
-$fields = [];
+include_once 'secrets.php';
 
 $file = 'apps.txt';
-
-//=======================================================================================================
-// Create new webhook in your Discord channel settings and copy&paste URL
-//=======================================================================================================
-
-$webhookurl = "https://discordapp.com/api/webhooks/466060619976671245/XiB_pHAsX22tQKqoYis81-U_KPnffP9Y0vk_1UCve3U_GQUwefwnUTa-5JzHDdjwCD5M";
 
 //=======================================================================================================
 // Compose message. You can use Markdown
 // Message Formatting -- https://discordapp.com/developers/docs/reference#message-formatting
 //========================================================================================================
 
-$embeds = [];
-$embeds[] = array('fields' => $fields);
-
-// $json_data = array ('content'=>"$msg", 'embeds'=>$embeds);
-$json_data = array ('content'=>"New application!", 'embeds'=>$embeds);
-$make_json = json_encode($json_data);
-
 $json = json_encode([
     /*
      * The general "message" shown above your embeds
      */
     "content" => "New Application!",
-    /*
-     * The username shown in the message
-     */
-    //"username" => "MyUsername",
-    /*
-     * The image location for the senders image
-     */
-    //"avatar_url" => "https://pbs.twimg.com/profile_images/972154872261853184/RnOg6UyU_400x400.jpg",
-    /*
-     * Whether or not to read the message in Text-to-speech
-     */
-    //"tts" => false,
-    /*
-     * File contents to send to upload a file
-     */
-    // "file" => "",
     /*
      * An array of Embeds
      */
@@ -77,32 +37,8 @@ $json = json_encode([
             // A description for your embed
             "description" => "",
 
-            // The URL of where your title will be a link to
-            // "url" => "https://www.google.com/",
-
-            /* A timestamp to be displayed below the embed, IE for when an an article was posted
-             * This must be formatted as ISO8601
-             */
-            // "timestamp" => "2018-03-10T19:15:45-05:00",
-
             // The integer color to be used on the left side of the embed
             "color" => hexdec( "FFFFFF" ),
-
-            // Footer object
-            // "footer" => [
-            //     "text" => "Google TM",
-            //     "icon_url" => "https://pbs.twimg.com/profile_images/972154872261853184/RnOg6UyU_400x400.jpg"
-            // ],
-
-            // Image object
-            // "image" => [
-            //     "url" => "https://www.google.com/images/branding/googlelogo/1x/googlelogo_color_272x92dp.png"
-            // ],
-
-            // Thumbnail object
-            // "thumbnail" => [
-            //     "url" => "https://pbs.twimg.com/profile_images/972154872261853184/RnOg6UyU_400x400.jpg"
-            // ],
 
             // Author object
             "author" => [
@@ -187,7 +123,8 @@ curl_setopt( $ch, CURLOPT_RETURNTRANSFER, 1);
 $response = curl_exec( $ch );
 //If you need to debug, or find out why you can't send message uncomment line below, and execute script.
 //echo $response;
-header("Location: /thank-you");
+
+header("Location: /thank-you/");
 exit;
 
 ?>
