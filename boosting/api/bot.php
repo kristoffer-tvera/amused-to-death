@@ -3,7 +3,9 @@
     header("Content-Type: application/json; charset=UTF-8");
     header("Access-Control-Allow-Methods: POST");
     header("Access-Control-Max-Age: 3600");
-    header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With");
+    header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With, X-API-KEY");
+
+    include_once 'db.php';
 
     $token = '';
     if(isset($_POST["token"]) && !empty($_POST["token"])){
@@ -17,13 +19,14 @@
     }
     if(empty($discord)) die('No token provided');
 
+    $apiKey = '';
+    if( isset($_SERVER['HTTP_X_API_KEY']) && !empty($_SERVER['HTTP_X_API_KEY'])){
+        $apiKey = $_SERVER['HTTP_X_API_KEY'];
+    }
+
+    if($x_api_key != $apiKey) die('Bad API key');
+
     $expire = date_create('+10 minute')->format('Y-m-d H:i:s');
-
-    echo $token;
-    echo $discord;
-    echo $expire;
-
-    include_once 'db.php';
 
     $conn = new mysqli($dbservername, $dbusername, $dbpassword, $dbname);
     if ($conn->connect_error) {

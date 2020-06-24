@@ -12,6 +12,7 @@ def randomString(stringLength=26):
 
 load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN')
+API_KEY = os.getenv('API_KEY')
 
 client = discord.Client()
 
@@ -31,9 +32,10 @@ async def on_message(message):
         id = message.author.name + '#' + message.author.discriminator
 
         url = 'https://amusedtodeath.eu/boosting/api/bot/'
-        myobj = {'token': token, 'discord': id}
+        payload = {'token': token, 'discord': id}
+        headers = {'x-api-key': API_KEY}
 
-        requests.post(url, data = myobj)
+        requests.post(url, data = payload, headers = headers)
 
         print(f'{id} was just serviced!')
         await message.add_reaction('\U00002705')
