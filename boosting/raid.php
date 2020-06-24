@@ -142,7 +142,7 @@
                                         </div>
                                         <div class="col-auto d-flex px-1">
                                             <h3 class="mb-0 mr-1">
-                                                <a href="/boosting/character/?id=<?php echo $character['id']; ?>"
+                                                <a href="/boosting/character/?id=<?php echo $character['characterId']; ?>"
                                                     title="Ilvl: <?php echo $character['ilvl']; ?>"
                                                     class="text-reset text-decoration-underline"><?php echo $character["name"] ?></a>
                                                 <?php if($alt['role_tank'] == 1): ?>

@@ -181,6 +181,9 @@
                     <div class="card-footer text-right">
                         <div class="d-flex">
                             <input type="hidden" name="return" value="/boosting/character/" />
+                            <?php if(!empty($main)): ?>
+                            <a href="/boosting/character/?id=<?php echo $main ?>" class="btn btn-primary">Open main</a>
+                            <?php endif; ?>
                             <button type="submit" class="btn btn-primary ml-auto">Save</button>
                         </div>
                     </div>
@@ -235,6 +238,51 @@
                         </tbody>
                     </table>
                 </div> <!-- card -->
+
+                <?php if(empty($main)): ?>
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Alts</h3>
+                    </div>
+                    <table class="table card-table table-vcenter text-nowrap datatable">
+                        <thead>
+                            <tr>
+                                <th class="w-1">Id</th>
+                                <th>Name</th>
+                                <th>Class</th>
+                                <th>Ilvl</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php 
+                                include_once './api/db.php';
+                                include_once './api/db_helper.php';
+
+                                $alts = GetAltsForCharacter($dbservername, $dbusername, $dbpassword, $dbname, $dbtable_characters, $id);
+                                
+                                if(!empty($alts)){
+                                foreach($alts as $alt):
+                                ?>
+                            <tr>
+                                <td>
+                                    <span class="text-muted"><?php echo $alt["id"] ?></span></td>
+                                <td>
+                                    <a href="/boosting/character/?id=<?php echo $alt["id"] ?>"
+                                        class="text-reset text-decoration-underline"><?php echo $alt["name"] ?></a>
+                                </td>
+                                <td>
+                                    <?php echo ClassFromId($alt['class']); ?>
+                                </td>
+                                <td>
+                                    <?php echo $alt["ilvl"] ?>
+                                </td>
+                            </tr>
+                            <?php endforeach;} ?>
+
+                        </tbody>
+                    </table>
+                </div> <!-- card -->
+                <?php endif; ?>
 
             </div><!-- container-xl -->
             <?php require './partials/_footer.php' ?>

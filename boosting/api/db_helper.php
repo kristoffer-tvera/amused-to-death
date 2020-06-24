@@ -101,6 +101,19 @@ function GetAttendanceForCharacter($dbservername, $dbusername, $dbpassword, $dbn
     return $result->fetch_all(MYSQLI_ASSOC);
 }
 
+function GetAltsForCharacter($dbservername, $dbusername, $dbpassword, $dbname, $dbtable_characters, $id){
+    $conn = new mysqli($dbservername, $dbusername, $dbpassword, $dbname);
+    if ($conn->connect_error) {
+        die("Connection failed: " . $conn->connect_error);
+    }
+
+    $stmt = $conn->prepare("SELECT * FROM `$dbtable_characters` WHERE `main`=?");
+    $stmt->bind_param('i', $id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    return $result->fetch_all(MYSQLI_ASSOC);
+}
+
 function ClassFromId($id) {
     switch ($id) {
         case 0:
