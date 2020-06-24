@@ -32,15 +32,15 @@
     
     $char = $result->fetch_assoc();
 
-    $name = strtolower($char["name"]);
+    $name = urlencode(strtolower($char["name"]));
     $realm = strtolower($char["realm"]);
     //=======================================================================================================
     // Blizzard oAuth endpoint URL
     //=======================================================================================================
 
-    $url = "https://eu.api.blizzard.com/profile/wow/character/" . $realm . "/" . $name . "?namespace=profile-eu&locale=en_GB&access_token=" . $_SESSION['token'];
+    $url = "https://eu.api.blizzard.com/profile/wow/character/" . $realm . "/" . $name . "?namespace=profile-eu&locale=en_GB&access_token=" ;
 
-    $ch = curl_init( $url );
+    $ch = curl_init( $url . $_SESSION['token']);
     curl_setopt( $ch, CURLOPT_RETURNTRANSFER, true);
 
     $response = curl_exec( $ch );
@@ -61,6 +61,13 @@
     $stmt = $conn->prepare("UPDATE `$dbtable_characters` SET change_date=now(), ilvl=? WHERE id=?");
     $stmt->bind_param('ii', $ilvl, $id);
     $stmt->execute();
+
+    // Query Logging
+    $request = 'BNET => ' . $url . 'SECRET';
+    $log = $conn->prepare("INSERT INTO `$dbtable_log` (query, user) VALUES (?, ?)");
+    $log->bind_param('ss', $request, $_SESSION['auth']);
+    $log->execute();
+    
 
     header('Location: ' . $return);
     // exit;

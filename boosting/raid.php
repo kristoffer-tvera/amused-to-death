@@ -185,6 +185,7 @@
                                             class="form-control custom-select">
                                             <?php
                                         $characters = GetCharacters($dbservername, $dbusername, $dbpassword, $dbname, $dbtable_characters);
+                                        usort($characters, function($a, $b) {return strcmp($a["name"], $b["name"]);});
                                         foreach($characters as $character):
                                             $alreadyInTheRaid = false;
                                             foreach($attendees as $attendee){
@@ -222,7 +223,7 @@
                         <div class="row d-none d-lg-flex py-2 text-muted">
                             <div class="col-1 col-lg-1">Id</div>
                             <div class="col-6 col-lg-3">Name</div>
-                            <div class="col-5 col-lg-3">Class</div>
+                            <div class="col-5 col-lg-3">Signup date</div>
                             <div class="col-6 col-lg-1">Cut</div>
                             <div class="col-6 col-lg-1">Bosses</div>
                             <div class="col-6 col-lg-1">Paid</div>
@@ -244,7 +245,7 @@
                                     class="text-reset text-decoration-underline"><?php echo $attendee["name"]?></a>
                             </div>
                             <div class="col-5 col-lg-3 my-2 my-lg-0">
-                                <?php echo ClassFromId($attendee["class"]) ?>
+                                <?php echo $attendee["added_date"] ?>
                             </div>
                             <div class="col-6 col-lg-1 my-2 my-lg-0">
                                 <label class="mb-0 w-100">

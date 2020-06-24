@@ -62,13 +62,26 @@ function GetLog($dbservername, $dbusername, $dbpassword, $dbname, $dbtable_log) 
     return $result->fetch_all(MYSQLI_ASSOC);
 }
 
+// function GetAttendanceForRaid($dbservername, $dbusername, $dbpassword, $dbname, $dbtable_attendance, $dbtable_characters, $id){
+//     $conn = new mysqli($dbservername, $dbusername, $dbpassword, $dbname);
+//     if ($conn->connect_error) {
+//         die("Connection failed: " . $conn->connect_error);
+//     }
+
+//     $stmt = $conn->prepare("SELECT * FROM `$dbtable_attendance` INNER JOIN `$dbtable_characters` ON `$dbtable_attendance`.`characterId`=`$dbtable_characters`.`id` WHERE `$dbtable_attendance`.`raidId`=?");
+//     $stmt->bind_param('i', $id);
+//     $stmt->execute();
+//     $result = $stmt->get_result();
+//     return $result->fetch_all(MYSQLI_ASSOC);
+// }
+
 function GetAttendanceForRaid($dbservername, $dbusername, $dbpassword, $dbname, $dbtable_attendance, $dbtable_characters, $id){
     $conn = new mysqli($dbservername, $dbusername, $dbpassword, $dbname);
     if ($conn->connect_error) {
         die("Connection failed: " . $conn->connect_error);
     }
 
-    $stmt = $conn->prepare("SELECT * FROM `$dbtable_attendance` INNER JOIN `$dbtable_characters` ON `$dbtable_attendance`.`characterId`=`$dbtable_characters`.`id` WHERE `$dbtable_attendance`.`raidId`=?");
+    $stmt = $conn->prepare("SELECT a.id, a.added_date, a.bosses, a.paid, a.raidId, a.characterId, c.name, c.class, c.main FROM `$dbtable_attendance` AS a INNER JOIN `$dbtable_characters` AS c ON a.`characterId`=c.`id` WHERE a.`raidId`=?");
     $stmt->bind_param('i', $id);
     $stmt->execute();
     $result = $stmt->get_result();

@@ -124,6 +124,7 @@
                                         </option>
                                         <?php
                                                 $characters = GetCharacters($dbservername, $dbusername, $dbpassword, $dbname, $dbtable_characters);
+                                                usort($characters, function($a, $b) {return strcmp($a["name"], $b["name"]);});
                                                 foreach($characters as $character):
                                                 ?>
                                         <option value="<?php echo $character["id"] ?>"
