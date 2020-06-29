@@ -92,8 +92,8 @@
                 <?php
                 $players = array();
                 foreach($attendees as $attendee){
-                    if(!in_array($attendee["id"], $players) && empty($attendee["main"])){
-                        $players[] = $attendee["id"]; // This is a main
+                    if(!in_array($attendee["characterId"], $players) && empty($attendee["main"])){
+                        $players[] = $attendee["characterId"]; // This is a main
                     } 
                     
                     if(!in_array($attendee["main"], $players) && !empty($attendee["main"])) {
@@ -122,7 +122,7 @@
                                     <?php 
                                     $characters = array();
                                     foreach($attendees as $attendee){
-                                        if($attendee['id'] == $players[$i]){
+                                        if($attendee['characterId'] == $players[$i]){
                                             $characters[] = $attendee;
                                             continue;
                                         };
