@@ -69,7 +69,7 @@
                                                     foreach($characters as $mainCharacter){
                                                         if($mainCharacter['id'] == $character['main']){
                                                             ?>
-                                        <a href="character.php?id=<?php echo $mainCharacter['id']; ?>"
+                                        <a href="/boosting/character/?id=<?php echo $mainCharacter['id']; ?>"
                                             class="text-reset text-decoration-underline"><?php echo $mainCharacter['name']; ?></a>
                                         <?php
                                                         }
