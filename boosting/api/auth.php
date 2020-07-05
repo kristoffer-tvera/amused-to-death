@@ -24,7 +24,11 @@
 
     if(strtotime($auth['expire_date']) < strtotime("now")) die("Expired token");
 
-    $_SESSION['auth'] = $auth['discord'];
+    $discord_username = $auth['discord'];
+    $_SESSION['auth'] = $discord_username;
+    if(in_array($discord_username, $admins)){
+        $_SESSION['admin'] = true;
+    }
 
     header('Location: /boosting/');
     exit;
