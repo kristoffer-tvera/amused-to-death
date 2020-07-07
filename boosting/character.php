@@ -35,6 +35,7 @@
                 $role_heal = 0;
                 $role_dps = 0;
                 $main = 0;
+                $discord = "";
                 $created = date("d-m-Y H:i:s");
                 $updated = date("d-m-Y H:i:s");
 
@@ -51,6 +52,7 @@
                         $role_heal = $character["role_heal"];
                         $role_dps = $character["role_dps"];
                         $main = $character["main"];
+                        $discord = $character["discord"];
                         $created = $character["added_date"];
                         $updated = $character["change_date"];
                     } else {
@@ -73,6 +75,14 @@
                                 <div class="form-group">
                                     <label class="form-label">Ilvl</label>
                                     <div class="form-control-plaintext"><?php echo $ilvl ?></div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Owner (discord)</label>
+                                    <?php if (isset($_SESSION['admin'])): ?>
+                                        <input type="text" class="form-control" name="discord" placeholder="Owner.." value="<?php echo $discord ?>">
+                                    <?php else:?>
+                                        <div class="form-control-plaintext"><?php echo $discord ?></div>
+                                    <?php endif;?>                                    
                                 </div>
                                 <div class="form-group">
                                     <label class="form-label">Name</label>
@@ -120,7 +130,7 @@
                                 <div class="form-group">
                                     <label class="form-label">Main</label>
                                     <select name="main" id="select-main" class="form-control custom-select">
-                                        <option value="-1" <?php if($main == 0) echo "selected=\"selected\"" ?>>None
+                                        <option value="-1" <?php if($main == 0) echo "selected=\"selected\"" ?>>None (this is a main)
                                         </option>
                                         <?php
                                                 $characters = GetCharacters($dbservername, $dbusername, $dbpassword, $dbname, $dbtable_characters);

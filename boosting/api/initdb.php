@@ -39,6 +39,7 @@ function Initialize_tables($dbservername, $dbusername, $dbpassword, $dbname, $db
         role_heal BIT NOT NULL DEFAULT 0,
         role_dps BIT NOT NULL DEFAULT 0,
         hidden BIT NOT NULL DEFAULT 0,
+        discord VARCHAR(50),
         added_date DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
         change_date DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
         )";
