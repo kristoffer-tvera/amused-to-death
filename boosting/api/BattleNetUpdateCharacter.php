@@ -7,6 +7,10 @@
     }
 
     include_once 'db.php';
+    $ajax = false;
+    if(isset($_GET["ajax"]) && !empty($_GET["ajax"])){
+        $ajax = true;
+    }
     
     $return = '';
     if(isset($_GET["return"]) && !empty($_GET["return"])){
@@ -31,6 +35,11 @@
     $result = $stmt->get_result();
     
     $char = $result->fetch_assoc();
+    
+    if(empty($char)){
+        http_response_code(404);
+        exit;
+    }
 
     $name = urlencode(strtolower($char["name"]));
     $realm = strtolower($char["realm"]);
@@ -48,8 +57,11 @@
 
     curl_close( $ch );
 
-    if ($status !== 200) {
-        // throw new Exception('Failed to get character profile.');
+    if ($status !== 200 && $ajax) {
+        http_response_code($status);
+        echo $name;
+        exit;
+    } else if ($status !== 200){
         header('Location: ' . $return . '&error=true');
     }
 
@@ -62,13 +74,20 @@
     $stmt->bind_param('ii', $ilvl, $id);
     $stmt->execute();
 
-    // Query Logging
-    $request = 'BNET => ' . $url . 'SECRET';
-    $log = $conn->prepare("INSERT INTO `$dbtable_log` (query, user) VALUES (?, ?)");
-    $log->bind_param('ss', $request, $_SESSION['auth']);
-    $log->execute();
+    if(!$ajax){
+        // Query Logging
+        $request = 'BNET => ' . $url . 'SECRET';
+        $log = $conn->prepare("INSERT INTO `$dbtable_log` (query, user) VALUES (?, ?)");
+        $log->bind_param('ss', $request, $_SESSION['auth']);
+        $log->execute();
+    }
     
-
-    header('Location: ' . $return);
+    if($ajax){
+        http_response_code(200);
+        echo $name;
+        exit;
+    } else {
+        header('Location: ' . $return);
+    }
     // exit;
 ?>

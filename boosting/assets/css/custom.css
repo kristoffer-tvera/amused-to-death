@@ -1,0 +1,14 @@
+.bnet-update--success{
+    color: green;
+}
+.bnet-update--fail{
+    color: red;
+}
+
+.page-link:hover {
+    color: #fff;
+}
+
+/*
+Fix css classes for all bg images (classes, externals)
+*/

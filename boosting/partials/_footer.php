@@ -2,7 +2,7 @@
     <div class="container">
         <div class="row text-center align-items-center flex-row-reverse">
             <div class="col-12 col-lg-auto mt-3 mt-lg-0">
-                <p class="mb-0">Servertime: <span id="clock-h"></span>:<span id="clock-m"></span>:<span id="clock-s"></span>. Copyright © <?php echo date("Y"); ?> <a href="." class="text-reset">Amused to Death</a>. All rights reserved. </p>
+                <p class="mb-0">Servertime: <span id="clock-h"><?php echo date("H") ?></span>:<span id="clock-m"><?php echo date("i") ?></span>:<span id="clock-s"><?php echo date("s") ?></span>. Copyright © <?php echo date("Y"); ?> <a href="." class="text-reset">Amused to Death</a>. All rights reserved. </p>
             </div>
         </div>
     </div>
