@@ -43,6 +43,11 @@
                             <?php endforeach; endif; ?>
                         </ul>
                         <a href="?command=destroy_session" class="btn btn-danger"> Destroy session <a>
+
+                        <hr/>
+
+                        <p> Current request URI: <?php echo $_SERVER['REQUEST_URI']; ?> </p>
+                        <p> Current PHP version: <?php echo phpversion('tidy'); ?></p>
                     </div> <!-- card-body -->
                 </div> <!-- card -->
 

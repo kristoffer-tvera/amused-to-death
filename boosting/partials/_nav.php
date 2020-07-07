@@ -34,7 +34,7 @@
 
                     <?php foreach($nav as $navElement): ?>
 
-                    <li class="nav-item <?php if($including_filename == $navElement["href"]) echo "active" ?>">
+                    <li class="nav-item <?php if(strpos($_SERVER['REQUEST_URI'], $navElement["href"]) !== false  && strlen($_SERVER['REQUEST_URI']) >= strlen($navElement["href"])) echo "active" ?>">
                         <a class="nav-link" href="/boosting/<?php echo $navElement["href"]; ?>">
                             <span class="nav-link-icon d-md-none d-lg-inline-block">
                                 <?php echo $navElement["icon"]; ?>
