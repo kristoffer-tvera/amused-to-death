@@ -75,6 +75,11 @@
                                     <label class="form-label">Updated</label>
                                     <div class="form-control-plaintext"><?php echo $updated ?></div>
                                 </div>
+                                <div class="form-group">
+                                <?php if (isset($_SESSION['admin']) && $id > 0): ?>
+                                    <a  class="btn btn-danger" href="/boosting/api/RemoveAtendeesWithNoBossesFromRaid.php?return=/boosting/raid/&raidId=<?php echo $id ?>"> Remove characters with zero bosses</a>
+                                <?php endif;?>   
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -268,7 +273,7 @@
                                 <button type="submit" class="btn btn-primary btn-sm">Update</button>
                             </div>
                             <div class="col-6 col-lg-1 my-2 my-lg-0">
-                                <a href="/boosting/api/DeleteAttendanceForCharacter.php?characterId=<?php echo $attendee["characterId"]?>&raidId=<?php echo $id ?>&return=/boosting/raid.php&returnId=<?php echo $id ?>"
+                                <a href="/boosting/api/DeleteAttendanceForCharacter.php?characterId=<?php echo $attendee["characterId"]?>&raidId=<?php echo $id ?>&return=/boosting/raid/&returnId=<?php echo $id ?>"
                                     class="btn btn-danger btn-sm">Remove</a>
                             </div>
                         </form>
