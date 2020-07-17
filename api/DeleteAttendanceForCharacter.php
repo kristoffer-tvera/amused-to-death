@@ -17,7 +17,7 @@
     $returnPath = htmlspecialchars($_GET["return"]);
     $returnId = htmlspecialchars($_GET["returnId"]);
     if(empty($returnPath)){
-        $returnPath = "/boosting/";
+        $returnPath = "/";
     }
 
     include_once 'db.php';

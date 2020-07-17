@@ -24,7 +24,7 @@
                 </div>
 
                 <div class="card">
-                    <a href="/boosting/raid/" class="card-header text-reset justify-content-center">
+                    <a href="/raid/" class="card-header text-reset justify-content-center">
                         <h3 class="card-title">New raid</h3>
                     </a>
                 </div>
@@ -52,7 +52,7 @@
                                 ?>
                             <tr>
                                 <td><span class="text-muted"><?php echo $raid['id']; ?></span></td>
-                                <td><a href="/boosting/raid/?id=<?php echo $raid['id']; ?>"
+                                <td><a href="/raid/?id=<?php echo $raid['id']; ?>"
                                         class="text-reset"><?php echo $raid['name']; ?></a></td>
                                 <td>
                                     <?php echo $raid['gold']; ?>

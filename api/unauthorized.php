@@ -14,16 +14,16 @@
   <meta name="HandheldFriendly" content="True">
   <meta name="MobileOptimized" content="320">
   <meta name="robots" content="noindex,nofollow,noarchive">
-  <link rel="icon" type="image/x-icon" href="/boosting/assets/favicon.ico" />
-  <link rel="apple-touch-icon" sizes="180x180" href="/boosting/assets/images/apple-touch-icon.png">
-  <link rel="icon" type="image/png" sizes="32x32" href="/boosting/assets/images/favicon-32x32.png">
-  <link rel="icon" type="image/png" sizes="16x16" href="/boosting/assets/images/favicon-16x16.png">
-  <link rel="shortcut icon" type="image/x-icon" href="/boosting/assets/favicon.ico" />
+  <link rel="icon" type="image/x-icon" href="/assets/favicon.ico" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/assets/images/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/assets/images/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/assets/images/favicon-16x16.png">
+  <link rel="shortcut icon" type="image/x-icon" href="/assets/favicon.ico" />
   <!-- Libs CSS -->
   <!-- Tabler Core -->
-  <link href="/boosting/assets/css/tabler.min.css" rel="stylesheet" />
+  <link href="/assets/css/tabler.min.css" rel="stylesheet" />
   <!-- Tabler Plugins -->
-  <link href="/boosting/assets/css/tabler-buttons.min.css" rel="stylesheet" />
+  <link href="/assets/css/tabler-buttons.min.css" rel="stylesheet" />
   <style>
     body {
       display: none;
@@ -40,7 +40,7 @@
 
         <h1 class="h2 text-muted">Unauthorized</h1>
         
-        <img src="/boosting/assets/images/jaina_dissapointed.gif" alt="Jaina Proudmore is dissapointed with you" class="w-100"/>
+        <img src="/assets/images/jaina_dissapointed.gif" alt="Jaina Proudmore is dissapointed with you" class="w-100"/>
         <p class="empty-subtitle text-muted">
           Login through discord (!mudkip) if you want to change/update anything
         </p>

@@ -46,7 +46,7 @@
                                 ?>
                             <tr>
                                 <td><span class="text-muted"><?php echo $raid['id']; ?></span></td>
-                                <td><a href="/boosting/raid/?id=<?php echo $raid['id']; ?>"
+                                <td><a href="/raid/?id=<?php echo $raid['id']; ?>"
                                         class="text-reset"><?php echo $raid['name']; ?></a></td>
                                 <td>
                                     <?php echo $raid['gold']; ?>
@@ -91,7 +91,7 @@
                                     <span class="text-muted"> <?php echo $character['id']; ?> </span>
                                 </td>
                                 <td>
-                                    <a href="/boosting/character/?id=<?php echo $character['id']; ?>"
+                                    <a href="/character/?id=<?php echo $character['id']; ?>"
                                         class="text-reset"><?php echo $character['name']; ?></a>
                                 </td>
                                 <td>
@@ -100,7 +100,7 @@
                                                 foreach($characters as $mainCharacter){
                                                     if($mainCharacter['id'] == $character['main']){
                                                         ?>
-                                    <a href="/boosting/character/?id=<?php echo $mainCharacter['id']; ?>"
+                                    <a href="/character/?id=<?php echo $mainCharacter['id']; ?>"
                                         class="text-reset"><?php echo $mainCharacter['name']; ?></a>
                                     <?php
                                                     }

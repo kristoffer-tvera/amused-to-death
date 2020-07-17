@@ -22,7 +22,7 @@
                     </div>
                 </div>
 
-                <form action="/boosting/api/AddOrUpdateRaid.php" method="post" class="card" id="AddOrUpdateRaid">
+                <form action="/api/AddOrUpdateRaid.php" method="post" class="card" id="AddOrUpdateRaid">
                     <?php 
                     include_once './api/db.php';
                     include_once './api/db_helper.php';
@@ -77,7 +77,7 @@
                                 </div>
                                 <div class="form-group">
                                 <?php if (isset($_SESSION['admin']) && $id > 0): ?>
-                                    <a  class="btn btn-danger" href="/boosting/api/RemoveAtendeesWithNoBossesFromRaid.php?return=/boosting/raid/&raidId=<?php echo $id ?>"> Remove characters with zero bosses</a>
+                                    <a  class="btn btn-danger" href="/api/RemoveAtendeesWithNoBossesFromRaid.php?return=/raid/&raidId=<?php echo $id ?>"> Remove characters with zero bosses</a>
                                 <?php endif;?>   
                                 </div>
                             </div>
@@ -85,7 +85,7 @@
                     </div>
                     <div class="card-footer text-right">
                         <div class="d-flex">
-                            <input type="hidden" name="return" value="/boosting/raid/" />
+                            <input type="hidden" name="return" value="/raid/" />
                             <button type="submit" class="btn btn-primary ml-auto">Save</button>
                         </div>
                     </div>
@@ -143,26 +143,26 @@
                                     <div class="ml-2 row w-100">
                                         <div class="col-auto px-0">
                                             <span class="avatar avatar-sm"
-                                                style="background-image: url(/boosting/assets/images/classes/<?php echo $character['class']; ?>.png)"></span>
+                                                style="background-image: url(/assets/images/classes/<?php echo $character['class']; ?>.png)"></span>
                                         </div>
                                         <div class="col-auto d-flex px-1">
                                             <h3 class="mb-0 mr-1">
-                                                <a href="/boosting/character/?id=<?php echo $character['characterId']; ?>"
+                                                <a href="/character/?id=<?php echo $character['characterId']; ?>"
                                                     title="Ilvl: <?php echo $character['ilvl']; ?>"
                                                     class="text-reset text-decoration-underline"><?php echo $character["name"] ?></a>
                                                 <?php if($alt['role_tank'] == 1): ?>
                                                 <span class="avatar avatar-sm"
-                                                    style="background-image: url(/boosting/assets/images/roles/role_tank.png)">
+                                                    style="background-image: url(/assets/images/roles/role_tank.png)">
                                                 </span>
                                                 <?php endif; ?>
                                                 <?php if($alt['role_heal'] == 1): ?>
                                                 <span class="avatar avatar-sm"
-                                                    style="background-image: url(/boosting/assets/images/roles/role_heal.png)">
+                                                    style="background-image: url(/assets/images/roles/role_heal.png)">
                                                 </span>
                                                 <?php endif; ?>
                                                 <?php if($alt['role_dps'] == 1): ?>
                                                 <span class="avatar avatar-sm"
-                                                    style="background-image: url(/boosting/assets/images/roles/role_dps.png)">
+                                                    style="background-image: url(/assets/images/roles/role_dps.png)">
                                                 </span>
                                                 <?php endif; ?>
                                             </h3>
@@ -183,7 +183,7 @@
                     <div class="card-body">
                         <div class="row">
                             <div class="col-12">
-                                <form action="/boosting/api/AddAttendance.php" method="post" id="AddAttendance">
+                                <form action="/api/AddAttendance.php" method="post" id="AddAttendance">
                                     <div class="form-group">
                                         <label class="form-label">Select character</label>
                                         <select name="character" id="select-character"
@@ -209,7 +209,7 @@
                                     <div class="form-group">
                                         <input type="hidden" name="raid" value="<?php echo $id ?>" />
                                         <input type="hidden" name="bosses" value="0" />
-                                        <input type="hidden" name="return" value="/boosting/raid.php" />
+                                        <input type="hidden" name="return" value="/raid.php" />
                                     </div>
                                     <div class="form-group">
                                         <input class="btn btn-primary" type="submit" value="Add">
@@ -239,14 +239,14 @@
                             if(!empty($attendees)){
                             foreach($attendees as $attendee):
                             ?>
-                        <form class="row border-top py-2 update-attendance" action="/boosting/api/UpdateAttendance.php">
+                        <form class="row border-top py-2 update-attendance" action="/api/UpdateAttendance.php">
                             <div class="col-1 col-lg-1 my-2 my-lg-0">
                                 <span class="text-muted"><?php echo $attendee["id"]?></span>
                                 <input type="hidden" name="character" value="<?php echo $attendee["characterId"]?>" />
                                 <input type="hidden" name="raid" value="<?php echo $attendee["raidId"]?>" />
                             </div>
                             <div class="col-6 col-lg-3 my-2 my-lg-0">
-                                <a href="/boosting/character/?id=<?php echo $attendee["characterId"]?>"
+                                <a href="/character/?id=<?php echo $attendee["characterId"]?>"
                                     class="text-reset text-decoration-underline"><?php echo $attendee["name"]?></a>
                             </div>
                             <div class="col-5 col-lg-3 my-2 my-lg-0">
@@ -273,7 +273,7 @@
                                 <button type="submit" class="btn btn-primary btn-sm">Update</button>
                             </div>
                             <div class="col-6 col-lg-1 my-2 my-lg-0">
-                                <a href="/boosting/api/DeleteAttendanceForCharacter.php?characterId=<?php echo $attendee["characterId"]?>&raidId=<?php echo $id ?>&return=/boosting/raid/&returnId=<?php echo $id ?>"
+                                <a href="/api/DeleteAttendanceForCharacter.php?characterId=<?php echo $attendee["characterId"]?>&raidId=<?php echo $id ?>&return=/raid/&returnId=<?php echo $id ?>"
                                     class="btn btn-danger btn-sm">Remove</a>
                             </div>
                         </form>

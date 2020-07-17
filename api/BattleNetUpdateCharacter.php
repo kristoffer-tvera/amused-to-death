@@ -16,7 +16,7 @@
     if(isset($_GET["return"]) && !empty($_GET["return"])){
         $return = htmlspecialchars($_GET["return"]);
     } else {
-        $return = "/boosting/";
+        $return = "/";
     }
 
     $id = '';

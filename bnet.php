@@ -41,13 +41,13 @@
                     if(empty($token)):
                     ?>
                             <p>You do NOT have an active access-token.</p>
-                            <p> <a href="/boosting/api/BattleNetToken/?return=/boosting/bnet/"
+                            <p> <a href="/api/BattleNetToken/?return=/bnet/"
                                     class="text-reset text-decoration-underline">Click here</a> to get a new one.</p>
                             <?php elseif($timeLeft > 0):?>
                             <p> Your token has <?php echo $timeLeft ?> seconds left </p>
                             <?php else: ?>
                             <p> Your token has expired. </p>
-                            <p> <a href="/boosting/api/BattleNetToken/?return=/boosting/bnet/"
+                            <p> <a href="/api/BattleNetToken/?return=/bnet/"
                                     class="text-reset text-decoration-underline">Click here</a> to get a new one.</p>
                             <?php endif;?>
 
@@ -117,7 +117,7 @@
             let li = document.createElement('li');
 
             let xhr = new XMLHttpRequest();
-            xhr.open("GET", '/boosting/api/BattleNetUpdateCharacter/?ajax=1&id=' + characterId);
+            xhr.open("GET", '/api/BattleNetUpdateCharacter/?ajax=1&id=' + characterId);
             xhr.onreadystatechange = function () {
                 if (this.readyState == 4) {
                     li.innerText = decodeURI(xhr.responseText);

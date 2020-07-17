@@ -30,6 +30,6 @@
         $_SESSION['admin'] = true;
     }
 
-    header('Location: /boosting/');
+    header('Location: /');
     exit;
 ?>

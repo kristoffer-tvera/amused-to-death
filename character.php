@@ -60,7 +60,7 @@
                     }
                 }
                 ?>
-                <form action="/boosting/api/AddOrUpdateCharacter.php" method="post" class="card" id="characterform">
+                <form action="/api/AddOrUpdateCharacter.php" method="post" class="card" id="characterform">
                     <div class="card-header">
                         <h3 class="card-title">Character</h3>
                     </div>
@@ -181,7 +181,7 @@
                                             ?>
                                 <div class="form-group">
                                     <div class="form-control-plaintext"><a class="btn btn-success"
-                                            href="/boosting/api/BattleNetUpdateCharacter/?id=<?php echo $id ?>&return=/boosting/character/?id=<?php echo $id ?>">Update
+                                            href="/api/BattleNetUpdateCharacter/?id=<?php echo $id ?>&return=/character/?id=<?php echo $id ?>">Update
                                             ilvl</a></div>
                                 </div>
                                 <?php endif; ?>
@@ -190,9 +190,9 @@
                     </div>
                     <div class="card-footer text-right">
                         <div class="d-flex">
-                            <input type="hidden" name="return" value="/boosting/character/" />
+                            <input type="hidden" name="return" value="/character/" />
                             <?php if(!empty($main)): ?>
-                            <a href="/boosting/character/?id=<?php echo $main ?>" class="btn btn-primary">Open main</a>
+                            <a href="/character/?id=<?php echo $main ?>" class="btn btn-primary">Open main</a>
                             <?php endif; ?>
                             <button type="submit" class="btn btn-primary ml-auto">Save</button>
                         </div>
@@ -226,7 +226,7 @@
                                 <td>
                                     <span class="text-muted"><?php echo $raid["raidId"] ?></span></td>
                                 <td>
-                                    <a href="/boosting/raid/?id=<?php echo $raid["raidId"] ?>"
+                                    <a href="/raid/?id=<?php echo $raid["raidId"] ?>"
                                         class="text-reset text-decoration-underline"><?php echo $raid["name"] ?></a>
                                 </td>
                                 <td>
@@ -277,7 +277,7 @@
                                 <td>
                                     <span class="text-muted"><?php echo $alt["id"] ?></span></td>
                                 <td>
-                                    <a href="/boosting/character/?id=<?php echo $alt["id"] ?>"
+                                    <a href="/character/?id=<?php echo $alt["id"] ?>"
                                         class="text-reset text-decoration-underline"><?php echo $alt["name"] ?></a>
                                 </td>
                                 <td>
