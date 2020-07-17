@@ -17,10 +17,6 @@
     }
 
     $nav[] = array('name' => 'Discord', 'icon' => '<svg xmlns="http://www.w3.org/2000/svg" class="icon icon-md" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"></path><circle cx="11" cy="5" r="2"></circle><polyline points="11 7 11 15 15 15 19 20"></polyline><line x1="11" y1="11" x2="16" y2="11"></line><path d="M7 11.5a4.97 4.97 0 1 0 6 7.5"></path></svg>', 'href' => 'https://discord.gg/urtqPvR');
-
-
-    //https://discord.gg/urtqPvR
-
 ?>
 
 <header class="navbar navbar-expand-md navbar-dark">
@@ -47,7 +43,8 @@
 
                     <?php foreach($nav as $navElement): ?>
 
-                    <li class="nav-item <?php if(strpos($_SERVER['REQUEST_URI'], $navElement["href"]) !== false && strlen($_SERVER['REQUEST_URI']) >= strlen($navElement["href"])) echo "active" ?>">
+                    <li
+                        class="nav-item <?php if(strpos($_SERVER['REQUEST_URI'], $navElement["href"]) !== false && strlen($_SERVER['REQUEST_URI']) == strlen($navElement["href"])) echo "active" ?>">
                         <a class="nav-link" href="<?php echo $navElement["href"]; ?>">
                             <span class="nav-link-icon d-md-none d-lg-inline-block">
                                 <?php echo $navElement["icon"]; ?>

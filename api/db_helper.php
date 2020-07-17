@@ -12,6 +12,19 @@ function GetCharacters($dbservername, $dbusername, $dbpassword, $dbname, $dbtabl
     return $result->fetch_all(MYSQLI_ASSOC);
 }
 
+function GetMyCharacters($dbservername, $dbusername, $dbpassword, $dbname, $dbtable_characters, $discord){
+    $conn = new mysqli($dbservername, $dbusername, $dbpassword, $dbname);
+    if ($conn-> connect_error) {
+        die("Connection failed: ".$conn-> connect_error);
+    }
+
+    $stmt = $conn->prepare("SELECT * FROM `$dbtable_characters` WHERE discord=?");
+    $stmt->bind_param('s', $discord);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    return $result->fetch_all(MYSQLI_ASSOC);
+}
+
 function GetCharacterIds($dbservername, $dbusername, $dbpassword, $dbname, $dbtable_characters) {
     $conn = new mysqli($dbservername, $dbusername, $dbpassword, $dbname);
     if ($conn-> connect_error) {

@@ -25,47 +25,23 @@
 
                 <div class="card">
                     <div class="card-header">
-                        <h3 class="card-title">Raids</h3>
+                        <h3 class="card-title">Welcome</h3>
                     </div>
-                    <table class="table card-table table-vcenter text-nowrap datatable">
-                        <thead>
-                            <tr>
-                                <th class="w-1">Id.</th>
-                                <th>Name</th>
-                                <th>Gold</th>
-                                <th>Created</th>
-                                <th>Updated</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php
-                            include_once './api/db.php';
-                            include_once './api/db_helper.php';
-                            $raids = GetRaids($dbservername, $dbusername, $dbpassword, $dbname, $dbtable_raids);
-                            foreach($raids as $raid):
-                                ?>
-                            <tr>
-                                <td><span class="text-muted"><?php echo $raid['id']; ?></span></td>
-                                <td><a href="/raid/?id=<?php echo $raid['id']; ?>"
-                                        class="text-reset"><?php echo $raid['name']; ?></a></td>
-                                <td>
-                                    <?php echo $raid['gold']; ?>
-                                </td>
-                                <td>
-                                    <?php echo $raid['added_date']; ?>
-                                </td>
-                                <td>
-                                    <?php echo $raid['change_date']; ?>
-                                </td>
-                            </tr>
-                            <?php endforeach; ?>
-                        </tbody>
-                    </table>
-                </div><!-- card -->
+                    <div class="card-body">
+                        <p> If you have a character in the guild, log in through discord (!mudkip in the raider-only
+                            channel).</p>
+                        <p> If you dont, then please feel free to <a href="/apply/" class="text-decoration-underline link-warning">apply to become a raider / part of
+                                the guild</a>.</p>
+                    </div>
+                    <div class="card-footer">
+                    </div>
+                </div>
+
+                <?php if(isset($_SESSION['auth'])):?>
 
                 <div class="card">
                     <div class="card-header">
-                        <h3 class="card-title">Characters</h3>
+                        <h3 class="card-title">My Characters</h3>
                     </div>
                     <table class="table card-table table-vcenter text-nowrap datatable">
                         <thead>
@@ -83,7 +59,7 @@
                             <?php
                                     include_once './api/db.php';
                                     include_once './api/db_helper.php';
-                                    $characters = GetCharacters($dbservername, $dbusername, $dbpassword, $dbname, $dbtable_characters);
+                                    $characters = GetMyCharacters($dbservername, $dbusername, $dbpassword, $dbname, $dbtable_characters, $_SESSION['auth']);
                                     foreach($characters as $character):
                                     ?>
                             <tr>
@@ -126,6 +102,7 @@
                     </table>
 
                 </div><!-- card -->
+                <?php endif;?>
 
             </div><!-- container-xl -->
 
