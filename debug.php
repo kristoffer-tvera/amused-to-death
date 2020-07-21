@@ -1,4 +1,4 @@
-<?php session_start(); ?>
+<?php require './partials/_session_start.php'; ?>
 <!doctype html>
 <html lang="en" dir="ltr">
 <?php 
@@ -45,9 +45,6 @@
                         <a href="?command=destroy_session" class="btn btn-danger"> Destroy session <a>
 
                         <hr/>
-
-                        <p> Current request URI: <?php echo $_SERVER['REQUEST_URI']; ?> </p>
-                        <p> Current PHP version: <?php echo phpversion('tidy'); ?></p>
                     </div> <!-- card-body -->
                 </div> <!-- card -->
 

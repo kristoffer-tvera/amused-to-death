@@ -30,6 +30,8 @@
         $_SESSION['admin'] = true;
     }
 
+    setcookie('auth', $token, time() + (86400 * 14), '/');
+
     header('Location: /');
     exit;
 ?>

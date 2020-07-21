@@ -1,4 +1,4 @@
-<?php session_start(); ?>
+<?php require './partials/_session_start.php'; ?>
 <!doctype html>
 <html lang="en" dir="ltr">
 <?php 
