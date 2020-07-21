@@ -41,7 +41,7 @@
         exit;
     }
 
-    $name = urlencode(strtolower($char["name"]));
+    $name = urlencode(mb_strtolower($char["name"]));
     $realm = strtolower($char["realm"]);
     //=======================================================================================================
     // Blizzard oAuth endpoint URL
