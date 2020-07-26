@@ -176,9 +176,11 @@
                     <?php endfor; ?>
                 </div><!-- d-flex flex-wrap -->
 
+                <?php if(isset($_SESSION['admin'])): ?>
+
                 <div class="card" data-add>
                     <div class="card-header">
-                        <h3 class="card-title">Add characters</h3>
+                        <h3 class="card-title">[Admin] Add characters</h3>
                     </div>
                     <div class="card-body">
                         <div class="row">
@@ -194,7 +196,7 @@
                                         foreach($characters as $character):
                                             $alreadyInTheRaid = false;
                                             foreach($attendees as $attendee){
-                                                if($attendee["id"] == $character["id"]){
+                                                if($attendee["characterId"] == $character["id"]){
                                                     $alreadyInTheRaid = true;
                                                 }
                                             }
@@ -209,7 +211,7 @@
                                     <div class="form-group">
                                         <input type="hidden" name="raid" value="<?php echo $id ?>" />
                                         <input type="hidden" name="bosses" value="0" />
-                                        <input type="hidden" name="return" value="/raid.php" />
+                                        <input type="hidden" name="return" value="/raid/" />
                                     </div>
                                     <div class="form-group">
                                         <input class="btn btn-primary" type="submit" value="Add">
@@ -219,6 +221,60 @@
                         </div>
                     </div>
                 </div> <!-- card -->
+
+                <?php endif;?>
+                <?php if(isset($_SESSION['auth'])): ?>
+
+                <div class="card" data-add>
+                    <div class="card-header">
+                        <h3 class="card-title">Add my characters</h3>
+                    </div>
+
+                    <div class="card-body">
+                        <div class="row d-none d-lg-flex py-2 text-muted">
+                            <div class="col-1 col-lg-1">Id</div>
+                            <div class="col-6 col-lg-5">Name</div>
+                            <div class="col-5 col-lg-5">Class</div>
+                            <div class="col-12 col-lg-1"></div>
+                        </div>
+                        <?php 
+                            $myCharacters = GetMyCharacters($dbservername, $dbusername, $dbpassword, $dbname, $dbtable_characters, $_SESSION['auth']);
+                            foreach($myCharacters as $myCharacter):
+                                $alreadyInTheRaid = false;
+                                foreach($attendees as $attendee){
+                                    if($attendee["characterId"] == $myCharacter["id"]){
+                                        $alreadyInTheRaid = true;
+                                    }
+                                }
+
+                                if($alreadyInTheRaid) continue;
+                            ?>
+                        <form class="row border-top py-2 add-attendance" method="post" action="/api/AddAttendance.php">
+                            <div class="col-1 col-lg-1 my-2 my-lg-0">
+                                <span class="text-muted"><?php echo $myCharacter["id"]?></span>
+                                <input type="hidden" name="character" value="<?php echo $myCharacter["id"]?>" />
+                                <input type="hidden" name="raid" value="<?php echo $id ?>" />
+                                <input type="hidden" name="return" value="/raid/" />
+                            </div>
+                            <div class="col-6 col-lg-5 my-2 my-lg-0">
+                                <a href="/character/?id=<?php echo $myCharacter["id"]?>"
+                                    class="text-reset text-decoration-underline"><?php echo $myCharacter["name"]?></a>
+                            </div>
+                            <div class="col-5 col-lg-5 my-2 my-lg-0">
+                                <?php echo ClassFromId($myCharacter["class"]) ?>
+                            </div>
+                            <div class="col-12 col-lg-1 my-2 my-lg-0">
+                                <button type="submit" class="btn btn-success btn-sm">Add</button>
+                            </div>
+                        </form>
+
+                        <?php endforeach; ?>
+
+                    </div> <!-- card-body -->
+
+                </div> <!-- card -->
+
+                <?php endif;?>
 
                 <div class="card" data-characters>
                     <div class="card-header">
@@ -280,7 +336,7 @@
 
                         <?php endforeach;} ?>
 
-                    </div> <!-- table-body -->
+                    </div> <!-- card-body -->
                 </div> <!-- card -->
 
                 <?php endif; ?>
