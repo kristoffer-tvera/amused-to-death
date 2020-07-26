@@ -66,15 +66,15 @@
                 $discord = 'error#1234';
             }
     
-            $stmt = $conn->prepare("UPDATE `$dbtable_characters` SET change_date=now(), name=?, class=?, main=?, realm=?, role_tank=?, role_heal=?, role_dps=?, discord=? WHERE id=?");
+            $stmt = $conn->prepare("UPDATE `$dbtable_characters` SET name=?, class=?, main=?, realm=?, role_tank=?, role_heal=?, role_dps=?, discord=? WHERE id=?");
             $stmt->bind_param('siisiiisi', $name, $class, $main, $realm, $tank, $heal, $dps, $discord, $id);
     
-            $sql = "UPDATE $dbtable_characters SET change_date=now(), name=$name, class=$class, main=$main, realm=$realm, role_tank=$tank, role_heal=$heal, role_dps=$dps, discord=$discord, WHERE id=$id";
+            $sql = "UPDATE $dbtable_characters SET name=$name, class=$class, main=$main, realm=$realm, role_tank=$tank, role_heal=$heal, role_dps=$dps, discord=$discord, WHERE id=$id";
         } else {
-            $stmt = $conn->prepare("UPDATE `$dbtable_characters` SET change_date=now(), name=?, class=?, main=?, realm=?, role_tank=?, role_heal=?, role_dps=? WHERE id=?");
+            $stmt = $conn->prepare("UPDATE `$dbtable_characters` SET name=?, class=?, main=?, realm=?, role_tank=?, role_heal=?, role_dps=? WHERE id=?");
             $stmt->bind_param('siisiiii', $name, $class, $main, $realm, $tank, $heal, $dps, $id);
     
-            $sql = "UPDATE $dbtable_characters SET change_date=now(), name=$name, class=$class, main=$main, realm=$realm, role_tank=$tank, role_heal=$heal, role_dps=$dps WHERE id=$id";
+            $sql = "UPDATE $dbtable_characters SET name=$name, class=$class, main=$main, realm=$realm, role_tank=$tank, role_heal=$heal, role_dps=$dps WHERE id=$id";
         }
     } else {
         $stmt = $conn->prepare("INSERT INTO `$dbtable_characters` (name, class, main, realm, role_tank, role_heal, role_dps, discord) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");

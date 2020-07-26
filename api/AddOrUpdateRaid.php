@@ -32,10 +32,10 @@
     } 
 
     if(!empty($id)){
-        $stmt = $conn->prepare("UPDATE `$dbtable_raids` SET change_date=now(), name=?, gold=? WHERE id=?");
+        $stmt = $conn->prepare("UPDATE `$dbtable_raids` SET name=?, gold=? WHERE id=?");
         $stmt->bind_param('sii', $name, $gold, $id);
 
-        $sql = "UPDATE $dbtable_raids SET change_date=now(), name=$name, gold=$gold WHERE id=$id";
+        $sql = "UPDATE $dbtable_raids SET name=$name, gold=$gold WHERE id=$id";
     } else {
         $stmt = $conn->prepare("INSERT INTO `$dbtable_raids` (name, gold) VALUES (?, ?)");
         $stmt->bind_param('si', $name, $gold);

@@ -30,13 +30,13 @@
         die("Connection failed: " . $conn->connect_error);
     } 
 
-    $stmt = $conn->prepare("UPDATE `$dbtable_attendance` SET change_date=now(), bosses=?, paid=? WHERE characterId=? AND raidID=?");
+    $stmt = $conn->prepare("UPDATE `$dbtable_attendance` SET bosses=?, paid=? WHERE characterId=? AND raidID=?");
     $stmt->bind_param('iiii', $bosses, $paid, $character, $raid);
 
     echo json_encode($stmt->execute());
 
     // Query Logging
-    $sql = "UPDATE $dbtable_attendance SET change_date=now(), bosses=$bosses, paid=$paid WHERE characterId=$character AND raidID=$raid";
+    $sql = "UPDATE $dbtable_attendance SET bosses=$bosses, paid=$paid WHERE characterId=$character AND raidID=$raid";
     $log = $conn->prepare("INSERT INTO `$dbtable_log` (query, user) VALUES (?, ?)");
     $log->bind_param('ss', $sql, $_SESSION['auth']);
     $log->execute();

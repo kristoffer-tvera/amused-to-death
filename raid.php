@@ -77,7 +77,7 @@
                                 </div>
                                 <div class="form-group">
                                 <?php if (isset($_SESSION['admin']) && $id > 0): ?>
-                                    <a  class="btn btn-danger" href="/api/RemoveAtendeesWithNoBossesFromRaid.php?return=/raid/&raidId=<?php echo $id ?>"> Remove characters with zero bosses</a>
+                                    <a  class="btn btn-danger" href="/api/RemoveAttendeesWithNoBossesFromRaid.php?return=/raid/&raidId=<?php echo $id ?>"> Remove characters with zero bosses</a>
                                 <?php endif;?>   
                                 </div>
                             </div>
@@ -121,7 +121,7 @@
                     for($i = 0; $i < sizeof($players); $i++):
                     ?>
                     <div class="col-md-6 col-lg-4">
-                        <div class="card" data-player-id="<?php echo $players[$i] ?>">
+                        <div class="card" data-player-id="<?php echo $players[$i] ?>" style="border-color: rgb(53, 64, 82)">
                             <div class="card-body">
                                 <div class="row align-items-center">
                                     <?php 
@@ -400,20 +400,51 @@
         let playerCards = document.querySelectorAll('[data-players] div.card');
         if (playerCards && playerCards.length > 0) {
             // let colors = ['rgb(208, 255, 254)', 'rgb(255, 253, 219)', 'rgb(228, 255, 222)', 'rgb(255, 211, 253)', 'rgb(255, 231, 211)', 'rgb(255, 255, 255)'];
-            let colors = ['rgb(45, 91, 107)', 'rgb(196, 122, 83)', 'rgb(143, 71, 49)', 'rgb(82, 73, 76)',
-                'rgb(123, 125, 42)', 'rgb(53, 64, 82)'
+            let colors = [
+                'rgb(53, 64, 82)', //default
+                'rgb(196, 31, 59)', //Death Knight
+                'rgb(163, 48, 201)',  //Demon Hunter
+                'rgb(255, 125, 10)',  //Druid
+                'rgb(169, 210, 113)',  //Hunter
+                'rgb(64, 199, 235)',  //Mage
+                'rgb(0, 255, 150)',  //Monk
+                'rgb(245, 140, 186)',  //Paladin
+                'rgb(255, 255, 255)',  //Priest
+                'rgb(255, 245, 105)',  //Rogue
+                'rgb(0, 112, 222)',  //Shaman
+                'rgb(135, 135, 237)',  //Warlock
+                'rgb(199, 156, 110)' //Warrior
             ];
             for (let i = 0; i < playerCards.length; i++) {
                 playerCards[i].addEventListener('click', function (e) {
                     let card = e.currentTarget;
-                    let currentColor = card.style.backgroundColor;
+                    let currentColor = card.style.borderColor ;
                     var colorIndex = (colors.indexOf(currentColor) + 1) % colors.length;
-                    card.style.backgroundColor = colors[colorIndex];
+                    card.style.borderColor  = colors[colorIndex];
+                });
+
+                playerCards[i].addEventListener('contextmenu', function (e) {
+                    if(e.preventDefault != undefined)
+                    e.preventDefault();
+                    if(e.stopPropagation != undefined)
+                    e.stopPropagation();
+
+                    let card = e.currentTarget;
+                    let currentColor = card.style.borderColor ;
+                    var colorIndex = ((colors.indexOf(currentColor) - 1)+colors.length) % colors.length;
+                    card.style.borderColor  = colors[colorIndex];
+
+                    return false;
                 });
             }
         }
 
     </script>
+    <style>
+    *[data-player-id]{
+        border: 4px solid;
+    }
+    </style>
 </body>
 
 </html>

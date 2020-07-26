@@ -41,7 +41,7 @@ function Initialize_tables($dbservername, $dbusername, $dbpassword, $dbname, $db
         hidden BIT NOT NULL DEFAULT 0,
         discord VARCHAR(50),
         added_date DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-        change_date DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+        change_date DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
         )";
     
     if ($conn->query($charactersSql) === TRUE) {
@@ -56,7 +56,7 @@ function Initialize_tables($dbservername, $dbusername, $dbpassword, $dbname, $db
         name VARCHAR(50),
         gold INT(8) NOT NULL DEFAULT 0,
         added_date DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-        change_date DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+        change_date DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
         )";
         
     if ($conn->query($raidSql) === TRUE) {
@@ -89,7 +89,8 @@ function Initialize_tables($dbservername, $dbusername, $dbpassword, $dbname, $db
         bosses INT(2) NOT NULL,
         paid TINYINT(1) NOT NULL DEFAULT '0',
         added_date DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-        change_date DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+        change_date DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        UNIQUE KEY (raidId, characterId)
         )";
         
     if ($conn->query($attendanceSql) === TRUE) {

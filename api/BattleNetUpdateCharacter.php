@@ -70,7 +70,7 @@
 
     $ilvl = $decoded->average_item_level;
 
-    $stmt = $conn->prepare("UPDATE `$dbtable_characters` SET change_date=now(), ilvl=? WHERE id=?");
+    $stmt = $conn->prepare("UPDATE `$dbtable_characters` SET ilvl=? WHERE id=?");
     $stmt->bind_param('ii', $ilvl, $id);
     $stmt->execute();
 
