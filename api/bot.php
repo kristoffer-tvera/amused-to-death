@@ -5,7 +5,7 @@
     header("Access-Control-Max-Age: 3600");
     header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With, X-API-KEY");
 
-    include_once 'db.php';
+    include_once 'secrets.php';
 
     $token = '';
     if(isset($_POST["token"]) && !empty($_POST["token"])){

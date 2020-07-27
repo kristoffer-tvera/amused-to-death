@@ -24,8 +24,8 @@
 
                 <form action="/api/AddOrUpdateRaid.php" method="post" class="card" id="AddOrUpdateRaid">
                     <?php 
-                    include_once './api/db.php';
-                    include_once './api/db_helper.php';
+                    include_once './api/secrets.php';
+                    include_once './api/helper.php';
                     $id = "";
                     $name = "";
                     $gold = 0;

@@ -14,7 +14,7 @@
     header("Access-Control-Max-Age: 3600");
     header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With");
 
-    include_once 'db.php';
+    include_once 'secrets.php';
 
     $id = $_POST["id"];
     $id = htmlspecialchars(strip_tags($id));

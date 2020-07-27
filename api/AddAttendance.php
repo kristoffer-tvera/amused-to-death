@@ -15,7 +15,7 @@
     $return = $_POST["return"];
     $return = htmlspecialchars($return);
 
-    include_once 'db.php';
+    include_once 'secrets.php';
 
     $character = $_POST["character"];
     $character = htmlspecialchars(strip_tags($character));

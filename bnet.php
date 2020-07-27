@@ -76,8 +76,8 @@
     <script>
     let characters = [];
     <?php
-        include_once './api/db.php';
-        include_once './api/db_helper.php';
+        include_once './api/secrets.php';
+        include_once './api/helper.php';
         $characters = GetCharacterIds($dbservername, $dbusername, $dbpassword, $dbname, $dbtable_characters);
         foreach($characters as $character){
             echo 'characters.push(' . $character['id'] . ');';

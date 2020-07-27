@@ -57,8 +57,8 @@
                         </thead>
                         <tbody>
                             <?php
-                                    include_once './api/db.php';
-                                    include_once './api/db_helper.php';
+                                    include_once './api/secrets.php';
+                                    include_once './api/helper.php';
                                     $characters = GetMyCharacters($dbservername, $dbusername, $dbpassword, $dbname, $dbtable_characters, $_SESSION['auth']);
                                     foreach($characters as $character):
                                     ?>

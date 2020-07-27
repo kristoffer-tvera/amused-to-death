@@ -1,5 +1,5 @@
 <?php
-require 'db.php';
+require 'secrets.php';
 
 function Initialize_database($dbservername, $dbusername, $dbpassword, $dbname){
     $conn = new mysqli($dbservername, $dbusername, $dbpassword);

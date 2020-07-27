@@ -45,8 +45,8 @@
                         </thead>
                         <tbody>
                             <?php
-                            include_once './api/db.php';
-                            include_once './api/db_helper.php';
+                            include_once './api/secrets.php';
+                            include_once './api/helper.php';
                             $raids = GetRaids($dbservername, $dbusername, $dbpassword, $dbname, $dbtable_raids);
                             foreach($raids as $raid):
                                 ?>

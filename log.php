@@ -37,8 +37,8 @@
                         </thead>
                         <tbody>
                             <?php
-                                include_once './api/db.php';
-                                include_once './api/db_helper.php';
+                                include_once './api/secrets.php';
+                                include_once './api/helper.php';
                                 $log = GetLog($dbservername, $dbusername, $dbpassword, $dbname, $dbtable_log);
 
                                 foreach($log as $event):

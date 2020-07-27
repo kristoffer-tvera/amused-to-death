@@ -11,7 +11,7 @@ if(isset($_SESSION['apply'])){
     $_SESSION["apply"] = true;
 }
 
-include_once 'db.php';
+include_once 'secrets.php';
 
 $fields = [];
 foreach($_POST as $key => $value){
@@ -45,7 +45,7 @@ $json = json_encode([
 $file = 'apps.txt';
 file_put_contents($file, $json, FILE_APPEND | LOCK_EX);
 
-$ch = curl_init( $webhookurl );
+$ch = curl_init( $webhookurl_recruitment );
 curl_setopt( $ch, CURLOPT_HTTPHEADER, array('Content-type: application/json'));
 curl_setopt( $ch, CURLOPT_POST, 1);
 curl_setopt( $ch, CURLOPT_POSTFIELDS, $json);

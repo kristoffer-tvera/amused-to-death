@@ -7,7 +7,7 @@ if(!isset($_SESSION['auth']) && isset($_COOKIE['auth']) && !empty($_COOKIE['auth
 
     $auth = $_COOKIE['auth'];
 
-    include_once './api/db.php';
+    include_once './api/secrets.php';
 
     $conn = new mysqli($dbservername, $dbusername, $dbpassword, $dbname);
     if ($conn->connect_error) {

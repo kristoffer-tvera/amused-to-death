@@ -12,7 +12,8 @@
     header("Access-Control-Max-Age: 3600");
     header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With");
 
-    include_once 'db.php';
+    include_once 'secrets.php';
+    include_once 'helper.php';
 
     $id = $_POST["id"];
     $id = htmlspecialchars(strip_tags($id));
@@ -52,6 +53,7 @@
 
     if(empty($id)){
         $id = $stmt->insert_id;
+        AnnouncementNewRaid($name, "https://amusedtodeath.eu/raid/?id=" . $id, $webhookurl_announcement);
     }
 
     header('Location: ' . $returnPath . '?id=' . $id);

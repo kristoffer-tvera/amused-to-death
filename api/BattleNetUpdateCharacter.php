@@ -6,7 +6,7 @@
         exit;
     }
 
-    include_once 'db.php';
+    include_once 'secrets.php';
     $ajax = false;
     if(isset($_GET["ajax"]) && !empty($_GET["ajax"])){
         $ajax = true;

@@ -6,7 +6,7 @@
 
     if(empty($token)) die('No token provided');
 
-    include_once 'db.php';
+    include_once 'secrets.php';
 
     $conn = new mysqli($dbservername, $dbusername, $dbpassword, $dbname);
     if ($conn->connect_error) {

@@ -24,8 +24,8 @@
                 </div>
 
                 <?php 
-                include_once './api/db.php';
-                include_once './api/db_helper.php';
+                include_once './api/secrets.php';
+                include_once './api/helper.php';
                 $id = 0;
                 $ilvl = 0;
                 $name = "";
@@ -214,8 +214,8 @@
                         </thead>
                         <tbody>
                             <?php 
-                                include_once './api/db.php';
-                                include_once './api/db_helper.php';
+                                include_once './api/secrets.php';
+                                include_once './api/helper.php';
 
                                 $raids = GetAttendanceForCharacter($dbservername, $dbusername, $dbpassword, $dbname, $dbtable_attendance, $dbtable_raids, $id);
                                 
@@ -265,8 +265,8 @@
                         </thead>
                         <tbody>
                             <?php 
-                                include_once './api/db.php';
-                                include_once './api/db_helper.php';
+                                include_once './api/secrets.php';
+                                include_once './api/helper.php';
 
                                 $alts = GetAltsForCharacter($dbservername, $dbusername, $dbpassword, $dbname, $dbtable_characters, $id);
                                 
