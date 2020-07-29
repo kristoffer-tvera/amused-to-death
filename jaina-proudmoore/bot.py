@@ -24,7 +24,7 @@ async def on_ready():
 async def on_message(message):
     if message.author == client.user:
         return
-    if message.channel.id not in [692040942722482186, 433559219841531905]: #whitelist 692040942722482186
+    if message.channel.id not in [738065516085903370]: #whitelist 692040942722482186
         return
 
     if message.content == '!mudkip':
@@ -41,7 +41,7 @@ async def on_message(message):
         await message.add_reaction('\U00002705')
         await message.author.create_dm()
         await message.author.dm_channel.send(
-            f'Hi, {id}. \nYou are on the list of approved users! \nLog in with this link: https://amusedtodeath.eu/api/auth/?token={token} \n\nThe link expires in 14 days, if it has expired by the time you read this, just ask for another link.'
+            f'Hi, {id}. \nYou are on the list of approved users! \nLog in with this link: https://amusedtodeath.eu/api/auth/?token={token} \n\nThe link expires in 30 days, if it has expired by the time you read this, just ask for another link.'
         )
 
 client.run(TOKEN)

@@ -26,7 +26,7 @@
 
     if($x_api_key != $apiKey) die('Bad API key');
 
-    $expire = date_create('+14 day')->format('Y-m-d H:i:s');
+    $expire = date_create('+30 day')->format('Y-m-d H:i:s');
 
     $conn = new mysqli($dbservername, $dbusername, $dbpassword, $dbname);
     if ($conn->connect_error) {
