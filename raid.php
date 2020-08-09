@@ -58,7 +58,7 @@
                                 <div class="form-group">
                                     <label class="form-label">Name</label>
                                     <input type="text" class="form-control" name="name" placeholder="Name.."
-                                        value="<?php echo $name ?>">
+                                        value="<?php echo $name ?>" required="required">
                                 </div>
 
                                 <div class="form-group">
@@ -76,9 +76,11 @@
                                     <div class="form-control-plaintext"><?php echo $updated ?></div>
                                 </div>
                                 <div class="form-group">
-                                <?php if (isset($_SESSION['admin']) && $id > 0): ?>
-                                    <a  class="btn btn-danger" href="/api/RemoveAttendeesWithNoBossesFromRaid.php?return=/raid/&raidId=<?php echo $id ?>"> Remove characters with zero bosses</a>
-                                <?php endif;?>   
+                                    <?php if (isset($_SESSION['admin']) && $id > 0): ?>
+                                    <a class="btn btn-danger"
+                                        href="/api/RemoveAttendeesWithNoBossesFromRaid.php?return=/raid/&raidId=<?php echo $id ?>">
+                                        Remove characters with zero bosses</a>
+                                    <?php endif;?>
                                 </div>
                             </div>
                         </div>
@@ -121,7 +123,8 @@
                     for($i = 0; $i < sizeof($players); $i++):
                     ?>
                     <div class="col-md-6 col-lg-4">
-                        <div class="card" data-player-id="<?php echo $players[$i] ?>" style="border-color: rgb(53, 64, 82)">
+                        <div class="card" data-player-id="<?php echo $players[$i] ?>"
+                            style="border-color: rgb(53, 64, 82)">
                             <div class="card-body">
                                 <div class="row align-items-center">
                                     <?php 
@@ -178,7 +181,42 @@
 
                 <?php if(isset($_SESSION['admin'])): ?>
 
-                <div class="card" data-add>
+                <div class="card" data-update-attendance>
+                    <div class="card-header">
+                        <h3 class="card-title">[Admin] Update attendance</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-12">
+
+                                <div class="form-group mb-3">
+                                    <label class="form-label">Characternames (from addon) </label>
+                                    <input type="text" class="form-control" id="bulk-update-characters"
+                                        placeholder="a,b,c,d">
+                                </div>
+
+                                <div class="form-group mb-3">
+                                    <label class="form-label"> Bosscount (default 12) </label>
+                                    <input type="number" class="form-control" id="bulk-update-count" value="12">
+                                </div>
+
+                                <div class="form-group mb-3">
+                                    <button class="btn btn-primary" id="bulk-update-preview">Preview</button>
+                                </div>
+
+                                <div class="form-group mb-3">
+                                    <button class="btn btn-primary" id="bulk-update-run">Run</button>
+                                </div>
+
+                                <ul id="status-list">
+                                </ul>
+
+                            </div>
+                        </div>
+                    </div>
+                </div> <!-- card -->
+
+                <div class="card" data-admin-add>
                     <div class="card-header">
                         <h3 class="card-title">[Admin] Add characters</h3>
                     </div>
@@ -223,6 +261,7 @@
                 </div> <!-- card -->
 
                 <?php endif;?>
+
                 <?php if(isset($_SESSION['auth'])): ?>
 
                 <div class="card" data-add>
@@ -295,15 +334,17 @@
                             if(!empty($attendees)){
                             foreach($attendees as $attendee):
                             ?>
-                        <form class="row border-top py-2 update-attendance" action="/api/UpdateAttendance.php">
+                        <form class="row border-top py-2 update-attendance" action="/api/UpdateAttendance.php"
+                            data-character-name="<?php echo $attendee["name"]?>"
+                            data-character-id="<?php echo $attendee["characterId"]?>">
                             <div class="col-1 col-lg-1 my-2 my-lg-0">
                                 <span class="text-muted"><?php echo $attendee["id"]?></span>
-                                <input type="hidden" name="character" value="<?php echo $attendee["characterId"]?>" />
-                                <input type="hidden" name="raid" value="<?php echo $attendee["raidId"]?>" />
+                                <input type="hidden" name="characterId" value="<?php echo $attendee["characterId"]?>" />
+                                <input type="hidden" name="raidId" value="<?php echo $attendee["raidId"]?>" />
                             </div>
                             <div class="col-6 col-lg-3 my-2 my-lg-0">
-                                <a href="/character/?id=<?php echo $attendee["characterId"]?>"
-                                    class="text-reset text-decoration-underline"><?php echo $attendee["name"]?></a>
+                                <a href="/character/?id=<?php echo $attendee["characterId"]?>" class="text-reset text-decoration-underline"><?php echo $attendee["name"]?></a> 
+                                <button type="button" onclick="navigator.clipboard.writeText('<?php echo $attendee["name"] ?>'); this.innerText='(copied!)'" class="border-0 bg-transparent ml-2 text-reset"> (copy) </button>
                             </div>
                             <div class="col-5 col-lg-3 my-2 my-lg-0">
                                 <?php echo $attendee["added_date"] ?>
@@ -329,7 +370,7 @@
                                 <button type="submit" class="btn btn-primary btn-sm">Update</button>
                             </div>
                             <div class="col-6 col-lg-1 my-2 my-lg-0">
-                                <a href="/api/DeleteAttendanceForCharacter.php?characterId=<?php echo $attendee["characterId"]?>&raidId=<?php echo $id ?>&return=/raid/&returnId=<?php echo $id ?>"
+                                <a href="/api/DeleteAttendanceForCharacter/?characterId=<?php echo $attendee["characterId"]?>&raidId=<?php echo $id ?>&return=/raid/&returnId=<?php echo $id ?>"
                                     class="btn btn-danger btn-sm">Remove</a>
                             </div>
                         </form>
@@ -453,53 +494,170 @@
         }
         UpdateCut();
 
-        let playerCards = document.querySelectorAll('[data-players] div.card');
-        if (playerCards && playerCards.length > 0) {
-            // let colors = ['rgb(208, 255, 254)', 'rgb(255, 253, 219)', 'rgb(228, 255, 222)', 'rgb(255, 211, 253)', 'rgb(255, 231, 211)', 'rgb(255, 255, 255)'];
-            let colors = [
-                'rgb(53, 64, 82)', //default
-                'rgb(196, 31, 59)', //Death Knight
-                'rgb(163, 48, 201)',  //Demon Hunter
-                'rgb(255, 125, 10)',  //Druid
-                'rgb(169, 210, 113)',  //Hunter
-                'rgb(64, 199, 235)',  //Mage
-                'rgb(0, 255, 150)',  //Monk
-                'rgb(245, 140, 186)',  //Paladin
-                'rgb(255, 255, 255)',  //Priest
-                'rgb(255, 245, 105)',  //Rogue
-                'rgb(0, 112, 222)',  //Shaman
-                'rgb(135, 135, 237)',  //Warlock
-                'rgb(199, 156, 110)' //Warrior
-            ];
-            for (let i = 0; i < playerCards.length; i++) {
-                playerCards[i].addEventListener('click', function (e) {
-                    let card = e.currentTarget;
-                    let currentColor = card.style.borderColor ;
-                    var colorIndex = (colors.indexOf(currentColor) + 1) % colors.length;
-                    card.style.borderColor  = colors[colorIndex];
-                });
+        (function () {
+            let playerCards = document.querySelectorAll('[data-players] div.card');
+            if (playerCards && playerCards.length > 0) {
+                // let colors = ['rgb(208, 255, 254)', 'rgb(255, 253, 219)', 'rgb(228, 255, 222)', 'rgb(255, 211, 253)', 'rgb(255, 231, 211)', 'rgb(255, 255, 255)'];
+                let colors = [
+                    'rgb(53, 64, 82)', //default
+                    'rgb(196, 31, 59)', //Death Knight
+                    'rgb(163, 48, 201)', //Demon Hunter
+                    'rgb(255, 125, 10)', //Druid
+                    'rgb(169, 210, 113)', //Hunter
+                    'rgb(64, 199, 235)', //Mage
+                    'rgb(0, 255, 150)', //Monk
+                    'rgb(245, 140, 186)', //Paladin
+                    'rgb(255, 255, 255)', //Priest
+                    'rgb(255, 245, 105)', //Rogue
+                    'rgb(0, 112, 222)', //Shaman
+                    'rgb(135, 135, 237)', //Warlock
+                    'rgb(199, 156, 110)' //Warrior
+                ];
+                for (let i = 0; i < playerCards.length; i++) {
+                    playerCards[i].addEventListener('click', function (e) {
+                        let card = e.currentTarget;
+                        let currentColor = card.style.borderColor;
+                        var colorIndex = (colors.indexOf(currentColor) + 1) % colors.length;
+                        card.style.borderColor = colors[colorIndex];
+                    });
 
-                playerCards[i].addEventListener('contextmenu', function (e) {
-                    if(e.preventDefault != undefined)
-                    e.preventDefault();
-                    if(e.stopPropagation != undefined)
-                    e.stopPropagation();
+                    playerCards[i].addEventListener('contextmenu', function (e) {
+                        if (e.preventDefault != undefined)
+                            e.preventDefault();
+                        if (e.stopPropagation != undefined)
+                            e.stopPropagation();
 
-                    let card = e.currentTarget;
-                    let currentColor = card.style.borderColor ;
-                    var colorIndex = ((colors.indexOf(currentColor) - 1)+colors.length) % colors.length;
-                    card.style.borderColor  = colors[colorIndex];
+                        let card = e.currentTarget;
+                        let currentColor = card.style.borderColor;
+                        var colorIndex = ((colors.indexOf(currentColor) - 1) + colors.length) % colors
+                            .length;
+                        card.style.borderColor = colors[colorIndex];
 
-                    return false;
+                        return false;
+                    });
+                }
+            }
+        }());
+
+        let raidId = <?php echo $id ?> ;
+        (function () {
+            let characterList = document.querySelector('#bulk-update-characters');
+            let attendanceCountElem = document.querySelector('#bulk-update-count');
+            let attendanceCount = 0;
+            let characters = [];
+            let preview = document.querySelector('#bulk-update-preview');
+            let run = document.querySelector('#bulk-update-run');
+            let list = document.querySelector('#status-list');
+
+            if (characterList) {
+                characterList.addEventListener('input', function (e) {
+                    let csv = characterList.value
+                    characters = csv.split(',');
+                    if (run) {
+                        run.disabled = true;
+                    }
                 });
             }
-        }
+
+            if (preview) {
+                preview.addEventListener('click', function (e) {
+                    console.log(characters)
+                    if (run) {
+                        run.disabled = false;
+                    }
+
+                    if (characters && characters.length > 0) {
+                        let allCharacters = document.querySelectorAll('[data-character-name]');
+                        if (allCharacters && allCharacters.length > 0) {
+                            for (let i = 0; i < allCharacters.length; i++) {
+                                const characterUpdateForm = allCharacters[i];
+                                const characterName = characterUpdateForm.getAttribute(
+                                    'data-character-name');
+                                if (characters.indexOf(characterName) === -1) {
+                                    characterUpdateForm.style.backgroundColor = 'rgba(100, 0, 0, 0.25)';
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+
+            if (run) {
+                run.addEventListener('click', function (e) {
+                    if (attendanceCountElem) {
+                        attendanceCount = Number.parseInt(attendanceCountElem.value)
+                    }
+
+                    run.disabled = true;
+                    let timeIncrement = 500;
+                    let time = timeIncrement;
+
+                    if (characters && characters.length > 0) {
+                        let allCharacters = document.querySelectorAll('[data-character-name]');
+                        if (allCharacters && allCharacters.length > 0) {
+                            for (let i = 0; i < allCharacters.length; i++) {
+                                const characterUpdateForm = allCharacters[i];
+                                const characterName = characterUpdateForm.getAttribute(
+                                    'data-character-name');
+                                const characterId = characterUpdateForm.getAttribute('data-character-id');
+                                if (characters.indexOf(characterName) === -1) {
+                                    setTimeout(() => {
+                                        let xhr = new XMLHttpRequest();
+                                        xhr.open("GET",
+                                            '/api/DeleteAttendanceForCharacter/?characterId=' +
+                                            characterId + '&raidId=' + raidId);
+                                        xhr.onreadystatechange = function () {
+                                            if (this.readyState == 4) {
+                                                let li = document.createElement('li');
+                                                li.innerText = 'Removed ' + characterName;
+                                                list.appendChild(li);
+                                                characterUpdateForm.style.display = 'none';
+                                            }
+                                        };
+                                        xhr.send()
+                                    }, time);
+                                } else {
+                                    setTimeout(() => {
+                                        let xhr = new XMLHttpRequest();
+                                        xhr.open("GET", '/api/UpdateAttendance/?characterId=' +
+                                            characterId + '&raidId=' + raidId + '&bosses=' +
+                                            attendanceCount + '&paid=0');
+                                        xhr.onreadystatechange = function () {
+                                            if (this.readyState == 4) {
+                                                let li = document.createElement('li');
+                                                li.innerText = 'Updated ' + characterName +
+                                                    ' with attendance count: ' +
+                                                    attendanceCount;
+                                                list.appendChild(li);
+
+                                                let currentCharacterAttendanceCount =
+                                                    characterUpdateForm.querySelector(
+                                                        'input[name="bosses"]');
+                                                if (currentCharacterAttendanceCount) {
+                                                    currentCharacterAttendanceCount.value =
+                                                        attendanceCount;
+                                                }
+                                            }
+                                        };
+                                        xhr.send()
+                                    }, time);
+                                }
+
+                                time += timeIncrement;
+                            }
+                        }
+                    }
+                });
+            }
+
+        }());
 
     </script>
     <style>
-    *[data-player-id]{
-        border: 4px solid;
-    }
+        *[data-player-id] {
+            border: 4px solid;
+        }
+
     </style>
 </body>
 

@@ -13,11 +13,11 @@
 
     include_once 'secrets.php';
 
-    $character = $_POST["character"];
-    $character = htmlspecialchars(strip_tags($character));
+    $characterId = $_POST["characterId"];
+    $characterId = htmlspecialchars(strip_tags($characterId));
 
-    $raid = $_POST["raid"];
-    $raid = htmlspecialchars(strip_tags($raid));
+    $raidId = $_POST["raidId"];
+    $raidId = htmlspecialchars(strip_tags($raidId));
 
     $bosses = $_POST["bosses"];
     $bosses = htmlspecialchars(strip_tags($bosses));
@@ -31,12 +31,12 @@
     } 
 
     $stmt = $conn->prepare("UPDATE `$dbtable_attendance` SET bosses=?, paid=? WHERE characterId=? AND raidID=?");
-    $stmt->bind_param('iiii', $bosses, $paid, $character, $raid);
+    $stmt->bind_param('iiii', $bosses, $paid, $characterId, $raidId);
 
     echo json_encode($stmt->execute());
 
     // Query Logging
-    $sql = "UPDATE $dbtable_attendance SET bosses=$bosses, paid=$paid WHERE characterId=$character AND raidID=$raid";
+    $sql = "UPDATE $dbtable_attendance SET bosses=$bosses, paid=$paid WHERE characterId=$characterId AND raidID=$raidId";
     $log = $conn->prepare("INSERT INTO `$dbtable_log` (query, user) VALUES (?, ?)");
     $log->bind_param('ss', $sql, $_SESSION['auth']);
     $log->execute();
