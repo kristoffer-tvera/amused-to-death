@@ -66,11 +66,11 @@
                                     <td>
                                         <?php 
                                                 if(!empty($character['main'])){
-                                                    foreach($characters as $mainCharacter){
-                                                        if($mainCharacter['id'] == $character['main']){
+                                                    foreach($characters as $playerCharacter){
+                                                        if($playerCharacter['id'] == $character['main']){
                                                             ?>
-                                        <a href="/character/?id=<?php echo $mainCharacter['id']; ?>"
-                                            class="text-reset text-decoration-underline"><?php echo $mainCharacter['name']; ?></a>
+                                        <a href="/character/?id=<?php echo $playerCharacter['id']; ?>"
+                                            class="text-reset text-decoration-underline"><?php echo $playerCharacter['name']; ?></a>
                                         <?php
                                                         }
                                                     }
@@ -96,11 +96,18 @@
                     </div> <!-- table-responsive -->
                 </div> <!-- card -->
 
+                <?php 
+                    $players = array(); 
+                    foreach($characters as $character){
+                        if(empty($character["main"])) $players[] = $character;
+                    }
+                ?>
+
                 <div class="page-header" data-players-header>
                     <div class="row align-items-center">
                         <div class="col-auto">
                             <h2 class="page-title">
-                                Players
+                                Players (<?php echo sizeof($players) ?>)
                             </h2>
                         </div>
                     </div>
@@ -108,51 +115,46 @@
 
                 <div class="row">
                     <?php
-                        $mains = array(); 
-                        foreach($characters as $character){
-                            if(empty($character["main"])) $mains[] = $character;
-                        }
-
-                        foreach($mains as $main):
-                        ?>
+                        foreach($players as $player):
+                    ?>
                     <div class="col-md-6 col-lg-4">
                         <div class="card">
                             <div class="card-body">
                                 <div class="row row-sm align-items-center">
                                     <div class="col-auto pr-0">
                                         <span class="avatar avatar-md"
-                                            style="background-image: url(/assets/images/classes/<?php echo $main['class']; ?>.png)"></span>
+                                            style="background-image: url(/assets/images/classes/<?php echo $player['class']; ?>.png)"></span>
                                     </div>
                                     <div class="col d-flex">
                                         <h3 class="mb-0 mr-1">
-                                            <a href="/character/?id=<?php echo $main['id']; ?>"
-                                                title="Ilvl: <?php echo $main['ilvl']; ?>"
-                                                class="text-reset text-decoration-underline"><?php echo $main["name"] ?></a>
-                                            <?php if($main['role_tank'] == 1): ?>
+                                            <a href="/character/?id=<?php echo $player['id']; ?>"
+                                                title="Ilvl: <?php echo $player['ilvl']; ?>"
+                                                class="text-reset text-decoration-underline"><?php echo $player["name"] ?></a>
+                                            <?php if($player['role_tank'] == 1): ?>
                                             <span class="avatar avatar-sm"
                                                 style="background-image: url(/assets/images/roles/role_tank.png)">
                                             </span>
                                             <?php endif; ?>
-                                            <?php if($main['role_heal'] == 1): ?>
+                                            <?php if($player['role_heal'] == 1): ?>
                                             <span class="avatar avatar-sm"
                                                 style="background-image: url(/assets/images/roles/role_heal.png)">
                                             </span>
                                             <?php endif; ?>
-                                            <?php if($main['role_dps'] == 1): ?>
+                                            <?php if($player['role_dps'] == 1): ?>
                                             <span class="avatar avatar-sm"
                                                 style="background-image: url(/assets/images/roles/role_dps.png)">
                                             </span>
                                             <?php endif; ?>
                                         </h3>
 
-                                        <a href="https://worldofwarcraft.com/en-gb/character/eu/<?php echo $main["realm"] ?>/<?php echo $main["name"] ?>"
+                                        <a href="https://worldofwarcraft.com/en-gb/character/eu/<?php echo $player["realm"] ?>/<?php echo $player["name"] ?>"
                                             target="_blank" rel="noopener" class="px-1 border-left"><span
                                                 class="avatar avatar-sm"
                                                 style="background-image: url(/assets/images/external-sources/warcraft.png)"></a>
-                                        <a href="https://www.warcraftlogs.com/character/eu/<?php echo $main["realm"] ?>/<?php echo $main["name"] ?>"
+                                        <a href="https://www.warcraftlogs.com/character/eu/<?php echo $player["realm"] ?>/<?php echo $player["name"] ?>"
                                             target="_blank" rel="noopener" class="px-1"><span class="avatar avatar-sm"
                                                 style="background-image: url(/assets/images/external-sources/warcraftlogs.png)"></a>
-                                        <a href="https://raider.io/characters/eu/<?php echo $main["realm"] ?>/<?php echo $main["name"] ?>"
+                                        <a href="https://raider.io/characters/eu/<?php echo $player["realm"] ?>/<?php echo $player["name"] ?>"
                                             target="_blank" rel="noopener" class="px-1"><span class="avatar avatar-sm"
                                                 style="background-image: url(/assets/images/external-sources/raiderio.png)"></a>
                                     </div>
@@ -162,7 +164,7 @@
                                     <?php 
                                         $alts = array();
                                         foreach($characters as $character){
-                                            if($character["main"] == $main['id']) $alts[] = $character;
+                                            if($character["main"] == $player['id']) $alts[] = $character;
                                         }
 
                                         foreach($alts as $alt):
