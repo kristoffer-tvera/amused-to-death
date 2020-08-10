@@ -56,7 +56,8 @@ function Initialize_tables($dbservername, $dbusername, $dbpassword, $dbname, $db
         name VARCHAR(50),
         gold INT(8) NOT NULL DEFAULT 0,
         added_date DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-        change_date DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+        change_date DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        start_date DATETIME NULL DEFAULT NULL,
         )";
         
     if ($conn->query($raidSql) === TRUE) {
