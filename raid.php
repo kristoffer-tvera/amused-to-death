@@ -317,7 +317,7 @@
 
                 <div class="card" data-characters>
                     <div class="card-header">
-                        <h3 class="card-title">Characters</h3>
+                        <h3 class="card-title">Characters (<?php echo sizeof($attendees) ?>)</h3>
                     </div>
                     <div class="card-body">
                         <div class="row d-none d-lg-flex py-2 text-muted">
@@ -619,9 +619,13 @@
                                 } else {
                                     setTimeout(() => {
                                         let xhr = new XMLHttpRequest();
-                                        xhr.open("GET", '/api/UpdateAttendance/?characterId=' +
-                                            characterId + '&raidId=' + raidId + '&bosses=' +
-                                            attendanceCount + '&paid=0');
+                                        let formData = new FormData();
+                                        formData.append("characterId", characterId);
+                                        formData.append("raidId", raidId);
+                                        formData.append("bosses", attendanceCount);
+                                        formData.append("paid", 0);
+
+                                        xhr.open("POST", '/api/UpdateAttendance/');
                                         xhr.onreadystatechange = function () {
                                             if (this.readyState == 4) {
                                                 let li = document.createElement('li');
@@ -639,7 +643,7 @@
                                                 }
                                             }
                                         };
-                                        xhr.send()
+                                        xhr.send(formData)
                                     }, time);
                                 }
 
