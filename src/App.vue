@@ -1,29 +1,38 @@
 <template>
-  <div id="app">
-    <img alt="Vue logo" src="./assets/logo.png">
-    <HelloWorld msg="Welcome to Your Vue.js + TypeScript App"/>
-  </div>
+    <GlobalStyle/>
+    <Navbar/>
+    <Suspense>
+    <Dashboard/>
+    </Suspense>
 </template>
 
 <script lang="ts">
-import { Component, Vue } from 'vue-property-decorator';
-import HelloWorld from './components/HelloWorld.vue';
+import {defineComponent } from "vue";
+import GlobalStyle from "./components/GlobalStyle.vue";
+import Navbar from "./components/Navbar.vue";
+import Characters from "./views/Characters.vue";
+import Dashboard from "./views/Dashboard.vue";
+// import {createRouter, createWebHistory} from "vue-router";
 
-@Component({
+// const routes = [
+//   {path: "/characters", component: Characters}
+// ];
+
+// const router = new VueRouter({
+//   routes
+// })
+
+export default defineComponent({
   components: {
-    HelloWorld,
+    GlobalStyle,
+    Navbar,
+    Dashboard
   },
-})
-export default class App extends Vue {}
+});
+
 </script>
 
 <style>
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
-}
+
+
 </style>

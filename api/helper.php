@@ -6,7 +6,7 @@ function GetCharacters($dbservername, $dbusername, $dbpassword, $dbname, $dbtabl
         die("Connection failed: ".$conn-> connect_error);
     }
 
-    $stmt = $conn->prepare("SELECT * FROM `$dbtable_characters`");
+    $stmt = $conn->prepare("SELECT * FROM `$dbtable_characters` WHERE id < 35");
     $stmt->execute();
     $result = $stmt->get_result();
     return $result->fetch_all(MYSQLI_ASSOC);
@@ -169,27 +169,27 @@ function ClassFromId($id) {
     return "Invalid id";
 }
 
-function AnnouncementNewRaid($raidname, $url, $webhook){
+// function AnnouncementNewRaid($raidname, $url, $webhook){
 
-    $json = json_encode([
-        "content" => "@here New raid (" . $raidname . ") posted! Visit " . $url . " to sign up!",
-        "allowed_mentions" => [
-            "parse" => ["everyone"]
-        ]
-    ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE );
+//     $json = json_encode([
+//         "content" => "@here New raid (" . $raidname . ") posted! Visit " . $url . " to sign up!",
+//         "allowed_mentions" => [
+//             "parse" => ["everyone"]
+//         ]
+//     ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE );
         
-    $ch = curl_init( $webhook );
-    curl_setopt( $ch, CURLOPT_HTTPHEADER, array('Content-type: application/json'));
-    curl_setopt( $ch, CURLOPT_POST, 1);
-    curl_setopt( $ch, CURLOPT_POSTFIELDS, $json);
-    curl_setopt( $ch, CURLOPT_FOLLOWLOCATION, 1);
-    curl_setopt( $ch, CURLOPT_HEADER, 0);
-    curl_setopt( $ch, CURLOPT_RETURNTRANSFER, 1);
+//     $ch = curl_init( $webhook );
+//     curl_setopt( $ch, CURLOPT_HTTPHEADER, array('Content-type: application/json'));
+//     curl_setopt( $ch, CURLOPT_POST, 1);
+//     curl_setopt( $ch, CURLOPT_POSTFIELDS, $json);
+//     curl_setopt( $ch, CURLOPT_FOLLOWLOCATION, 1);
+//     curl_setopt( $ch, CURLOPT_HEADER, 0);
+//     curl_setopt( $ch, CURLOPT_RETURNTRANSFER, 1);
     
-    $response = curl_exec( $ch );
-    $success = curl_getinfo( $ch, CURLINFO_HTTP_CODE) === 200;
-    curl_close( $ch );
-    return $succes;
-}
+//     $response = curl_exec( $ch );
+//     $success = curl_getinfo( $ch, CURLINFO_HTTP_CODE) === 200;
+//     curl_close( $ch );
+//     return $succes;
+// }
 
 ?>
