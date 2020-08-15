@@ -10,6 +10,23 @@ def randomString(stringLength=26):
     letters = string.ascii_lowercase
     return ''.join(random.choice(letters) for i in range(stringLength))
 
+def isOfficer(member):
+    roles = member.roles
+    for role in roles:
+        if role.id == int(os.getenv('DISCORD_OFFICER_ROLE_ID')):
+            return True
+    return False
+
+async def nyalothaLootCommand(message):
+    channel = message.channel
+    channel.typing()
+    await message.delete()
+    await channel.send('Add a reaction (:loot_yes:) to the bosses where you need loot')
+    bosses = ['Wrathion', 'Maut', 'Prophet Skitra', 'Dark Inquisitor Xanesh', 'Vexiona', 'The Hivemind', 'Ra-den', 'Shad\'har', 'Drest\'agath', 'Il\'gynoth', 'Carapace of N\'Zoth', 'N\'Zoth, the Corruptor']
+    for boss in bosses:
+        newMessage = await channel.send(boss)
+        await newMessage.add_reaction(emoji=':loot_yes:678637511442038823')
+
 load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN')
 API_KEY = os.getenv('API_KEY')
@@ -24,10 +41,15 @@ async def on_ready():
 async def on_message(message):
     if message.author == client.user:
         return
-    if message.channel.id not in [738065516085903370]: #whitelist 692040942722482186
+
+    if isOfficer(message.author) and message.content.lower() == "!loot":
+        await nyalothaLootCommand(message)
         return
 
-    if message.content == '!mudkip':
+    if message.channel.id != int(os.getenv('DISCORD_SPAM_CHANNEL_ID')):
+        return
+
+    if message.content.lower() == '!mudkip':
         token = randomString()
         id = message.author.name + '#' + message.author.discriminator
 
