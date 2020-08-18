@@ -63,6 +63,35 @@ function GetRaid($dbservername, $dbusername, $dbpassword, $dbname, $dbtable_raid
     return $result->fetch_assoc();
 }
 
+function UpdateRaid($dbservername, $dbusername, $dbpassword, $dbname, $dbtable_raids, $name, $gold, $id) {
+$conn = new mysqli($dbservername, $dbusername, $dbpassword, $dbname);
+
+$stmt = $conn->prepare("UPDATE `$dbtable_raids` SET name=?, gold=? WHERE id=?");
+$stmt->bind_param('sii', $name, $gold, $id);
+
+// $sql = "UPDATE $dbtable_raids SET name=$name, gold=$gold WHERE id=$id";
+
+$stmt->execute();
+
+//    // Query Logging
+//    $log = $conn->prepare("INSERT INTO `$dbtable_log` (query, user) VALUES (?, ?)");
+//    $log->bind_param('ss', $sql, $_SESSION['auth']);
+//    $log->execute();
+
+}
+
+function CreateRaid($dbservername, $dbusername, $dbpassword, $dbname, $dbtable_raids, $name, $gold) {
+    $conn = new mysqli($dbservername, $dbusername, $dbpassword, $dbname);
+
+    $stmt = $conn->prepare("INSERT INTO `$dbtable_raids` (name, gold) VALUES (?, ?)");
+    $stmt->bind_param('si', $name, $gold);
+
+    $sql = "INSERT INTO $dbtable_raids (name, gold) VALUES ($name, $gold)";
+
+    $stmt->execute();
+
+}
+
 function GetRaids($dbservername, $dbusername, $dbpassword, $dbname, $dbtable_raids) {
     $conn = new mysqli($dbservername, $dbusername, $dbpassword, $dbname);
     if ($conn-> connect_error) {
