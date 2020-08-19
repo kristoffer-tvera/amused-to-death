@@ -122,10 +122,10 @@
                     <?php
                     for($i = 0; $i < sizeof($players); $i++):
                     ?>
-                    <div class="col-md-6 col-lg-4">
+                    <div class="col-md-6 col-lg-2">
                         <div class="card" data-player-id="<?php echo $players[$i] ?>"
                             style="border-color: rgb(53, 64, 82)">
-                            <div class="card-body">
+                            <div class="card-body p-1">
                                 <div class="row align-items-center">
                                     <?php 
                                     $characters = array();

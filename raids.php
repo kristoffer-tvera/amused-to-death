@@ -81,6 +81,9 @@
             "pageLength": 20,
             "dom": "<'table-responsive' tr>" +
                 "<'card-footer d-flex align-items-center'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>",
+            "order": [
+                [3, "desc"]
+            ]
         });
 
     </script>
