@@ -97,17 +97,29 @@
                 </div> <!-- card -->
 
                 <?php 
-                    $players = array(); 
+                    $raiders = array();
+                    $socials = array();
                     foreach($characters as $character){
-                        if(empty($character["main"])) $players[] = $character;
+                        if(empty($character["main"]) && $character["raider"] == 1) $raiders[] = $character;
+                        if(empty($character["main"]) && $character["raider"] == 0) $socials[] = $character;
                     }
                 ?>
 
                 <div class="page-header" data-players-header>
                     <div class="row align-items-center">
                         <div class="col-auto">
+                            <h1 class="">
+                                Players (<?php echo sizeof($raiders)+sizeof($socials) ?>)
+                            </h1>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="page-header" data-players-header>
+                    <div class="row align-items-center">
+                        <div class="col-auto">
                             <h2 class="page-title">
-                                Players (<?php echo sizeof($players) ?>)
+                                Raiders (<?php echo sizeof($raiders) ?>)
                             </h2>
                         </div>
                     </div>
@@ -115,7 +127,7 @@
 
                 <div class="row">
                     <?php
-                        foreach($players as $player):
+                        foreach($raiders as $raider):
                     ?>
                     <div class="col-md-6 col-lg-4">
                         <div class="card">
@@ -123,38 +135,38 @@
                                 <div class="row row-sm align-items-center">
                                     <div class="col-auto pr-0">
                                         <span class="avatar avatar-md"
-                                            style="background-image: url(/assets/images/classes/<?php echo $player['class']; ?>.png)"></span>
+                                            style="background-image: url(/assets/images/classes/<?php echo $raider['class']; ?>.png)"></span>
                                     </div>
                                     <div class="col d-flex">
                                         <h3 class="mb-0 mr-1">
-                                            <a href="/character/?id=<?php echo $player['id']; ?>"
-                                                title="Ilvl: <?php echo $player['ilvl']; ?>"
-                                                class="text-reset text-decoration-underline"><?php echo $player["name"] ?></a>
-                                            <?php if($player['role_tank'] == 1): ?>
+                                            <a href="/character/?id=<?php echo $raider['id']; ?>"
+                                                title="Ilvl: <?php echo $raider['ilvl']; ?>"
+                                                class="text-reset text-decoration-underline"><?php echo $raider["name"] ?></a>
+                                            <?php if($raider['role_tank'] == 1): ?>
                                             <span class="avatar avatar-sm"
                                                 style="background-image: url(/assets/images/roles/role_tank.png)">
                                             </span>
                                             <?php endif; ?>
-                                            <?php if($player['role_heal'] == 1): ?>
+                                            <?php if($raider['role_heal'] == 1): ?>
                                             <span class="avatar avatar-sm"
                                                 style="background-image: url(/assets/images/roles/role_heal.png)">
                                             </span>
                                             <?php endif; ?>
-                                            <?php if($player['role_dps'] == 1): ?>
+                                            <?php if($raider['role_dps'] == 1): ?>
                                             <span class="avatar avatar-sm"
                                                 style="background-image: url(/assets/images/roles/role_dps.png)">
                                             </span>
                                             <?php endif; ?>
                                         </h3>
 
-                                        <a href="https://worldofwarcraft.com/en-gb/character/eu/<?php echo $player["realm"] ?>/<?php echo $player["name"] ?>"
+                                        <a href="https://worldofwarcraft.com/en-gb/character/eu/<?php echo $raider["realm"] ?>/<?php echo $raider["name"] ?>"
                                             target="_blank" rel="noopener" class="px-1 border-left"><span
                                                 class="avatar avatar-sm"
                                                 style="background-image: url(/assets/images/external-sources/warcraft.png)"></a>
-                                        <a href="https://www.warcraftlogs.com/character/eu/<?php echo $player["realm"] ?>/<?php echo $player["name"] ?>"
+                                        <a href="https://www.warcraftlogs.com/character/eu/<?php echo $raider["realm"] ?>/<?php echo $raider["name"] ?>"
                                             target="_blank" rel="noopener" class="px-1"><span class="avatar avatar-sm"
                                                 style="background-image: url(/assets/images/external-sources/warcraftlogs.png)"></a>
-                                        <a href="https://raider.io/characters/eu/<?php echo $player["realm"] ?>/<?php echo $player["name"] ?>"
+                                        <a href="https://raider.io/characters/eu/<?php echo $raider["realm"] ?>/<?php echo $raider["name"] ?>"
                                             target="_blank" rel="noopener" class="px-1"><span class="avatar avatar-sm"
                                                 style="background-image: url(/assets/images/external-sources/raiderio.png)"></a>
                                     </div>
@@ -164,7 +176,120 @@
                                     <?php 
                                         $alts = array();
                                         foreach($characters as $character){
-                                            if($character["main"] == $player['id']) $alts[] = $character;
+                                            if($character["main"] == $raider['id']) $alts[] = $character;
+                                        }
+
+                                        foreach($alts as $alt):
+                                        ?>
+                                    <div class="ml-2 row w-100">
+                                        <div class="col-auto px-0">
+                                            <span class="avatar avatar-sm"
+                                                style="background-image: url(/assets/images/classes/<?php echo $alt['class']; ?>.png)"></span>
+                                        </div>
+                                        <div class="col-auto d-flex px-1">
+                                            <h3 class="mb-0 mr-1">
+                                                <a href="/character/?id=<?php echo $alt['id']; ?>"
+                                                    title="Ilvl: <?php echo $alt['ilvl']; ?>"
+                                                    class="text-reset text-decoration-underline"><?php echo $alt["name"] ?></a>
+                                                <?php if($alt['role_tank'] == 1): ?>
+                                                <span class="avatar avatar-sm"
+                                                    style="background-image: url(/assets/images/roles/role_tank.png)">
+                                                </span>
+                                                <?php endif; ?>
+                                                <?php if($alt['role_heal'] == 1): ?>
+                                                <span class="avatar avatar-sm"
+                                                    style="background-image: url(/assets/images/roles/role_heal.png)">
+                                                </span>
+                                                <?php endif; ?>
+                                                <?php if($alt['role_dps'] == 1): ?>
+                                                <span class="avatar avatar-sm"
+                                                    style="background-image: url(/assets/images/roles/role_dps.png)">
+                                                </span>
+                                                <?php endif; ?>
+                                            </h3>
+                                            <a href="https://worldofwarcraft.com/en-gb/character/eu/<?php echo $alt["realm"] ?>/<?php echo $alt["name"] ?>"
+                                                target="_blank" rel="noopener" class="px-1 border-left"><span
+                                                    class="avatar avatar-sm"
+                                                    style="background-image: url(/assets/images/external-sources/warcraft.png)"></a>
+                                            <a href="https://www.warcraftlogs.com/character/eu/<?php echo $alt["realm"] ?>/<?php echo $alt["name"] ?>"
+                                                target="_blank" rel="noopener" class="px-1"><span
+                                                    class="avatar avatar-sm"
+                                                    style="background-image: url(/assets/images/external-sources/warcraftlogs.png)"></a>
+                                            <a href="https://raider.io/characters/eu/<?php echo $alt["realm"] ?>/<?php echo $alt["name"] ?>"
+                                                target="_blank" rel="noopener" class="px-1"><span
+                                                    class="avatar avatar-sm"
+                                                    style="background-image: url(/assets/images/external-sources/raiderio.png)"></a>
+                                        </div>
+                                    </div>
+                                    <?php endforeach; ?>
+                                </div>
+                            </div><!-- card-body -->
+                        </div><!-- card -->
+                    </div> <!-- col-md-6 col-lg-4 -->
+                    <?php endforeach; ?>
+                </div><!-- row -->
+
+                <div class="page-header" data-players-header>
+                    <div class="row align-items-center">
+                        <div class="col-auto">
+                            <h2 class="page-title">
+                                Socials (<?php echo sizeof($socials) ?>)
+                            </h2>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <?php
+                        foreach($socials as $social):
+                    ?>
+                    <div class="col-md-6 col-lg-4">
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="row row-sm align-items-center">
+                                    <div class="col-auto pr-0">
+                                        <span class="avatar avatar-md"
+                                            style="background-image: url(/assets/images/classes/<?php echo $social['class']; ?>.png)"></span>
+                                    </div>
+                                    <div class="col d-flex">
+                                        <h3 class="mb-0 mr-1">
+                                            <a href="/character/?id=<?php echo $social['id']; ?>"
+                                                title="Ilvl: <?php echo $social['ilvl']; ?>"
+                                                class="text-reset text-decoration-underline"><?php echo $social["name"] ?></a>
+                                            <?php if($social['role_tank'] == 1): ?>
+                                            <span class="avatar avatar-sm"
+                                                style="background-image: url(/assets/images/roles/role_tank.png)">
+                                            </span>
+                                            <?php endif; ?>
+                                            <?php if($social['role_heal'] == 1): ?>
+                                            <span class="avatar avatar-sm"
+                                                style="background-image: url(/assets/images/roles/role_heal.png)">
+                                            </span>
+                                            <?php endif; ?>
+                                            <?php if($social['role_dps'] == 1): ?>
+                                            <span class="avatar avatar-sm"
+                                                style="background-image: url(/assets/images/roles/role_dps.png)">
+                                            </span>
+                                            <?php endif; ?>
+                                        </h3>
+
+                                        <a href="https://worldofwarcraft.com/en-gb/character/eu/<?php echo $social["realm"] ?>/<?php echo $social["name"] ?>"
+                                            target="_blank" rel="noopener" class="px-1 border-left"><span
+                                                class="avatar avatar-sm"
+                                                style="background-image: url(/assets/images/external-sources/warcraft.png)"></a>
+                                        <a href="https://www.warcraftlogs.com/character/eu/<?php echo $social["realm"] ?>/<?php echo $social["name"] ?>"
+                                            target="_blank" rel="noopener" class="px-1"><span class="avatar avatar-sm"
+                                                style="background-image: url(/assets/images/external-sources/warcraftlogs.png)"></a>
+                                        <a href="https://raider.io/characters/eu/<?php echo $social["realm"] ?>/<?php echo $social["name"] ?>"
+                                            target="_blank" rel="noopener" class="px-1"><span class="avatar avatar-sm"
+                                                style="background-image: url(/assets/images/external-sources/raiderio.png)"></a>
+                                    </div>
+                                </div>
+                                <hr class="my-3" />
+                                <div class="row align-items-center mt-4">
+                                    <?php 
+                                        $alts = array();
+                                        foreach($characters as $character){
+                                            if($character["main"] == $social['id']) $alts[] = $character;
                                         }
 
                                         foreach($alts as $alt):

@@ -34,6 +34,7 @@
                 $role_tank = 0;
                 $role_heal = 0;
                 $role_dps = 0;
+                $raider = 0;
                 $main = 0;
                 $discord = "";
                 $created = date("d-m-Y H:i:s");
@@ -51,6 +52,7 @@
                         $role_tank = $character["role_tank"];
                         $role_heal = $character["role_heal"];
                         $role_dps = $character["role_dps"];
+                        $raider = $character["raider"];
                         $main = $character["main"];
                         $discord = $character["discord"];
                         $created = $character["added_date"];
@@ -67,16 +69,12 @@
                     <div class="card-body">
                         <div class="row">
                             <div class="col-12">
-                                <div class="form-group">
-                                    <label class="form-label">Id</label>
-                                    <div class="form-control-plaintext"><?php echo $id ?></div>
-                                    <input type="hidden" name="id" value="<?php echo $id ?>" />
-                                </div>
-                                <div class="form-group">
+                                <div class="form-group my-4">
                                     <label class="form-label">Ilvl</label>
                                     <div class="form-control-plaintext"><?php echo $ilvl ?></div>
+                                    <input type="hidden" name="id" value="<?php echo $id ?>" />
                                 </div>
-                                <div class="form-group">
+                                <div class="form-group my-4">
                                     <label class="form-label">Owner (discord)</label>
                                     <?php if (isset($_SESSION['admin'])): ?>
                                         <input type="text" class="form-control" name="discord" placeholder="Owner.." value="<?php echo $discord ?>">
@@ -84,12 +82,12 @@
                                         <div class="form-control-plaintext"><?php echo $discord ?></div>
                                     <?php endif;?>                                    
                                 </div>
-                                <div class="form-group">
+                                <div class="form-group my-4">
                                     <label class="form-label">Name</label>
                                     <input type="text" class="form-control" name="name" placeholder="Name.."
                                         required="required" value="<?php echo $name ?>">
                                 </div>
-                                <div class="form-group">
+                                <div class="form-group my-4">
                                     <label class="form-label">Realm</label>
                                     <input list="realms" type="text" class="form-control" name="realm"
                                         placeholder="Realm (lowercase, shorthand, eg draenor, defias-brotherhood)"
@@ -97,7 +95,7 @@
                                     <?php include('./partials/_realmlist.php') ?>
                                 </div>
 
-                                <div class="form-group">
+                                <div class="form-group my-4">
                                     <label class="form-label">Class</label>
                                     <select name="class" id="select-class" class="form-control custom-select">
                                         <option value="0" <?php if($class == 0) echo "selected=\"selected\""?>>Druid
@@ -127,7 +125,7 @@
                                     </select>
                                 </div>
 
-                                <div class="form-group">
+                                <div class="form-group my-4">
                                     <label class="form-label">Main</label>
                                     <select name="main" id="select-main" class="form-control custom-select">
                                         <option value="-1" <?php if($main == 0) echo "selected=\"selected\"" ?>>None (this is a main)
@@ -144,7 +142,8 @@
                                     </select>
                                 </div>
 
-                                <div class="form-group">
+                                <div class="form-group my-4">
+                                    <label class="form-label">Role</label>
                                     <div class="form-check form-check-inline">
                                         <input class="form-check-input" type="checkbox" id="role_tank" name="role_tank"
                                             value="1" <?php if($role_tank == 1) echo "checked" ?>>
@@ -162,23 +161,27 @@
                                     </div>
                                 </div>
 
-                                <div class="form-group">
-                                    <label class="form-label">Created</label>
-                                    <div class="form-control-plaintext"><?php echo $created ?></div>
-                                </div>
-                                <div class="form-group">
-                                    <label class="form-label">Updated</label>
-                                    <div class="form-control-plaintext"><?php echo $updated ?></div>
+                                <div class="form-group my-4">
+                                    <label class="form-label">Rank</label>
+                                    <?php if (isset($_SESSION['admin'])): ?>
+                                    <div class="form-check form-check-inline">
+                                        <label class="form-check-label" for="raider">Raider</label>
+                                        <input class="form-check-input" type="checkbox" id="raider" name="raider" value="1" <?php if($raider == 1) echo "checked" ?>>
+                                    </div>
+                                    <?php else:?>
+                                        <div class="form-control-plaintext"><?php echo $raider == 1 ? "Raider" : "Social" ?></div>
+                                        <input type="hidden" name="raider" value="<?php echo $raider ?>" />
+                                    <?php endif;?>                                    
                                 </div>
 
                                 <?php 
-                                                $token = '';
-                                                if(isset($_SESSION['token'])) $token = $_SESSION['token'];
-                                            ?>
+                                    $token = '';
+                                    if(isset($_SESSION['token'])) $token = $_SESSION['token'];
+                                ?>
 
                                 <?php 
-                                            if(!empty($id) && ($_SESSION['token_create'] + $_SESSION['token_expire'])-time() > 0):
-                                            ?>
+                                    if(!empty($id) && ($_SESSION['token_create'] + $_SESSION['token_expire'])-time() > 0):
+                                ?>
                                 <div class="form-group">
                                     <div class="form-control-plaintext"><a class="btn btn-success"
                                             href="/api/BattleNetUpdateCharacter/?id=<?php echo $id ?>&return=/character/?id=<?php echo $id ?>">Update
