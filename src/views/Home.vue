@@ -1,18 +1,49 @@
 <template>
-  <div class="home">
-    <img alt="Vue logo" src="../assets/logo.png">
-    <HelloWorld msg="Welcome to Your Vue.js App"/>
-  </div>
+  <main class="container">
+    <section>
+      <header>
+        <h1>Welcome</h1>
+      </header>
+      <article>
+        If you have a character in the guild, log in through discord (!mudkip in the raider-only channel).
+        If you dont, then please feel free to apply to become a part of the guild.
+      </article>
+      <footer></footer>
+    </section>
+        <Suspense>
+          <RaidDashboard />
+        </Suspense>
+    <!-- <section>
+      <header>
+        <h2>My characters</h2>
+        <Suspense>
+          <div></div>
+        </Suspense>
+        <Suspense>
+          <CharacterList />
+        </Suspense>
+      </header>
+    </section> -->
+  </main>
 </template>
+<script lang="ts">
+import { defineComponent, reactive, ref } from "vue";
+import usecharacters from "../utils/characters";
+import CharacterList from "../components/CharacterList.vue";
+import moment from "moment";
+import RaidDashboard from "../components/RaidDashboard.vue";
 
-<script>
-// @ is an alias to /src
-import HelloWorld from '@/components/HelloWorld.vue'
-
-export default {
-  name: 'Home',
+export default defineComponent({
+  name: "Home",
   components: {
-    HelloWorld
-  }
-}
+    CharacterList,
+    RaidDashboard
+  },
+});
 </script>
+
+<style lang="scss" scoped>
+
+
+
+</style>
