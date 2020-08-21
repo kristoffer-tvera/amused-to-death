@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router'
 import Home from '../views/Home.vue'
+import RaidEditor from "../views/CreateRaid.vue";
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -8,13 +9,33 @@ const routes: Array<RouteRecordRaw> = [
     component: Home
   },
   {
-    path: '/about',
-    name: 'About',
-    // route level code-splitting
-    // this generates a separate chunk (about.[hash].js) for this route
-    // which is lazy-loaded when the route is visited.
-    component: () => import(/* webpackChunkName: "about" */ '../views/About.vue')
+    path: '/raids',
+    name: 'Raids',
+    component: () => import(/* webpackChunkName: "raidEditor" */ '../views/Raids.vue'),
+  },
+  {
+    path: '/raid',
+    name: 'Raid',
+    component: () => import(/* webpackChunkName: "raidEditor" */ './Raid.vue'),
+    children: [
+      {
+        path: '/raid/:id',
+        name: 'Raid',
+        component: () => import(/* webpackChunkName: "raidConfig" */ '../views/Raid.vue')
+      },
+      {
+        path: '/raid/create',
+        name: 'RaidCreator',
+        component: () => import(/* webpackChunkName: "raidConfig" */ '../components/RaidEditor.vue')
+      },
+      {
+        path: '/raid/edit/:id',
+        name: "RaidEditor",
+        component: () => import(/* webpackChunkName: "raidConfig" */ '../components/RaidEditor.vue')
+      }
+    ]
   }
+
 ]
 
 const router = createRouter({
