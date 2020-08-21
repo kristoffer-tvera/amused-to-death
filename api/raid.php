@@ -23,10 +23,11 @@
             $name = htmlspecialchars(strip_tags($name));
             $gold = $_POST["gold"];
             $gold = htmlspecialchars(strip_tags($gold));
+            $start_date = $_POST["start_date"];
+            $start_date = htmlspecialchars(strip_tags($start_date));
 
             if(!empty($id)) {
                   $id = htmlspecialchars(strip_tags($id));
-              
 
                   UpdateRaid($dbservername, $dbusername, $dbpassword, $dbname, $dbtable_raids, $name, $gold, $id);
                   echo "raid updated";
@@ -34,7 +35,7 @@
 
             }
             else {
-                  CreateRaid($dbservername, $dbusername, $dbpassword, $dbname, $dbtable_raids, $name, $gold);
+                  CreateRaid($dbservername, $dbusername, $dbpassword, $dbname, $dbtable_raids, $name, $gold, $start_date);
                   echo "raid created";
                   exit;
             }

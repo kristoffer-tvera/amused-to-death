@@ -80,13 +80,13 @@ $stmt->execute();
 
 }
 
-function CreateRaid($dbservername, $dbusername, $dbpassword, $dbname, $dbtable_raids, $name, $gold) {
+function CreateRaid($dbservername, $dbusername, $dbpassword, $dbname, $dbtable_raids, $name, $gold, $start_date) {
     $conn = new mysqli($dbservername, $dbusername, $dbpassword, $dbname);
 
-    $stmt = $conn->prepare("INSERT INTO `$dbtable_raids` (name, gold) VALUES (?, ?)");
-    $stmt->bind_param('si', $name, $gold);
+    $stmt = $conn->prepare("INSERT INTO `$dbtable_raids` (name, gold, start_date) VALUES (?, ?, ?)");
+    $stmt->bind_param('sis', $name, $gold, $start_date);
 
-    $sql = "INSERT INTO $dbtable_raids (name, gold) VALUES ($name, $gold)";
+    $sql = "INSERT INTO $dbtable_raids (name, gold) VALUES ($name, $gold, $start_date)";
 
     $stmt->execute();
 
