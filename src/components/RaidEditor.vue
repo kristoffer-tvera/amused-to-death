@@ -1,35 +1,31 @@
 <template>
-  <main class="raid-editor container">
+<div class="raid-editor__wrapper container">
+  <div class="raid-editor">
     <div class="raid-editor__title">
       <h1>{{title}}</h1>
     </div>
     <form class="raid-editor__form" ref="raidConfig" @submit="submit">
       <input type="hidden" name="id" :value="state.raid.id" />
-      <TextField name="name" text="Enter raid name" type="text" v-model:value="state.raid.name"  />
-      <!-- TODO: Since input type converts the value to "string" anyway, the NumberField is a bit redundant. Replace with TextField later... -->
-      <NumberField v-model:value="state.raid.gold" name="gold" text="Enter gold amount" />
-      <DateField name="start" />
-      <button type="submit">Submit me</button>
-      <Btn type="submit" text="Submit" styles="red" />
+      <InputField name="name" text="Enter raid name" type="text" v-model:value="state.raid.name"  />
+      <InputField  name="gold" type="number" v-model:value="state.raid.gold" text="Enter gold amount" min="0" />
+      <InputField  name="start_date" type="datetime-local" v-model:value="state.raid.start"  />
+      <Btn type="submit" text="Submit" />
     </form>
-  </main>
+  </div>
+</div>
 </template>
 
 
 <script lang="ts">
 import { defineComponent, reactive, ref } from "vue";
 import { useRoute } from "vue-router";
-import TextField from "./TextField.vue";
-import NumberField from "./NumberField.vue";
-import DateField from "./DateField.vue";
+import InputField from "./InputField.vue";
 import Btn from "./Btn.vue";
 
 export default defineComponent({
   name: "RaidEditor",
   components: {
-    TextField,
-    NumberField,
-    DateField,
+    InputField,
     Btn,
   },
   async setup() {
@@ -88,6 +84,11 @@ export default defineComponent({
     & > * {
       margin: 1rem 0;
     }
+  }
+
+  &__wrapper {
+    padding: 1rem;
+    box-sizing: border-box;
   }
 
   /* &__title {

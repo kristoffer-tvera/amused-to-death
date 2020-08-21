@@ -1,55 +1,76 @@
 <template>
-  <div class="raid-card">
+  <router-link :to="'/raid/' + id" class="raid-card">
     <header class="raid-card__header">
-      <!-- <h3>{{raid.name}}</h3>
-      <h3>{{raid.start}}</h3>-->
       <div class="raid-card__container">
-        <img class="raid-card__faction" src="https://i.pinimg.com/originals/e7/a0/55/e7a0553e0470bdcdc54f8c2bb01932fa.png">
-        <h3 class="raid-card__title">Raid name</h3>
+        <h3 class="raid-card__title">{{name}}</h3>
       </div>
       <div class="raid-card__container">
-        <time class="raid-card__title">23/09/2020</time>
+        <time class="raid-card__title">{{startDate}}</time>
       </div>
     </header>
-  </div>
+  </router-link>
 </template>
 
 <script lang="ts">
-import { defineComponent, reactive, ref } from "vue";
+import { defineComponent } from "vue";
+import moment from "moment";
 
 export default defineComponent({
   name: "RaidCard",
-  props: { raid: Object },
+  props: {
+    name: String,
+    faction: Number,
+    Info: String,
+    start: String,
+    id: Number
+  },
+  setup({ start }) {
+    let startDate = moment(start, "YYYY/MM/DD HH:mm").format("DD MMM");
+
+    return { startDate };
+  },
 });
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
 .raid-card {
   display: flex;
   justify-content: center;
-}
-.raid-card__header {
-  display: flex;
-  justify-content: space-between;
-  width: 100%;
-}
+  padding: var(--edge-inset);
+  border: 1px solid;
+  box-shadow: 4px 6px 5px 0px rgba(0,0,0,0.4);
+  text-decoration: none;
+  border-color: rgba($gray-default, .5);
+  
+  &.declined {
+    border-color: var(--color-declined);
+  }
 
-.raid-card__container {
+  &.pending {
+    border-color: var(--color-pending);
+  }
+
+  &.accepted {
+    border-color: var(--color-green-check);
+  }
+
+  &__header {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+  }
+
+  &__container {
     display: flex;
     align-content: center;
-}
+  }
 
-.raid-card__title {
+  &__title {
     display: inline-block;
     margin: 0;
     font-size: var(--h3-size-default);
     font-weight: bold;
     color: var(--primary-title-color);
-}
-
-.raid-card__faction {
-    width: 18px;
-    height: auto;
-    margin-right: .5rem;
+  }
 }
 </style>

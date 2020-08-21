@@ -7,10 +7,12 @@ export default defineComponent({
 });
 </script>
 
-<style>
+<style lang="scss">
+
 body {
   margin: 0;
-  background-color: var(--background);
+  /* background-color: var(--background); */
+  background-color: $black-default;
 }
 
 h1,h2,h3,h4,h5,h6, a {
@@ -32,10 +34,19 @@ p, li, article {
   --primary-text-color: #aaaaaa;
   --edge-inset: 1rem;
   --h3-size-default: 1.2rem;
+  --color-horde:#8C1616;
+  --color-alliance: #162c57;
+  --color-green-check: #2b9348;
+  --color-pending: #ffbe0b;
+  --color-declined: #ef233c;
 }
 
 .w-100 {
   width: 100%;
+}
+
+.w-50 {
+  width: 50%;
 }
 
 .list-unstyled {
