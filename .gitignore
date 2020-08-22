@@ -25,3 +25,5 @@ pnpm-debug.log*
 vue.config.js
 
 api/secrets.php
+
+api/devAcc.php
