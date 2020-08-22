@@ -10,9 +10,7 @@
       </article>
       <footer></footer>
     </section>
-        <Suspense>
           <RaidDashboard />
-        </Suspense>
     <!-- <section>
       <header>
         <h2>My characters</h2>
@@ -32,6 +30,7 @@ import usecharacters from "../utils/characters";
 import CharacterList from "../components/CharacterList.vue";
 import moment from "moment";
 import RaidDashboard from "../components/RaidDashboard.vue";
+import useRaids from "../state/useRaids";
 
 export default defineComponent({
   name: "Home",
@@ -39,6 +38,10 @@ export default defineComponent({
     CharacterList,
     RaidDashboard
   },
+  setup() {
+    const { getRaids, raidsState} = useRaids();
+    getRaids();
+  }
 });
 </script>
 
