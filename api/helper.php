@@ -50,6 +50,19 @@ function GetCharacter($dbservername, $dbusername, $dbpassword, $dbname, $dbtable
     return $result->fetch_assoc();
 }
 
+function GetUser($dbservername, $dbusername, $dbpassword, $dbname, $dbtable_users, $user) {
+    $conn = new mysqli($dbservername, $dbusername, $dbpassword, $dbname);
+    if ($conn-> connect_error) {
+        die("Connection failed: ".$conn-> connect_error);
+    }
+    $user = strval($user);
+    $stmt = $conn->prepare("SELECT * FROM $dbtable_users WHERE username=?");
+    $stmt->bind_param('s', $user);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    return $result->fetch_assoc();
+}
+
 function GetRaid($dbservername, $dbusername, $dbpassword, $dbname, $dbtable_raids, $id) {
     $conn = new mysqli($dbservername, $dbusername, $dbpassword, $dbname);
     if ($conn-> connect_error) {

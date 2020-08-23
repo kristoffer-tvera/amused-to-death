@@ -42,8 +42,8 @@ function Initialize_tables($dbservername, $dbusername, $dbpassword, $dbname, $db
         discord VARCHAR(50),
         added_date DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
         change_date DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-        userId INT(6),
-        FOREIGN KEY (userId) REFERENCES $dbtable_users(id)
+        user_id INT(6),
+        FOREIGN KEY (user_id) REFERENCES $dbtable_users(id)
         )";
     
     if ($conn->query($charactersSql) === TRUE) {
