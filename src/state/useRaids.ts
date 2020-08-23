@@ -1,4 +1,5 @@
 import { reactive } from "vue";
+import moment from "moment";
 
 interface Raid {
     id: Number,
@@ -6,7 +7,8 @@ interface Raid {
     name: String,
     added_date: Date,
     change_date: Date,
-    start_date: Date
+    start_date: Date,
+    start_time: Date
 }
 
 interface Raids {
@@ -16,9 +18,7 @@ interface Raids {
     loading: boolean
 }
 
-// Note: idk if these state names will be confusing for others. Feel free to change if you find it bothersome.
-
-const raidsState = reactive<Raids>({
+const allRaidsState = reactive<Raids>({
     raids: [] as Raid[],
     error: null,
     loaded: false,
@@ -34,25 +34,24 @@ const raidState = reactive({
 export default function useRaids() {
 
     const getRaids = async () => {
-        if (!raidsState.loaded && !raidsState.loading) {
+        if (!allRaidsState.loaded && !allRaidsState.loading) {
             try {
-                raidsState.loading = true;
+                allRaidsState.loading = true;
                 const res = await fetch("http://localhost:3000/api/raids.php");
-                raidsState.raids = await res.json();
-                raidsState.loaded = true;
+                allRaidsState.raids = await res.json();
+                allRaidsState.loaded = true;
             }
             catch (e) {
-                raidsState.loaded = false;
-                raidsState.loading = false;
-                raidsState.error = e;
-                console.log("catch");
+                allRaidsState.loaded = false;
+                allRaidsState.loading = false;
+                allRaidsState.error = e;
             }
         }
     };
 
     const getRaidById = async (id: Number) => {
-        if (raidsState.raids.length > 0) {
-            let raid = raidsState.raids.find(r => r.id == id);
+        if (allRaidsState.raids.length > 0) {
+            let raid = allRaidsState.raids.find(r => r.id == id);
             if (!raid) {
                 console.log("no raid found");
                 raidState.error = "Could not get raid, please try refreshing";
@@ -78,5 +77,5 @@ export default function useRaids() {
         }
     }
 
-    return { raidsState, getRaids, getRaidById, raidState };
+    return { allRaidsState, getRaids, getRaidById, raidState };
 }
