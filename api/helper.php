@@ -118,6 +118,19 @@ function CreateRaid($dbservername, $dbusername, $dbpassword, $dbname, $dbtable_r
 
 }
 
+function AddAttendance($dbservername, $dbusername, $dbpassword, $dbname, $dbtable_attendance, $raidId, $charId) {
+    $conn = new mysqli($dbservername, $dbusername, $dbpassword, $dbname);
+    $stmt = $conn->prepare("INSERT INTO `$dbtable_attendance` (characterId, raidId, bosses, paid, added_date, change_date) VALUES (?, ?, ?, ?, ?, ?)");
+    $createDate = date("Y-m-d H:i:s"); 
+    $defaultValue = 0;
+    $stmt->bind_param('iiiiss', $charId, $raidId, $defaultValue, $defaultValue, $createDate, $createDate);
+    
+    $stmt->execute();
+
+    $sql = "INSERT INTO $dbtable_attendance (characterId, raidId, bosses, paid, added_date, change_date VALUES ($charId, $raidId, 0, 0, date('Y-m-d H:i:s'), date('Y-m-d H:i:s'))";
+}
+
+
 function GetRaids($dbservername, $dbusername, $dbpassword, $dbname, $dbtable_raids) {
     $conn = new mysqli($dbservername, $dbusername, $dbpassword, $dbname);
     if ($conn-> connect_error) {
@@ -141,19 +154,6 @@ function GetLog($dbservername, $dbusername, $dbpassword, $dbname, $dbtable_log) 
     $result = $stmt->get_result();
     return $result->fetch_all(MYSQLI_ASSOC);
 }
-
-// function GetAttendanceForRaid($dbservername, $dbusername, $dbpassword, $dbname, $dbtable_attendance, $dbtable_characters, $id){
-//     $conn = new mysqli($dbservername, $dbusername, $dbpassword, $dbname);
-//     if ($conn->connect_error) {
-//         die("Connection failed: " . $conn->connect_error);
-//     }
-
-//     $stmt = $conn->prepare("SELECT * FROM `$dbtable_attendance` INNER JOIN `$dbtable_characters` ON `$dbtable_attendance`.`characterId`=`$dbtable_characters`.`id` WHERE `$dbtable_attendance`.`raidId`=?");
-//     $stmt->bind_param('i', $id);
-//     $stmt->execute();
-//     $result = $stmt->get_result();
-//     return $result->fetch_all(MYSQLI_ASSOC);
-// }
 
 function GetAttendanceForRaid($dbservername, $dbusername, $dbpassword, $dbname, $dbtable_attendance, $dbtable_characters, $id){
     $conn = new mysqli($dbservername, $dbusername, $dbpassword, $dbname);

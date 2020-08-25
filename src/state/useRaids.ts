@@ -64,7 +64,7 @@ export default function useRaids() {
         else {
             try {
                 raidState.loading = true;
-                const res = await fetch("http://localhost:3000/api/raid.php?id=" + id);
+                const res = await fetch("/api/raid.php?id=" + id);
                 raidState.raid = await res.json();
                 if (!raidState.raid) {
                     throw "Raid not found";
@@ -77,5 +77,32 @@ export default function useRaids() {
         }
     }
 
-    return { allRaidsState, getRaids, getRaidById, raidState };
+    const signCharacterToRaid = async(charId: Number, raidId: Number) : Promise<Boolean> => {
+        let data = {
+            charId: charId,
+            raidId: raidId,
+            action: 0
+        }
+        try {
+            // const res = await fetch("/api/attendance.php?id=" + id);
+            allRaidsState.loading = true;
+            const res = await fetch("/api/attendance.php",{
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(data)
+            });
+            allRaidsState.raids = await res.json();
+            allRaidsState.loaded = true;
+        }
+        catch(e) {
+            console.log(e);
+            allRaidsState.error = e;
+        }
+
+        return true;
+    }
+
+    return { allRaidsState, getRaids, getRaidById, raidState, signCharacterToRaid };
 }
