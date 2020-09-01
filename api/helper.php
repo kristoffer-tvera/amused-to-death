@@ -6,7 +6,7 @@ function GetCharacters($dbservername, $dbusername, $dbpassword, $dbname, $dbtabl
         die("Connection failed: ".$conn-> connect_error);
     }
 
-    $stmt = $conn->prepare("SELECT * FROM `$dbtable_characters`");
+    $stmt = $conn->prepare("SELECT * FROM `$dbtable_characters` WHERE `hidden` = 0");
     $stmt->execute();
     $result = $stmt->get_result();
     return $result->fetch_all(MYSQLI_ASSOC);
@@ -31,7 +31,7 @@ function GetCharacterIds($dbservername, $dbusername, $dbpassword, $dbname, $dbta
         die("Connection failed: ".$conn-> connect_error);
     }
 
-    $stmt = $conn->prepare("SELECT `id` FROM `$dbtable_characters`");
+    $stmt = $conn->prepare("SELECT `id` FROM `$dbtable_characters` WHERE `hidden` = 0");
     $stmt->execute();
     $result = $stmt->get_result();
     return $result->fetch_all(MYSQLI_ASSOC);

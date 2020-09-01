@@ -36,6 +36,7 @@
                 $role_dps = 0;
                 $raider = 0;
                 $main = 0;
+                $hidden = 0;
                 $discord = "";
                 $created = date("d-m-Y H:i:s");
                 $updated = date("d-m-Y H:i:s");
@@ -54,6 +55,7 @@
                         $role_dps = $character["role_dps"];
                         $raider = $character["raider"];
                         $main = $character["main"];
+                        $hidden = $character["hidden"];
                         $discord = $character["discord"];
                         $created = $character["added_date"];
                         $updated = $character["change_date"];
@@ -173,6 +175,19 @@
                                         <input type="hidden" name="raider" value="<?php echo $raider ?>" />
                                     <?php endif;?>                                    
                                 </div>
+
+                                <?php if (isset($_SESSION['admin'])): ?>
+                                    <div class="form-group my-4">
+                                        <?php if ($hidden == 1): ?>
+                                            <label class="form-label">This character IS currently hidden</label>
+                                        <?php else: ?>
+                                            <label class="form-label">This character is NOT currently hidden</label>
+                                        <?php endif; ?>
+                                        <div class="">
+                                           <a class="btn btn-danger" href="/api/HideCharacter/?id=<?php echo $id ?>&return=/character/?id=<?php echo $id ?>">Click here to toggle 'Hide' for this character</a>
+                                        </div>
+                                    </div>
+                                <?php endif;?>     
 
                                 <?php 
                                     $token = '';
