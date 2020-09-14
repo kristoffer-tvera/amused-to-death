@@ -38,7 +38,7 @@
 
                 <div class="card">
                     <div class="card-header">
-                        <h3 class="card-title">Anything you type here WILL be stored and made avilable to the guild.
+                        <h3 class="card-title">Anything you type here WILL be stored and made available to the guild.
                             Dont disclose anything that you feel is private.</h3>
                     </div>
                     <div class="card-body">
