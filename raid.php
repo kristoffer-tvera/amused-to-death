@@ -216,6 +216,27 @@
                     </div>
                 </div> <!-- card -->
 
+                <div class="card" data-update-attendance>
+                    <div class="card-header">
+                        <h3 class="card-title">[Admin] Export payment data</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-12">
+
+                                <div class="form-group mb-3">
+                                    <button class="btn btn-primary" onclick="PaymentListToClipBoard()" >Export payment-data to clipboard</button>
+                                </div>
+
+                                <div class="form-group mb-3">
+                                    <button class="btn btn-primary" onclick="SetAllPaid(<?php echo $id ?>)" >Mark all as paid</button>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                </div> <!-- card -->
+
                 <div class="card" data-admin-add>
                     <div class="card-header">
                         <h3 class="card-title">[Admin] Add characters</h3>
@@ -229,18 +250,18 @@
                                         <select name="character" id="select-character"
                                             class="form-control custom-select">
                                             <?php
-                                        $characters = GetCharacters($dbservername, $dbusername, $dbpassword, $dbname, $dbtable_characters);
-                                        usort($characters, function($a, $b) {return strcmp($a["name"], $b["name"]);});
-                                        foreach($characters as $character):
-                                            $alreadyInTheRaid = false;
-                                            foreach($attendees as $attendee){
-                                                if($attendee["characterId"] == $character["id"]){
-                                                    $alreadyInTheRaid = true;
+                                            $characters = GetCharacters($dbservername, $dbusername, $dbpassword, $dbname, $dbtable_characters);
+                                            usort($characters, function($a, $b) {return strcmp($a["name"], $b["name"]);});
+                                            foreach($characters as $character):
+                                                $alreadyInTheRaid = false;
+                                                foreach($attendees as $attendee){
+                                                    if($attendee["characterId"] == $character["id"]){
+                                                        $alreadyInTheRaid = true;
+                                                    }
                                                 }
-                                            }
 
-                                            if($alreadyInTheRaid) continue;
-                                        ?>
+                                                if($alreadyInTheRaid) continue;
+                                            ?>
                                             <option value="<?php echo $character["id"] ?>">
                                                 <?php echo $character["name"] ?></option>
                                             <?php endforeach; ?>
@@ -341,6 +362,20 @@
                                 <span class="text-muted"><?php echo $attendee["id"]?></span>
                                 <input type="hidden" name="characterId" value="<?php echo $attendee["characterId"]?>" />
                                 <input type="hidden" name="raidId" value="<?php echo $attendee["raidId"]?>" />
+                                <?php 
+                                    $mainName = "";
+                                    if(!empty($attendee["main"])){
+                                        foreach($characters as $character){
+                                            if($attendee["main"] == $character["id"]){
+                                                $mainName = $character["name"];
+                                                break;
+                                            }
+                                        }
+                                    } else {
+                                        $mainName = $attendee["name"];
+                                    }
+                                ?>
+                                <input type="hidden" name="mainName" value="<?php echo $mainName ?>"/>
                             </div>
                             <div class="col-6 col-lg-3 my-2 my-lg-0">
                                 <a href="/character/?id=<?php echo $attendee["characterId"]?>" class="text-reset text-decoration-underline"><?php echo $attendee["name"]?></a> 
@@ -655,6 +690,41 @@
             }
 
         }());
+
+        function GetPaymentList(){
+            let paymentList = '';
+
+            var characterForms = document.querySelectorAll('form.update-attendance');
+            if  (characterForms && characterForms.length > 0){
+                for (let i = 0; i < characterForms.length; i++) {
+                    const element = characterForms[i];
+                    let mainName = element.querySelector('input[name="mainName"]').value;
+                    let cut = element.querySelector('input[data-cut]').value;
+                    let paid = element.querySelector('input[name="paid"]').checked;
+
+                    if(!paid){
+                        paymentList += mainName + "=" + cut + ";";
+                    }
+                }
+            }
+            
+            return paymentList
+        }
+
+        function PaymentListToClipBoard(){
+            navigator.clipboard.writeText(GetPaymentList());
+            alert('Payment-list has been copied to clipboard! Remember to mark all as paid.');
+        }
+
+        function SetAllPaid(raidId){
+            xhr.open("GET", '/api/SetAllPaid/?raidId=' + raidId);
+            xhr.onreadystatechange = function () {
+                if (this.readyState == 4) {
+                    alert("Complete. Refresh site for updated data.");
+                }
+            };
+            xhr.send()
+        }
 
     </script>
     <style>
