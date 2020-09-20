@@ -46,6 +46,7 @@
                         <form action="/api/ProcessApplication.php" method="POST" class="p-4">
 
                             <input type="hidden" name="return" value="/apply/">
+                            <input type="hidden" name="pepe" value="true" >
 
                             <div class="form-group">
                                 <label class="form-label">Name</label>
@@ -141,6 +142,12 @@
     </div> <!-- page -->
     <?php require './partials/_scripts.php' ?>
     <script>
+        setTimeout(function(){
+            let pepe = document.querySelector('input[name="pepe"]');
+            if (pepe){
+                pepe.value = "meme";
+            }
+        }, 6000);
     </script>
 </body>
 

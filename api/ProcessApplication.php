@@ -3,6 +3,11 @@
 $return = $_POST["return"];
 $return = htmlspecialchars($return);
 
+$pepe = $_POST["pepe"];
+if($pepe != "meme") {
+    header("Location: " . $return);
+    exit;
+}
 
 if(isset($_SESSION['apply'])){
     header("Location: " . $return);
@@ -16,6 +21,7 @@ include_once 'secrets.php';
 $fields = [];
 foreach($_POST as $key => $value){
     if($key == "return") continue;
+    if($key == "pepe") continue;
 
     $fields[] = [
         "name" => $key,
@@ -43,7 +49,7 @@ $json = json_encode([
 ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE );
 
 $file = 'apps.txt';
-file_put_contents($file, $json, FILE_APPEND | LOCK_EX);
+file_put_contents($file, $json . ",\n", FILE_APPEND | LOCK_EX);
 
 $ch = curl_init( $webhookurl_recruitment );
 curl_setopt( $ch, CURLOPT_HTTPHEADER, array('Content-type: application/json'));
