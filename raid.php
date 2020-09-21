@@ -78,8 +78,13 @@
                                 <div class="form-group">
                                     <?php if (isset($_SESSION['admin']) && $id > 0): ?>
                                     <a class="btn btn-danger"
-                                        href="/api/RemoveAttendeesWithNoBossesFromRaid.php?return=/raid/&raidId=<?php echo $id ?>">
+                                        href="/api/RemoveAttendeesWithNoBossesFromRaid/?return=/raid/&raidId=<?php echo $id ?>">
                                         Remove characters with zero bosses</a>
+                                        <br/>
+                                        <br/>
+                                    <a class="btn btn-danger"
+                                        href="/api/AddAllRaiders/?return=/raid/&raidId=<?php echo $id ?>">
+                                        Add all raiders (ONLY WORKS FOR RAIDS WITH 0 SIGNUPS) </a>
                                     <?php endif;?>
                                 </div>
                             </div>
@@ -717,6 +722,7 @@
         }
 
         function SetAllPaid(raidId){
+            let xhr = new XMLHttpRequest();
             xhr.open("GET", '/api/SetAllPaid/?raidId=' + raidId);
             xhr.onreadystatechange = function () {
                 if (this.readyState == 4) {
