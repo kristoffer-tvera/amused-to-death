@@ -1,6 +1,6 @@
 <?php session_start();
 
-    if(empty($_SESSION['auth'])){
+    if(empty($_SESSION['admin'])){
         http_response_code(401);
         require './unauthorized.php';
         exit;
