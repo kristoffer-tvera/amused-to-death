@@ -3,3 +3,4 @@ jaina-proudmoore/*
 .editorconfig
 .gitignore
 .git-ftp-ignore
+.git-ftp-include
