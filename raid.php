@@ -82,7 +82,7 @@
 
                                 <div class="form-group">
                                     <label class="form-label" for="comment">Comment</label>
-                                    <textarea class="form-control" data-toggle="autosize" id="comment" placeholder="Comment" rows="5"><?php echo $comment ?></textarea>
+                                    <textarea class="form-control" data-toggle="autosize" id="comment" name="comment" placeholder="Comment" rows="5"><?php echo $comment ?></textarea>
                                 </div>
 
                                 <hr/>
