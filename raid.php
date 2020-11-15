@@ -29,6 +29,8 @@
                     $id = "";
                     $name = "";
                     $gold = 0;
+                    $paid = 0;
+                    $comment = "";
                     $created = date("d-m-Y H:i:s");
                     $updated = date("d-m-Y H:i:s");
 
@@ -39,6 +41,8 @@
                             $id = $raid["id"];
                             $name = $raid["name"];
                             $gold = $raid["gold"];
+                            $paid = $raid["paid"];
+                            $comment = $raid["comment"];
                             $created = $raid["added_date"];
                             $updated = $raid["change_date"];
                         }
@@ -67,6 +71,22 @@
                                         value="<?php echo $gold ?>">
                                 </div>
 
+
+                                <div class="form-group my-3">
+                                    <div class="form-check form-check-inline">
+                                        <label class="form-check-label" for="paid">Paid by community</label>
+                                        <input class="form-check-input" type="checkbox" id="paid" name="paid" value="1" <?php if($paid == 1) echo "checked" ?>>
+                                    </div>                                   
+                                </div>
+
+
+                                <div class="form-group">
+                                    <label class="form-label" for="comment">Comment</label>
+                                    <textarea class="form-control" data-toggle="autosize" id="comment" placeholder="Comment" rows="5"><?php echo $comment ?></textarea>
+                                </div>
+
+                                <hr/>
+
                                 <div class="form-group">
                                     <label class="form-label">Created</label>
                                     <div class="form-control-plaintext"><?php echo $created ?></div>
@@ -75,8 +95,10 @@
                                     <label class="form-label">Updated</label>
                                     <div class="form-control-plaintext"><?php echo $updated ?></div>
                                 </div>
+                                <?php if (isset($_SESSION['admin']) && $id > 0): ?>
+
+                                <hr/>
                                 <div class="form-group">
-                                    <?php if (isset($_SESSION['admin']) && $id > 0): ?>
                                     <a class="btn btn-danger"
                                         href="/api/RemoveAttendeesWithNoBossesFromRaid/?return=/raid/&raidId=<?php echo $id ?>">
                                         Remove characters with zero bosses</a>
@@ -85,8 +107,10 @@
                                     <a class="btn btn-danger"
                                         href="/api/AddAllRaiders/?return=/raid/&raidId=<?php echo $id ?>">
                                         Add all raiders (ONLY WORKS FOR RAIDS WITH 0 SIGNUPS) </a>
-                                    <?php endif;?>
                                 </div>
+
+                                <?php endif;?>
+
                             </div>
                         </div>
                     </div>

@@ -56,6 +56,8 @@ function Initialize_tables($dbservername, $dbusername, $dbpassword, $dbname, $db
         id INT(6) AUTO_INCREMENT PRIMARY KEY, 
         name VARCHAR(50),
         gold INT(8) NOT NULL DEFAULT 0,
+        paid BIT NOT NULL DEFAULT 0,
+        comment VARCHAR(2000),
         added_date DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
         change_date DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
         )";
