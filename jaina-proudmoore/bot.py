@@ -22,7 +22,7 @@ async def nyalothaLootCommand(message):
     channel.typing()
     await message.delete()
     await channel.send('Add a reaction (:loot_yes:) to the bosses where you need loot')
-    bosses = ['Wrathion', 'Maut', 'Prophet Skitra', 'Dark Inquisitor Xanesh', 'Vexiona', 'The Hivemind', 'Ra-den', 'Shad\'har', 'Drest\'agath', 'Il\'gynoth', 'Carapace of N\'Zoth', 'N\'Zoth, the Corruptor']
+    bosses = ['Shriekwing', 'Huntsman Altimor', 'Hungering Destroyer', 'Lady Inerva Darkvein', 'Artificer Xy\'Mox', 'Sun King\'s Salvation', 'Council of Blood', 'Sludgefist', 'Stone Legion Generals', 'Sire Denathrius']
     for boss in bosses:
         newMessage = await channel.send(boss)
         await newMessage.add_reaction(emoji=':loot_yes:678637511442038823')
