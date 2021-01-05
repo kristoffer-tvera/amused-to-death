@@ -51,7 +51,7 @@
                                 <th>Main</th>
                                 <th>Class</th>
                                 <th>ilvl</th>
-                                <th>Created</th>
+                                <th>Server</th>
                                 <th>Updated</th>
                             </tr>
                         </thead>
@@ -91,7 +91,7 @@
                                     <?php echo $character['ilvl']; ?>
                                 </td>
                                 <td>
-                                    <?php echo $character['added_date']; ?>
+                                    <?php echo $character['realm']; ?>
                                 </td>
                                 <td>
                                     <?php echo $character['change_date']; ?>

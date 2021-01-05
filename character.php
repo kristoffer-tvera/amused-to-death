@@ -29,7 +29,7 @@
                 $id = 0;
                 $ilvl = 0;
                 $name = "";
-                $realm = "draenor";
+                $realm = "stormscale";
                 $class = 0;
                 $role_tank = 0;
                 $role_heal = 0;
@@ -72,11 +72,8 @@
                         <div class="row">
                             <div class="col-12">
                                 <div class="form-group my-4">
-                                    <label class="form-label">Ilvl</label>
-                                    <div class="form-control-plaintext"><?php echo $ilvl ?></div>
-                                    <input type="hidden" name="id" value="<?php echo $id ?>" />
-                                </div>
-                                <div class="form-group my-4">
+                                <input type="hidden" name="id" value="<?php echo $id ?>" />
+
                                     <label class="form-label">Owner (discord)</label>
                                     <?php if (isset($_SESSION['admin'])): ?>
                                         <input type="text" class="form-control" name="discord" placeholder="Owner.." value="<?php echo $discord ?>">
@@ -92,7 +89,7 @@
                                 <div class="form-group my-4">
                                     <label class="form-label">Realm</label>
                                     <input list="realms" type="text" class="form-control" name="realm"
-                                        placeholder="Realm (lowercase, shorthand, eg draenor, defias-brotherhood)"
+                                        placeholder="Realm (lowercase, shorthand, eg stormscale, defias-brotherhood)"
                                         required="required" value="<?php echo $realm ?>">
                                     <?php include('./partials/_realmlist.php') ?>
                                 </div>

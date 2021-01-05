@@ -34,7 +34,7 @@ function Initialize_tables($dbservername, $dbusername, $dbpassword, $dbname, $db
         FOREIGN KEY (main) REFERENCES $dbtable_characters(id),
         name VARCHAR(30) NOT NULL,
         class INT(2) NOT NULL,
-        realm VARCHAR(50) NOT NULL DEFAULT 'draenor',
+        realm VARCHAR(50) NOT NULL DEFAULT 'stormscale',
         role_tank BIT NOT NULL DEFAULT 0,
         role_heal BIT NOT NULL DEFAULT 0,
         role_dps BIT NOT NULL DEFAULT 0,
@@ -66,6 +66,28 @@ function Initialize_tables($dbservername, $dbusername, $dbpassword, $dbname, $db
         echo "\n$dbtable_raids successfully created";
     } else {
         echo "\n$dbtable_raids was NOT created";
+        $error = true; 
+    }
+
+    $appSql = "CREATE TABLE $dbtable_app (
+        id INT(6) AUTO_INCREMENT PRIMARY KEY, 
+        auth varchar(18) NOT NULL, 
+        name VARCHAR(50),
+        server VARCHAR(50),
+        btag VARCHAR(50),
+        spec VARCHAR(50),
+        ui VARCHAR(50),
+        reason TEXT,
+        history TEXT,
+        alts TEXT,
+        added_date DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        change_date DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+        )";
+        
+    if ($conn->query($appSql) === TRUE) {
+        echo "\n$dbtable_app successfully created";
+    } else {
+        echo "\n$dbtable_app was NOT created";
         $error = true; 
     }
 

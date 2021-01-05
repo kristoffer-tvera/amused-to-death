@@ -87,6 +87,31 @@ function GetLog($dbservername, $dbusername, $dbpassword, $dbname, $dbtable_log) 
     return $result->fetch_all(MYSQLI_ASSOC);
 }
 
+function GetApps($dbservername, $dbusername, $dbpassword, $dbname, $dbtable_app) {
+    $conn = new mysqli($dbservername, $dbusername, $dbpassword, $dbname);
+    if ($conn-> connect_error) {
+        die("Connection failed: ".$conn-> connect_error);
+    }
+
+    $stmt = $conn->prepare("SELECT id, name, btag, spec FROM `$dbtable_app`");
+    $stmt->execute();
+    $result = $stmt->get_result();
+    return $result->fetch_all(MYSQLI_ASSOC);
+}
+
+function GetApp($dbservername, $dbusername, $dbpassword, $dbname, $dbtable_app, $id) {
+    $conn = new mysqli($dbservername, $dbusername, $dbpassword, $dbname);
+    if ($conn-> connect_error) {
+        die("Connection failed: ".$conn-> connect_error);
+    }
+
+    $stmt = $conn->prepare("SELECT * FROM `$dbtable_app` where id=?");
+    $stmt->bind_param('i', $id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    return $result->fetch_assoc();
+}
+
 // function GetAttendanceForRaid($dbservername, $dbusername, $dbpassword, $dbname, $dbtable_attendance, $dbtable_characters, $id){
 //     $conn = new mysqli($dbservername, $dbusername, $dbpassword, $dbname);
 //     if ($conn->connect_error) {

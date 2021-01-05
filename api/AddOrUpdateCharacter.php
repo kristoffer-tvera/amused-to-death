@@ -70,9 +70,7 @@
             } else {
                 $discord = 'error#1234';
             }
-    
-            // $stmt = $conn->prepare("UPDATE `$dbtable_characters` SET name=?, class=?, main=?, realm=?, role_tank=?, role_heal=?, role_dps=?, raider=? discord=? WHERE id=?");
-            // $stmt->bind_param('siisiiiisi', $name, $class, $main, $realm, $tank, $heal, $dps, $raider, $discord, $id);
+
             $stmt = $conn->prepare("UPDATE `$dbtable_characters` SET name=?, class=?, main=?, realm=?, role_tank=?, role_heal=?, role_dps=?, raider=?, discord=? WHERE id=?");
             $stmt->bind_param('siisiiiisi', $name, $class, $main, $realm, $tank, $heal, $dps, $raider, $discord, $id);
     

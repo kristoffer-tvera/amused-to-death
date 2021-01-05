@@ -9,47 +9,92 @@ if($pepe != "meme") {
     exit;
 }
 
-if(isset($_SESSION['apply'])){
-    header("Location: " . $return);
-    exit;
-} else {
-    $_SESSION["apply"] = true;
-}
-
 include_once 'secrets.php';
 
-$fields = [];
-foreach($_POST as $key => $value){
-    if($key == "return") continue;
-    if($key == "pepe") continue;
+$id = $_POST["id"];
+$id = htmlspecialchars(strip_tags($id));
 
-    $fields[] = [
-        "name" => $key,
-        "value" => htmlspecialchars($value),
-        "inline" => false
-    ];
+$auth  = $_POST["auth"];
+$auth = htmlspecialchars(strip_tags($auth));
+
+$name = $_POST["name"];
+$name = htmlspecialchars(strip_tags($name));
+
+$server = $_POST["server"];
+$server = htmlspecialchars(strip_tags($server));
+
+$btag = $_POST["btag"];
+$btag = htmlspecialchars(strip_tags($btag));
+
+$spec = $_POST["spec"];
+$spec = htmlspecialchars(strip_tags($spec));
+
+$ui = $_POST["ui"];
+$ui = htmlspecialchars(strip_tags($ui));
+
+$reason = $_POST["reason"];
+$reason = htmlspecialchars(strip_tags($reason));
+
+$history = $_POST["history"];
+$history = htmlspecialchars(strip_tags($history));
+
+$alts = $_POST["alts"];
+$alts = htmlspecialchars(strip_tags($alts));
+
+if(!empty($id)){
+    if(isset($_SESSION['admin'])){
+        $stmt = $conn->prepare("UPDATE `$dbtable_app` SET name=?, server=?, btag=?, spec=?, ui=?, reason=?, history=?, alts=? WHERE id=? AND auth=?");
+        $stmt->bind_param('ssssssssis', $name, $server, $btag, $spec, $ui, $reason, $history, $alts, $id, $auth);
+
+        $sql = "UPDATE $dbtable_app SET (...) WHERE id=$id AND auth=SECRET";
+    } else {
+        $stmt = $conn->prepare("UPDATE `$dbtable_app` SET name=?, server=?, btag=?, spec=?, ui=?, reason=?, history=?, alts=? WHERE id=? AND auth=?");
+        $stmt->bind_param('ssssssssis', $name, $server, $btag, $spec, $ui, $reason, $history, $alts, $id, $auth);
+
+        $sql = "UPDATE $dbtable_app SET (...) WHERE id=$id AND auth=SECRET";
+    }
+} else {
+    $auth = bin2hex(random_bytes(18));
+    $stmt = $conn->prepare("INSERT INTO `$dbtable_app` (name, auth server, btag, spec, ui, reason, history, alts) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
+    $stmt->bind_param('sssssssss', $name, $auth, $server, $btag, $spec, $ui, $reason, $history, $alts);
+
+    $sql = "INSERT INTO $dbtable_app (...) VALUES (...)";
+}
+
+$stmt->execute();
+
+$user = "Public";
+if(isset($_SESSION['auth'])){
+    $user = $_SESSION['auth'];
+}
+
+// Query Logging
+$log = $conn->prepare("INSERT INTO `$dbtable_log` (query, user) VALUES (?, ?)");
+$log->bind_param('ss', $sql, $user);
+$log->execute();
+
+$discordWebhookTitle = "App update!";
+if(empty($id)){
+    $discordWebhookTitle = "New app!";
+    $id = $stmt->insert_id;
 }
 
 $json = json_encode([
-    "content" => "New Application!",
+    "content" => $discordWebhookTitle,
     "embeds" => [
         [
-            "title" => "Application",
+            "title" => "Link above",
             "type" => "rich",
             "description" => "",
             "color" => hexdec( "FFFFFF" ),
             "author" => [
-                "name" => "amusedtodeath.eu",
-                "url" => "https://amusedtodeath.eu"
+                "name" => $name,
+                "url" => "https://amusedtodeath.eu/app/?id=" . $id
             ],
-            "fields" => $fields,
         ]
     ]
 
 ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE );
-
-$file = 'apps.txt';
-file_put_contents($file, $json . ",\n", FILE_APPEND | LOCK_EX);
 
 $ch = curl_init( $webhookurl_recruitment );
 curl_setopt( $ch, CURLOPT_HTTPHEADER, array('Content-type: application/json'));
@@ -59,10 +104,11 @@ curl_setopt( $ch, CURLOPT_FOLLOWLOCATION, 1);
 curl_setopt( $ch, CURLOPT_HEADER, 0);
 curl_setopt( $ch, CURLOPT_RETURNTRANSFER, 1);
 
-$response = curl_exec( $ch );
-//If you need to debug, or find out why you can't send message uncomment line below, and execute script.
-//echo $response;
+// $response = curl_exec( $ch ); // TODO: Turn this back on for discord spam
 
-header("Location: " . $return);
+$author_url = "https://amusedtodeath.eu/app/?id=" . $id . "&auth=" . $auth;
+
+$_SESSION["apply"] = $author_url;
+header("Location: " . $author_url);
 exit;
 ?>
