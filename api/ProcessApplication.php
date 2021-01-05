@@ -41,6 +41,11 @@ $history = htmlspecialchars(strip_tags($history));
 $alts = $_POST["alts"];
 $alts = htmlspecialchars(strip_tags($alts));
 
+$conn = new mysqli($dbservername, $dbusername, $dbpassword, $dbname);
+if ($conn->connect_error) {
+    die("Connection failed: " . $conn->connect_error);
+}
+
 if(!empty($id)){
     if(isset($_SESSION['admin'])){
         $stmt = $conn->prepare("UPDATE `$dbtable_app` SET name=?, server=?, btag=?, spec=?, ui=?, reason=?, history=?, alts=? WHERE id=? AND auth=?");
@@ -54,8 +59,9 @@ if(!empty($id)){
         $sql = "UPDATE $dbtable_app SET (...) WHERE id=$id AND auth=SECRET";
     }
 } else {
-    $auth = bin2hex(random_bytes(18));
-    $stmt = $conn->prepare("INSERT INTO `$dbtable_app` (name, auth server, btag, spec, ui, reason, history, alts) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
+    $auth = bin2hex(random_bytes(9));
+    $stmt = $conn->prepare("INSERT INTO `$dbtable_app` (name, auth, server, btag, spec, ui, reason, history, alts) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
+
     $stmt->bind_param('sssssssss', $name, $auth, $server, $btag, $spec, $ui, $reason, $history, $alts);
 
     $sql = "INSERT INTO $dbtable_app (...) VALUES (...)";
@@ -104,7 +110,7 @@ curl_setopt( $ch, CURLOPT_FOLLOWLOCATION, 1);
 curl_setopt( $ch, CURLOPT_HEADER, 0);
 curl_setopt( $ch, CURLOPT_RETURNTRANSFER, 1);
 
-// $response = curl_exec( $ch ); // TODO: Turn this back on for discord spam
+$response = curl_exec( $ch ); // TODO: Turn this back on for discord spam
 
 $author_url = "https://amusedtodeath.eu/app/?id=" . $id . "&auth=" . $auth;
 
