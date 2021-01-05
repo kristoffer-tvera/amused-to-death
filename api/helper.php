@@ -93,7 +93,7 @@ function GetApps($dbservername, $dbusername, $dbpassword, $dbname, $dbtable_app)
         die("Connection failed: ".$conn-> connect_error);
     }
 
-    $stmt = $conn->prepare("SELECT id, name, btag, spec FROM `$dbtable_app`");
+    $stmt = $conn->prepare("SELECT id, name, btag, spec, change_date FROM `$dbtable_app`");
     $stmt->execute();
     $result = $stmt->get_result();
     return $result->fetch_all(MYSQLI_ASSOC);
