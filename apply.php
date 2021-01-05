@@ -114,7 +114,7 @@
                         </form>
                         <?php else: ?>
                         <div class="form-group">
-                            <p class="form-label">We have received an application from you. If you wish to change or update it, please follow <a href="<?php echo $_SESSION["apply"] ?>">this link</a>. The discord
+                            <p class="form-label">We have received an application from you. If you wish to change or update it, please follow <a href="<?php echo $_SESSION["apply"] ?>" class="text-reset" style="text-decoration: underline">this link</a>. The discord
                                 can be found in the navbar.</p>
 
                         </div>

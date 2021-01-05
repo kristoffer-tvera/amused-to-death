@@ -79,27 +79,16 @@ $log = $conn->prepare("INSERT INTO `$dbtable_log` (query, user) VALUES (?, ?)");
 $log->bind_param('ss', $sql, $user);
 $log->execute();
 
-$discordWebhookTitle = "App update!";
+$discordWebhookTitle = "App update! ";
 if(empty($id)){
-    $discordWebhookTitle = "New app!";
+    $discordWebhookTitle = "New app! (";
     $id = $stmt->insert_id;
 }
 
-$json = json_encode([
-    "content" => $discordWebhookTitle,
-    "embeds" => [
-        [
-            "title" => "Link above",
-            "type" => "rich",
-            "description" => "",
-            "color" => hexdec( "FFFFFF" ),
-            "author" => [
-                "name" => $name,
-                "url" => "https://amusedtodeath.eu/app/?id=" . $id
-            ],
-        ]
-    ]
+$discordWebhookTitle = $discordWebhookTitle . $name . " - " . $server . ") -- https://amusedtodeath.eu/app/?id=" . $id;
 
+$json = json_encode([
+    "content" => $discordWebhookTitle
 ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE );
 
 $ch = curl_init( $webhookurl_recruitment );
@@ -110,7 +99,7 @@ curl_setopt( $ch, CURLOPT_FOLLOWLOCATION, 1);
 curl_setopt( $ch, CURLOPT_HEADER, 0);
 curl_setopt( $ch, CURLOPT_RETURNTRANSFER, 1);
 
-$response = curl_exec( $ch ); // TODO: Turn this back on for discord spam
+$response = curl_exec( $ch );
 
 $author_url = "https://amusedtodeath.eu/app/?id=" . $id . "&auth=" . $auth;
 

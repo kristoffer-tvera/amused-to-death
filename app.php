@@ -138,6 +138,18 @@
                             <p style="white-space: pre-wrap;"><?php echo htmlspecialchars($app["server"]); ?></p>
                         </div>
                         <div>
+                            <h2><a href="https://www.warcraftlogs.com/character/eu/<?php echo htmlspecialchars($app["server"]); ?>/<?php echo htmlspecialchars($app["name"]); ?>" class="text-reset" style="text-underline">Warcraftlogs</a></h2>
+                        </div>
+                        <div>
+                            <h2><a href="https://raider.io/characters/eu/<?php echo htmlspecialchars($app["server"]); ?>/<?php echo htmlspecialchars($app["name"]); ?>" class="text-reset" style="text-underline">Raider.io</a></h2>
+                        </div>
+                        <div>
+                            <h2><a href="https://raider.io/characters/eu/<?php echo htmlspecialchars($app["server"]); ?>/<?php echo htmlspecialchars($app["name"]); ?>" class="text-reset" style="text-underline">Armory</a></h2>
+                        </div>
+                        <div>
+                            <h2><a href="https://worldofwarcraft.com/en-gb/character/eu/<?php echo htmlspecialchars($app["server"]); ?>/<?php echo htmlspecialchars($app["name"]); ?>" class="text-reset" style="text-underline">WoWProgress</a></h2>
+                        </div>
+                        <div>
                             <h2>Battle-tag</h2>
                             <p style="white-space: pre-wrap;"><?php echo htmlspecialchars($app["btag"]); ?></p>
                         </div>
