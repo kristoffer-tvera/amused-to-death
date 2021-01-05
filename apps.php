@@ -32,7 +32,7 @@
                             <tr>
                                 <th class="w-1">Id</th>
                                 <th>Name</th>
-                                <th>Btag</th>
+                                <th>Server</th>
                                 <th>Spec</th>
                                 <th>Updated</th>
                             </tr>
@@ -49,7 +49,7 @@
                                 <td><a href="/app/?id=<?php echo $app['id']; ?>"
                                         class="text-reset"><?php echo $app['name']; ?></a></td>
                                 <td>
-                                    <?php echo $app['btag']; ?>
+                                    <?php echo $app['server']; ?>
                                 </td>
                                 <td>
                                     <?php echo $app['spec']; ?>

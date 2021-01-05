@@ -59,7 +59,7 @@
                     <div class="card-body">
                         <?php if($verified): ?>
                         <form action="/api/ProcessApplication.php" method="POST" class="p-4">
-
+                            <h1 class="mb-6"> We have ALREADY recieved your application. You can make changes to it here if you want (bookmark this page). </h1>
                             <input type="hidden" name="return" value="/apply/">
                             <input type="hidden" name="pepe" value="true" >
                             <input type="hidden" name="id" value="<?php echo htmlspecialchars($app["id"]); ?>" >
@@ -129,47 +129,47 @@
                             </div>
                         </form>
                         <?php else: ?>
-                        <div>
+                        <div class="mb-4">
                             <h2>Character name</h2>
                             <p style="white-space: pre-wrap;"><?php echo htmlspecialchars($app["name"]); ?></p>
                         </div>
-                        <div>
+                        <div class="mb-4">
                             <h2>Server</h2>
                             <p style="white-space: pre-wrap;"><?php echo htmlspecialchars($app["server"]); ?></p>
                         </div>
-                        <div>
-                            <h2><a href="https://www.warcraftlogs.com/character/eu/<?php echo htmlspecialchars($app["server"]); ?>/<?php echo htmlspecialchars($app["name"]); ?>" class="text-reset" style="text-underline">Warcraftlogs</a></h2>
+                        <div class="mb-4">
+                            <h2><a href="https://www.warcraftlogs.com/character/eu/<?php echo htmlspecialchars($app["server"]); ?>/<?php echo htmlspecialchars($app["name"]); ?>" class="text-reset" style="text-decoration: underline;">Warcraftlogs</a></h2>
                         </div>
-                        <div>
-                            <h2><a href="https://raider.io/characters/eu/<?php echo htmlspecialchars($app["server"]); ?>/<?php echo htmlspecialchars($app["name"]); ?>" class="text-reset" style="text-underline">Raider.io</a></h2>
+                        <div class="mb-4">
+                            <h2><a href="https://raider.io/characters/eu/<?php echo htmlspecialchars($app["server"]); ?>/<?php echo htmlspecialchars($app["name"]); ?>" class="text-reset" style="text-decoration: underline;">Raider.io</a></h2>
                         </div>
-                        <div>
-                            <h2><a href="https://raider.io/characters/eu/<?php echo htmlspecialchars($app["server"]); ?>/<?php echo htmlspecialchars($app["name"]); ?>" class="text-reset" style="text-underline">Armory</a></h2>
+                        <div class="mb-4">
+                            <h2><a href="https://raider.io/characters/eu/<?php echo htmlspecialchars($app["server"]); ?>/<?php echo htmlspecialchars($app["name"]); ?>" class="text-reset" style="text-decoration: underline;">Armory</a></h2>
                         </div>
-                        <div>
-                            <h2><a href="https://worldofwarcraft.com/en-gb/character/eu/<?php echo htmlspecialchars($app["server"]); ?>/<?php echo htmlspecialchars($app["name"]); ?>" class="text-reset" style="text-underline">WoWProgress</a></h2>
+                        <div class="mb-4">
+                            <h2><a href="https://worldofwarcraft.com/en-gb/character/eu/<?php echo htmlspecialchars($app["server"]); ?>/<?php echo htmlspecialchars($app["name"]); ?>" class="text-reset" style="text-decoration: underline;">WoWProgress</a></h2>
                         </div>
-                        <div>
+                        <div class="mb-4">
                             <h2>Battle-tag</h2>
                             <p style="white-space: pre-wrap;"><?php echo htmlspecialchars($app["btag"]); ?></p>
                         </div>
-                        <div>
+                        <div class="mb-4">
                             <h2>Main-spec</h2>
                             <p style="white-space: pre-wrap;"><?php echo htmlspecialchars($app["spec"]); ?></p>
                         </div>
-                        <div>
+                        <div class="mb-4">
                             <h2>UI</h2>
                             <p style="white-space: pre-wrap;"><?php echo htmlspecialchars($app["ui"]); ?></p>
                         </div>
-                        <div>
+                        <div class="mb-4">
                             <h2>Reason for applying</h2>
                             <p style="white-space: pre-wrap;"><?php echo htmlspecialchars($app["reason"]); ?></p>
                         </div>
-                        <div>
+                        <div class="mb-4">
                             <h2>Guild history</h2>
                             <p style="white-space: pre-wrap;"><?php echo htmlspecialchars($app["history"]); ?></p>
                         </div>
-                        <div>
+                        <div class="mb-4">
                             <h2>Alts</h2>
                             <p style="white-space: pre-wrap;"><?php echo htmlspecialchars($app["alts"]); ?></p>
                         </div>
