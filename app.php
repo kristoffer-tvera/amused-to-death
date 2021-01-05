@@ -2,7 +2,7 @@
 <!doctype html>
 <html lang="en" dir="ltr">
 <?php 
-	$title = "Apply - A2D";
+	$title = "Application - A2D";
     require './partials/_head.php';
 ?>
 
@@ -54,7 +54,7 @@
 
                 <div class="card">
                     <div class="card-header">
-                        <h3 class="card-title">If you are viewing this with the custom URL (visible to you after posting the app), you can make changes. .</h3>
+                        <h3 class="card-title">Only the author has access to change/modify.</h3>
                     </div>
                     <div class="card-body">
                         <?php if($verified): ?>
@@ -63,6 +63,7 @@
                             <input type="hidden" name="return" value="/apply/">
                             <input type="hidden" name="pepe" value="true" >
                             <input type="hidden" name="id" value="<?php echo htmlspecialchars($app["id"]); ?>" >
+                            <input type="hidden" name="auth" value="<?php echo htmlspecialchars($auth); ?>" >
 
                             <div class="form-group">
                                 <label class="form-label">Character-name</label>
@@ -130,35 +131,35 @@
                         <?php else: ?>
                         <div>
                             <h2>Character name</h2>
-                            <p><?php echo htmlspecialchars($app["name"]); ?></p>
+                            <p style="white-space: pre-wrap;"><?php echo htmlspecialchars($app["name"]); ?></p>
                         </div>
                         <div>
                             <h2>Server</h2>
-                            <p><?php echo htmlspecialchars($app["server"]); ?></p>
+                            <p style="white-space: pre-wrap;"><?php echo htmlspecialchars($app["server"]); ?></p>
                         </div>
                         <div>
                             <h2>Battle-tag</h2>
-                            <p><?php echo htmlspecialchars($app["btag"]); ?></p>
+                            <p style="white-space: pre-wrap;"><?php echo htmlspecialchars($app["btag"]); ?></p>
                         </div>
                         <div>
                             <h2>Main-spec</h2>
-                            <p><?php echo htmlspecialchars($app["spec"]); ?></p>
+                            <p style="white-space: pre-wrap;"><?php echo htmlspecialchars($app["spec"]); ?></p>
                         </div>
                         <div>
                             <h2>UI</h2>
-                            <p><?php echo htmlspecialchars($app["ui"]); ?></p>
+                            <p style="white-space: pre-wrap;"><?php echo htmlspecialchars($app["ui"]); ?></p>
                         </div>
                         <div>
                             <h2>Reason for applying</h2>
-                            <p><?php echo htmlspecialchars($app["reason"]); ?></p>
+                            <p style="white-space: pre-wrap;"><?php echo htmlspecialchars($app["reason"]); ?></p>
                         </div>
                         <div>
                             <h2>Guild history</h2>
-                            <p><?php echo htmlspecialchars($app["History"]); ?></p>
+                            <p style="white-space: pre-wrap;"><?php echo htmlspecialchars($app["history"]); ?></p>
                         </div>
                         <div>
                             <h2>Alts</h2>
-                            <p><?php echo htmlspecialchars($app["Alts"]); ?></p>
+                            <p style="white-space: pre-wrap;"><?php echo htmlspecialchars($app["alts"]); ?></p>
                         </div>
                         <?php endif; ?>
 

@@ -2,7 +2,7 @@
 <!doctype html>
 <html lang="en" dir="ltr">
 <?php 
-	$title = "Raids - A2D";
+	$title = "Applications - A2D";
 	require './partials/_head.php';
 ?>
 
