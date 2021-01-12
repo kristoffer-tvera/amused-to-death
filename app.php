@@ -137,18 +137,20 @@
                             <h2>Server</h2>
                             <p style="white-space: pre-wrap;"><?php echo htmlspecialchars($app["server"]); ?></p>
                         </div>
+                        <hr>
                         <div class="mb-4">
-                            <h2><a href="https://www.warcraftlogs.com/character/eu/<?php echo htmlspecialchars($app["server"]); ?>/<?php echo htmlspecialchars($app["name"]); ?>" class="text-reset" style="text-decoration: underline;">Warcraftlogs</a></h2>
+                            <h2><a href="https://www.warcraftlogs.com/character/eu/<?php echo htmlspecialchars($app["server"]); ?>/<?php echo htmlspecialchars($app["name"]); ?>" class="text-reset" style="text-decoration: underline;" target="_blank" rel="noopener noreferrer">Warcraftlogs</a></h2>
                         </div>
                         <div class="mb-4">
-                            <h2><a href="https://raider.io/characters/eu/<?php echo htmlspecialchars($app["server"]); ?>/<?php echo htmlspecialchars($app["name"]); ?>" class="text-reset" style="text-decoration: underline;">Raider.io</a></h2>
+                            <h2><a href="https://raider.io/characters/eu/<?php echo htmlspecialchars($app["server"]); ?>/<?php echo htmlspecialchars($app["name"]); ?>" class="text-reset" style="text-decoration: underline;" target="_blank" rel="noopener noreferrer">Raider.io</a></h2>
                         </div>
                         <div class="mb-4">
-                            <h2><a href="https://raider.io/characters/eu/<?php echo htmlspecialchars($app["server"]); ?>/<?php echo htmlspecialchars($app["name"]); ?>" class="text-reset" style="text-decoration: underline;">Armory</a></h2>
+                            <h2><a href="https://raider.io/characters/eu/<?php echo htmlspecialchars($app["server"]); ?>/<?php echo htmlspecialchars($app["name"]); ?>" class="text-reset" style="text-decoration: underline;" target="_blank" rel="noopener noreferrer">Armory</a></h2>
                         </div>
                         <div class="mb-4">
-                            <h2><a href="https://worldofwarcraft.com/en-gb/character/eu/<?php echo htmlspecialchars($app["server"]); ?>/<?php echo htmlspecialchars($app["name"]); ?>" class="text-reset" style="text-decoration: underline;">WoWProgress</a></h2>
+                            <h2><a href="https://worldofwarcraft.com/en-gb/character/eu/<?php echo htmlspecialchars($app["server"]); ?>/<?php echo htmlspecialchars($app["name"]); ?>" class="text-reset" style="text-decoration: underline;" target="_blank" rel="noopener noreferrer">WoWProgress</a></h2>
                         </div>
+                        <hr>
                         <div class="mb-4">
                             <h2>Battle-tag</h2>
                             <p style="white-space: pre-wrap;"><?php echo htmlspecialchars($app["btag"]); ?></p>
@@ -157,18 +159,22 @@
                             <h2>Main-spec</h2>
                             <p style="white-space: pre-wrap;"><?php echo htmlspecialchars($app["spec"]); ?></p>
                         </div>
+                        <hr>
                         <div class="mb-4">
                             <h2>UI</h2>
                             <p style="white-space: pre-wrap;"><?php echo htmlspecialchars($app["ui"]); ?></p>
                         </div>
+                        <hr>
                         <div class="mb-4">
                             <h2>Reason for applying</h2>
                             <p style="white-space: pre-wrap;"><?php echo htmlspecialchars($app["reason"]); ?></p>
                         </div>
+                        <hr>
                         <div class="mb-4">
                             <h2>Guild history</h2>
                             <p style="white-space: pre-wrap;"><?php echo htmlspecialchars($app["history"]); ?></p>
                         </div>
+                        <hr>
                         <div class="mb-4">
                             <h2>Alts</h2>
                             <p style="white-space: pre-wrap;"><?php echo htmlspecialchars($app["alts"]); ?></p>
