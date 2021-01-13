@@ -225,8 +225,8 @@
                                 </div>
 
                                 <div class="form-group mb-3">
-                                    <label class="form-label"> Bosscount (default 12) </label>
-                                    <input type="number" class="form-control" id="bulk-update-count" value="12">
+                                    <label class="form-label"> Bosscount (default 10) </label>
+                                    <input type="number" class="form-control" id="bulk-update-count" value="10">
                                 </div>
 
                                 <div class="form-group mb-3">
@@ -548,7 +548,7 @@
 
                 let cut = share * currentBossCount;
 
-                cut = Math.floor(cut / 5000) * 5000;
+                cut = Math.floor(cut / 10000) * 10000;
 
                 currentCutField.value = cut;
                 remainingGold -= cut;
