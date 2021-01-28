@@ -18,7 +18,7 @@ function GetMyCharacters($dbservername, $dbusername, $dbpassword, $dbname, $dbta
         die("Connection failed: ".$conn-> connect_error);
     }
 
-    $stmt = $conn->prepare("SELECT * FROM `$dbtable_characters` WHERE discord=?");
+    $stmt = $conn->prepare("SELECT * FROM `$dbtable_characters` WHERE discord=? AND `hidden` = 0");
     $stmt->bind_param('s', $discord);
     $stmt->execute();
     $result = $stmt->get_result();
@@ -157,7 +157,7 @@ function GetAltsForCharacter($dbservername, $dbusername, $dbpassword, $dbname, $
         die("Connection failed: " . $conn->connect_error);
     }
 
-    $stmt = $conn->prepare("SELECT * FROM `$dbtable_characters` WHERE `main`=?");
+    $stmt = $conn->prepare("SELECT * FROM `$dbtable_characters` WHERE `main`=? AND `hidden` = 0");
     $stmt->bind_param('i', $id);
     $stmt->execute();
     $result = $stmt->get_result();
