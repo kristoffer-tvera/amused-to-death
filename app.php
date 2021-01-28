@@ -162,10 +162,11 @@
                         <hr>
                         <div class="mb-4">
                             <h2>UI</h2>
-                            <?php if (str_ends_with($str, ".png") || str_ends_with($str, ".jpg")):  ?>
-                                <img src="<?php echo htmlspecialchars($app["ui"]); ?>" alt="ui-screenshot" class="w-100"/>
+                            <?php $ui = htmlspecialchars($app["ui"]);
+                            if (str_ends_with($ui, ".png") || str_ends_with($ui, ".jpg")):  ?>
+                                <img src="<?php echo $ui; ?>" alt="ui-screenshot" class="w-100"/>
                             <?php else: ?>
-                                <p style="white-space: pre-wrap;"><?php echo htmlspecialchars($app["ui"]); ?></p>
+                                <p style="white-space: pre-wrap;"><?php echo $ui; ?></p>
                             <?php endif; ?>
                         </div>
                         <hr>
