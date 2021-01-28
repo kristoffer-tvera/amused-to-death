@@ -145,10 +145,10 @@
                             <h2><a href="https://raider.io/characters/eu/<?php echo htmlspecialchars($app["server"]); ?>/<?php echo htmlspecialchars($app["name"]); ?>" class="text-reset" style="text-decoration: underline;" target="_blank" rel="noopener noreferrer">Raider.io</a></h2>
                         </div>
                         <div class="mb-4">
-                            <h2><a href="https://raider.io/characters/eu/<?php echo htmlspecialchars($app["server"]); ?>/<?php echo htmlspecialchars($app["name"]); ?>" class="text-reset" style="text-decoration: underline;" target="_blank" rel="noopener noreferrer">Armory</a></h2>
+                            <h2><a href="https://worldofwarcraft.com/en-gb/character/eu/<?php echo htmlspecialchars($app["server"]); ?>/<?php echo htmlspecialchars($app["name"]); ?>" class="text-reset" style="text-decoration: underline;" target="_blank" rel="noopener noreferrer">Armory</a></h2>
                         </div>
                         <div class="mb-4">
-                            <h2><a href="https://worldofwarcraft.com/en-gb/character/eu/<?php echo htmlspecialchars($app["server"]); ?>/<?php echo htmlspecialchars($app["name"]); ?>" class="text-reset" style="text-decoration: underline;" target="_blank" rel="noopener noreferrer">WoWProgress</a></h2>
+                            <h2><a href="https://www.wowprogress.com/character/eu/<?php echo htmlspecialchars($app["server"]); ?>/<?php echo htmlspecialchars($app["name"]); ?>" class="text-reset" style="text-decoration: underline;" target="_blank" rel="noopener noreferrer">WoWProgress</a></h2>
                         </div>
                         <hr>
                         <div class="mb-4">
@@ -162,7 +162,11 @@
                         <hr>
                         <div class="mb-4">
                             <h2>UI</h2>
-                            <p style="white-space: pre-wrap;"><?php echo htmlspecialchars($app["ui"]); ?></p>
+                            <?php if (str_ends_with($str, ".png") || str_ends_with($str, ".jpg")):  ?>
+                                <img src="<?php echo htmlspecialchars($app["ui"]); ?>" alt="ui-screenshot" class="w-100"/>
+                            <?php else: ?>
+                                <p style="white-space: pre-wrap;"><?php echo htmlspecialchars($app["ui"]); ?></p>
+                            <?php endif; ?>
                         </div>
                         <hr>
                         <div class="mb-4">
