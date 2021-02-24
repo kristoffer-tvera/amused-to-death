@@ -1,7 +1,4 @@
-<?php 
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-session_start();
+<?php session_start();
 
 if(!isset($_SESSION['auth']) && isset($_COOKIE['discord_auth']) && !empty($_COOKIE['discord_auth'])){
 

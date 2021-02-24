@@ -179,17 +179,17 @@
                                                 <a href="/character/?id=<?php echo $character['characterId']; ?>"
                                                     title="Ilvl: <?php echo $character['ilvl']; ?>"
                                                     class="text-reset text-decoration-underline"><?php echo $character["name"] ?></a>
-                                                <?php if($alt['role_tank'] == 1): ?>
+                                                <?php if($character['role_tank'] == 1): ?>
                                                 <span class="avatar avatar-sm"
                                                     style="background-image: url(/assets/images/roles/role_tank.png)">
                                                 </span>
                                                 <?php endif; ?>
-                                                <?php if($alt['role_heal'] == 1): ?>
+                                                <?php if($character['role_heal'] == 1): ?>
                                                 <span class="avatar avatar-sm"
                                                     style="background-image: url(/assets/images/roles/role_heal.png)">
                                                 </span>
                                                 <?php endif; ?>
-                                                <?php if($alt['role_dps'] == 1): ?>
+                                                <?php if($character['role_dps'] == 1): ?>
                                                 <span class="avatar avatar-sm"
                                                     style="background-image: url(/assets/images/roles/role_dps.png)">
                                                 </span>
