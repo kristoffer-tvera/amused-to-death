@@ -30,6 +30,8 @@
                     <div class="card-body">
                         <p> If you have a character in the guild, log in through discord (!mudkip in the raider-only
                             channel).</p>
+                        <p> You can also <a href="/api/auth/?discord=true"> log in here </a> if you have created at least one character already. 
+
                         <p> If you dont, then please feel free to <a href="/apply/" class="text-decoration-underline link-warning">apply to become a raider / part of
                                 the guild</a>.</p>
                     </div>
