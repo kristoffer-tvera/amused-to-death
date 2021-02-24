@@ -15,7 +15,6 @@
     $characterId = htmlspecialchars($_GET["characterId"]);
     $raidId = htmlspecialchars($_GET["raidId"]);
     $returnPath = htmlspecialchars($_GET["return"]);
-    $returnId = htmlspecialchars($_GET["returnId"]);
     if(empty($returnPath)){
         $returnPath = "/";
     }
@@ -38,6 +37,6 @@
     $log->bind_param('ss', $sql, $_SESSION['auth']);
     $log->execute();
     
-    header('Location: ' . $returnPath . '?id=' . $returnId);
+    header('Location: ' . $returnPath . '?id=' . $raidId);
     exit;
 ?>

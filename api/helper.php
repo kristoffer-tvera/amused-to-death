@@ -131,7 +131,7 @@ function GetAttendanceForRaid($dbservername, $dbusername, $dbpassword, $dbname, 
         die("Connection failed: " . $conn->connect_error);
     }
 
-    $stmt = $conn->prepare("SELECT a.id, a.added_date, a.bosses, a.paid, a.raidId, a.characterId, c.name, c.class, c.main FROM `$dbtable_attendance` AS a INNER JOIN `$dbtable_characters` AS c ON a.`characterId`=c.`id` WHERE a.`raidId`=? ORDER BY a.`added_date` ASC");
+    $stmt = $conn->prepare("SELECT a.id, a.added_date, a.bosses, a.paid, a.raidId, a.characterId, c.name, c.class, c.main, c.discord FROM `$dbtable_attendance` AS a INNER JOIN `$dbtable_characters` AS c ON a.`characterId`=c.`id` WHERE a.`raidId`=? ORDER BY a.`added_date` ASC");
     $stmt->bind_param('i', $id);
     $stmt->execute();
     $result = $stmt->get_result();

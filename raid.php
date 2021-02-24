@@ -55,11 +55,6 @@
                         <div class="row">
                             <div class="col-12">
                                 <div class="form-group">
-                                    <label class="form-label">Id</label>
-                                    <div class="form-control-plaintext"><?php echo $id ?></div>
-                                    <input type="hidden" name="id" value="<?php echo $id ?>" />
-                                </div>
-                                <div class="form-group">
                                     <label class="form-label">Name</label>
                                     <input type="text" class="form-control" name="name" placeholder="Name.."
                                         value="<?php echo $name ?>" required="required">
@@ -115,10 +110,12 @@
                         </div>
                     </div>
                     <div class="card-footer text-right">
+                        <?php if (isset($_SESSION['admin'])): ?>
                         <div class="d-flex">
                             <input type="hidden" name="return" value="/raid/" />
                             <button type="submit" class="btn btn-primary ml-auto">Save</button>
                         </div>
+                        <?php endif; ?>
                     </div>
                 </form>
 
@@ -377,7 +374,9 @@
                             <div class="col-6 col-lg-1">Cut</div>
                             <div class="col-6 col-lg-1">Bosses</div>
                             <div class="col-6 col-lg-1">Paid</div>
+                            <?php if (isset($_SESSION['admin'])): ?>
                             <div class="col-6 col-lg-1"></div>
+                            <?php endif; ?>
                             <div class="col-6 col-lg-1"></div>
                         </div>
                         <?php 
@@ -430,13 +429,17 @@
                                     style="height: 22px; width: 22px;">
                                 <span class="d-inline-block d-lg-none align-top"> (Paid) </span>
                             </div>
+                            <?php if (isset($_SESSION['admin'])): ?>
                             <div class="col-6 col-lg-1 my-2 my-lg-0">
                                 <button type="submit" class="btn btn-primary btn-sm">Update</button>
                             </div>
+                            <?php endif; ?>
+                            <?php if (isset($_SESSION['admin']) || $_SESSION['auth'] == $attendee["discord"]): ?>
                             <div class="col-6 col-lg-1 my-2 my-lg-0">
-                                <a href="/api/DeleteAttendanceForCharacter/?characterId=<?php echo $attendee["characterId"]?>&raidId=<?php echo $id ?>&return=/raid/&returnId=<?php echo $id ?>"
+                                <a href="/api/DeleteAttendanceForCharacter/?characterId=<?php echo $attendee["characterId"]?>&raidId=<?php echo $id ?>&return=/raid/"
                                     class="btn btn-danger btn-sm">Remove</a>
                             </div>
+                            <?php endif; ?>
                         </form>
 
                         <?php endforeach;} ?>
