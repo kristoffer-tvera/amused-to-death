@@ -50,6 +50,7 @@
                     ?>
                     <div class="card-header">
                         <h3 class="card-title">Raid</h3>
+                        <input type="hidden" name="id" value="<?php echo $id ?>" />
                     </div>
                     <div class="card-body">
                         <div class="row">
@@ -65,7 +66,6 @@
                                     <input type="number" class="form-control" name="gold" placeholder="Gold.."
                                         value="<?php echo $gold ?>">
                                 </div>
-
 
                                 <div class="form-group my-3">
                                     <div class="form-check form-check-inline">

@@ -83,7 +83,7 @@
                             <hr />
 
                             <div class="form-group">
-                                <label class="form-label">What made you consider applying to Amused to Death?</label>
+                                <label class="form-label">Introduce yourself (name/age), and tell us what made you consider applying to Amused to Death?</label>
                                 <textarea rows="6" class="form-control" name="reason" placeholder=""
                                     required="required"></textarea>
                             </div>
