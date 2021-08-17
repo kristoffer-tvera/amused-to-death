@@ -177,7 +177,7 @@
                                             <h3 class="mb-0 mr-1">
                                                 <a href="/character/?id=<?php echo $character['characterId']; ?>"
                                                     title="Ilvl: <?php echo $character['ilvl']; ?>"
-                                                    class="text-reset text-decoration-underline"><?php echo $character["name"] ?></a>
+                                                    class="text-reset text-decoration-underline"><?php echo $character["name"].($character["vip"]==1?'*':'') ?></a>
                                                 <?php if($character['role_tank'] == 1): ?>
                                                 <span class="avatar avatar-sm"
                                                     style="background-image: url(/assets/images/roles/role_tank.png)">

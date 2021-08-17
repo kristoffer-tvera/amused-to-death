@@ -35,6 +35,7 @@
                 $role_heal = 0;
                 $role_dps = 0;
                 $raider = 0;
+                $vip = 0;
                 $main = 0;
                 $hidden = 0;
                 $discord = "";
@@ -54,6 +55,7 @@
                         $role_heal = $character["role_heal"];
                         $role_dps = $character["role_dps"];
                         $raider = $character["raider"];
+                        $vip = $character["vip"];
                         $main = $character["main"];
                         $hidden = $character["hidden"];
                         $discord = $character["discord"];
@@ -172,6 +174,16 @@
                                         <input type="hidden" name="raider" value="<?php echo $raider ?>" />
                                     <?php endif;?>                                    
                                 </div>
+
+                                <?php if (isset($_SESSION['admin'])): ?>
+                                    <div class="form-group my-4">
+                                        <label class="form-label">Custom</label>
+                                        <div class="form-check form-check-inline">
+                                            <label class="form-check-label" for="vip">VIP</label>
+                                            <input class="form-check-input" type="checkbox" id="vip" name="vip" value="1" <?php if($vip == 1) echo "checked" ?>>
+                                        </div>                                
+                                    </div>
+                                <?php endif;?>    
 
                                 <?php if (isset($_SESSION['admin'])): ?>
                                     <div class="form-group my-4">
