@@ -551,7 +551,7 @@
 
                 let cut = share * currentBossCount;
 
-                cut = Math.floor(cut / 10000) * 10000;
+                cut = Math.floor(cut / 5000) * 5000;
 
                 currentCutField.value = cut;
                 remainingGold -= cut;
