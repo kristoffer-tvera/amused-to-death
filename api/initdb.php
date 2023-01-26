@@ -18,7 +18,7 @@ function Initialize_database($dbservername, $dbusername, $dbpassword, $dbname){
     }
 }
 
-function Initialize_tables($dbservername, $dbusername, $dbpassword, $dbname, $dbtable_characters, $dbtable_raids, $dbtable_attendance, $dbtable_auth, $dbtable_log){   
+function Initialize_tables($dbservername, $dbusername, $dbpassword, $dbname, $dbtable_characters, $dbtable_raids, $dbtable_attendance, $dbtable_auth, $dbtable_log, $dbtable_app){   
     $error = false; 
     // Create connection
     $conn = new mysqli($dbservername, $dbusername, $dbpassword, $dbname);
@@ -153,7 +153,7 @@ if(Initialize_database($dbservername, $dbusername, $dbpassword, $dbname)){
     echo "\nfailure in creating db";
 }
 
-if(Initialize_tables($dbservername, $dbusername, $dbpassword, $dbname, $dbtable_characters, $dbtable_raids, $dbtable_attendance, $dbtable_auth, $dbtable_log)){
+if(Initialize_tables($dbservername, $dbusername, $dbpassword, $dbname, $dbtable_characters, $dbtable_raids, $dbtable_attendance, $dbtable_auth, $dbtable_log, $dbtable_app)){
     echo "\nTables created successfully";
 } else {
     echo "\nfailure in creating tables";
