@@ -37,4 +37,5 @@ jobs:
           ftp-server: 134.209.176.222
           ftp-username: webroot
           ftp-password: ${{ secrets.FTP_PASSWORD }}
-          local-dir: ./www.amusedtodeath.eu
+          local-dir: ./
+          server-dir: ./www.amusedtodeath.eu/
