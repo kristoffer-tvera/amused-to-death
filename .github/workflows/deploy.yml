@@ -34,7 +34,7 @@ jobs:
       - name: FTP-Deploy-Action
         uses: SamKirkland/FTP-Deploy-Action@3.1.1
         with:
-          ftp-server: ftp://ftp.amusedtodeath.eu/
-          ftp-username: amusedtodeath.eu
+          ftp-server: 134.209.176.222
+          ftp-username: webroot
           ftp-password: ${{ secrets.FTP_PASSWORD }}
-          local-dir: ./
+          local-dir: ./www.amusedtodeath.eu
