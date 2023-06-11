@@ -81,7 +81,7 @@
                             <hr />
 
                             <div class="form-group">
-                                <label class="form-label">Battle-tag (important so we can reach you!) </label>
+                                <label class="form-label">Discord-tag (important so we can reach you!) </label>
                                 <input type="text" class="form-control" name="btag" placeholder="example#1234" value="<?php echo htmlspecialchars($app["btag"]); ?>" required="required">
                             </div>
                             <hr />
