@@ -152,7 +152,7 @@
                         </div>
                         <hr>
                         <div class="mb-4">
-                            <h2>Battle-tag</h2>
+                            <h2>Discord-tag</h2>
                             <p style="white-space: pre-wrap;"><?php echo htmlspecialchars($app["btag"]); ?></p>
                         </div>
                         <div class="mb-4">
