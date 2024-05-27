@@ -51,7 +51,7 @@ async def on_message(message):
 
     if message.content.lower() == '!mudkip':
         token = randomString()
-        id = message.author.name + '#' + message.author.discriminator
+        id = message.author.name
 
         url = 'https://amusedtodeath.eu/api/bot/'
         payload = {'token': token, 'discord': id}
