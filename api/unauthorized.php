@@ -1,5 +1,6 @@
 <!doctype html>
 <html lang="en" dir="ltr">
+
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -30,7 +31,8 @@
     }
   </style>
 </head>
-<body class="antialiased theme-dark overflow-auto" style="background-color: #000">
+
+<body class="antialiased overflow-auto" style="background-color: #000" data-bs-theme="dark">
   <div class="flex-fill d-flex align-items-center justify-content-center">
     <div class="container-xl py-6">
       <div class="empty">
@@ -39,15 +41,15 @@
         </div>
 
         <h1 class="h2 text-muted">Unauthorized</h1>
-        
-        <img src="/assets/images/jaina_dissapointed.gif" alt="Jaina Proudmore is dissapointed with you" class="w-100"/>
+
+        <img src="/assets/images/jaina_dissapointed.gif" alt="Jaina Proudmore is dissapointed with you" class="w-100" />
         <p class="empty-subtitle text-muted">
           Login through discord (!mudkip) if you want to change/update anything
         </p>
         <div class="empty-action">
           <a href="javascript:history.back()" class="btn btn-secondary">
             <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-              <path stroke="none" d="M0 0h24v24H0z"/>
+              <path stroke="none" d="M0 0h24v24H0z" />
               <line x1="5" y1="12" x2="19" y2="12" />
               <line x1="5" y1="12" x2="11" y2="18" />
               <line x1="5" y1="12" x2="11" y2="6" />
@@ -59,8 +61,8 @@
     </div>
   </div>
   <script>
-        document.body.style.display = "block"
-    </script>
+    document.body.style.display = "block"
+  </script>
 </body>
 
 </html>

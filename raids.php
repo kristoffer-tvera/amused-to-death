@@ -1,12 +1,12 @@
 <?php require './partials/_session_start.php'; ?>
 <!doctype html>
 <html lang="en" dir="ltr">
-<?php 
-	$title = "Raids - A2D";
-	require './partials/_head.php';
+<?php
+$title = "Raids - A2D";
+require './partials/_head.php';
 ?>
 
-<body class="antialiased theme-dark">
+<body class="antialiased" data-bs-theme="dark">
     <div class="page">
         <?php require './partials/_nav.php'; ?>
         <div class="content">
@@ -48,22 +48,21 @@
                             include_once './api/secrets.php';
                             include_once './api/helper.php';
                             $raids = GetRaids($dbservername, $dbusername, $dbpassword, $dbname, $dbtable_raids);
-                            foreach($raids as $raid):
-                                ?>
-                            <tr>
-                                <td><span class="text-muted"><?php echo $raid['id']; ?></span></td>
-                                <td><a href="/raid/?id=<?php echo $raid['id']; ?>"
-                                        class="text-reset"><?php echo $raid['name']; ?></a></td>
-                                <td>
-                                    <?php echo $raid['gold']; ?>
-                                </td>
-                                <td>
-                                    <?php echo $raid['added_date']; ?>
-                                </td>
-                                <td>
-                                    <?php echo $raid['change_date']; ?>
-                                </td>
-                            </tr>
+                            foreach ($raids as $raid) :
+                            ?>
+                                <tr>
+                                    <td><span class="text-muted"><?php echo $raid['id']; ?></span></td>
+                                    <td><a href="/raid/?id=<?php echo $raid['id']; ?>" class="text-reset"><?php echo $raid['name']; ?></a></td>
+                                    <td>
+                                        <?php echo $raid['gold']; ?>
+                                    </td>
+                                    <td>
+                                        <?php echo $raid['added_date']; ?>
+                                    </td>
+                                    <td>
+                                        <?php echo $raid['change_date']; ?>
+                                    </td>
+                                </tr>
                             <?php endforeach; ?>
                         </tbody>
                     </table>
@@ -85,7 +84,6 @@
                 [3, "desc"]
             ]
         });
-
     </script>
 </body>
 

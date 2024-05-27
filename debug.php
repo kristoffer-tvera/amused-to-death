@@ -1,20 +1,20 @@
 <?php require './partials/_session_start.php'; ?>
 <!doctype html>
 <html lang="en" dir="ltr">
-<?php 
-	$title = "Debug - A2D";
-    require './partials/_head.php';
-    $command = '';
-    if(isset($_GET["command"])){
-        $command = $_GET["command"];
-    }
+<?php
+$title = "Debug - A2D";
+require './partials/_head.php';
+$command = '';
+if (isset($_GET["command"])) {
+    $command = $_GET["command"];
+}
 
-    if($command == "destroy_session"){
-        session_destroy();
-    }
+if ($command == "destroy_session") {
+    session_destroy();
+}
 ?>
 
-<body class="antialiased theme-dark">
+<body class="antialiased" data-bs-theme="dark">
     <div class="page">
         <?php require './partials/_nav.php'; ?>
         <div class="content">
@@ -38,13 +38,14 @@
                     <div class="card-body">
                         <p>Session Keys:</p>
                         <ul>
-                            <?php if(isset($_SESSION)): foreach($_SESSION as $key=>$value): ?>
-                            <li><?php echo $key ?></li>
-                            <?php endforeach; endif; ?>
+                            <?php if (isset($_SESSION)) : foreach ($_SESSION as $key => $value) : ?>
+                                    <li><?php echo $key ?></li>
+                            <?php endforeach;
+                            endif; ?>
                         </ul>
                         <a href="?command=destroy_session" class="btn btn-danger"> Destroy session <a>
 
-                        <hr/>
+                                <hr />
                     </div> <!-- card-body -->
                 </div> <!-- card -->
 

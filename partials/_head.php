@@ -16,28 +16,17 @@
     <link rel="icon" type="image/png" sizes="16x16" href="/assets/images/favicon-16x16.png">
     <link rel="shortcut icon" type="image/x-icon" href="/assets/favicon.ico" />
     <title><?php echo $title ?></title>
-    <!-- Libs CSS -->
-    <link href="/assets/libs/jqvmap/dist/jqvmap.min.css" rel="stylesheet" />
-    <link href="/assets/libs/selectize/dist/css/selectize.css" rel="stylesheet" />
-    <link href="/assets/libs/fullcalendar/core/main.min.css" rel="stylesheet" />
-    <link href="/assets/libs/fullcalendar/daygrid/main.min.css" rel="stylesheet" />
-    <link href="/assets/libs/fullcalendar/timegrid/main.min.css" rel="stylesheet" />
-    <link href="/assets/libs/fullcalendar/list/main.min.css" rel="stylesheet" />
-    <link href="/assets/libs/flatpickr/dist/flatpickr.min.css" rel="stylesheet" />
-    <link href="/assets/libs/nouislider/distribute/nouislider.min.css" rel="stylesheet" />
+
     <!-- Tabler Core -->
-    <link href="/assets/css/tabler.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/core@latest/dist/css/tabler.min.css">
     <!-- Tabler Plugins -->
-    <link href="/assets/css/tabler-buttons.min.css" rel="stylesheet" />
-    <link rel="stylesheet"
-        href="https://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.20/css/dataTables.bootstrap4.min.css"
-        integrity="sha256-F+DaKAClQut87heMIC6oThARMuWne8+WzxIDT7jXuPA=" crossorigin="anonymous" />
+    <link rel="stylesheet" href="https://cdn.datatables.net/2.0.7/css/dataTables.dataTables.min.css" />
+    <!-- <link rel="stylesheet" href="https://cdn.datatables.net/2.0.7/css/dataTables.bootstrap5.min.css" /> -->
     <style>
         body {
             display: none;
         }
     </style>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css"
-        integrity="sha256-ENFZrbVzylNbgnXx0n3I1g//2WeO47XxoPe0vkp3NC8=" crossorigin="anonymous" />
+    <!-- <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous"> -->
     <link href="/assets/css/custom.css" rel="stylesheet" />
 </head>

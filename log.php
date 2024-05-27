@@ -1,12 +1,12 @@
 <?php require './partials/_session_start.php'; ?>
 <!doctype html>
 <html lang="en" dir="ltr">
-<?php 
-	$title = "Log - A2D";
-	require './partials/_head.php';
+<?php
+$title = "Log - A2D";
+require './partials/_head.php';
 ?>
 
-<body class="antialiased theme-dark">
+<body class="antialiased" data-bs-theme="dark">
     <div class="page">
         <?php require './partials/_nav.php'; ?>
         <div class="content">
@@ -37,23 +37,23 @@
                         </thead>
                         <tbody>
                             <?php
-                                include_once './api/secrets.php';
-                                include_once './api/helper.php';
-                                $log = GetLog($dbservername, $dbusername, $dbpassword, $dbname, $dbtable_log);
+                            include_once './api/secrets.php';
+                            include_once './api/helper.php';
+                            $log = GetLog($dbservername, $dbusername, $dbpassword, $dbname, $dbtable_log);
 
-                                foreach($log as $event):
-                                ?>
-                            <tr>
-                                <td>
-                                    <span class="text-muted"> <?php echo $event['user']; ?> </span>
-                                </td>
-                                <td>
-                                    <span class="text-muted"> <?php echo $event['date']; ?> </span>
-                                </td>
-                                <td>
-                                    <?php echo $event['query']; ?>
-                                </td>
-                            </tr>
+                            foreach ($log as $event) :
+                            ?>
+                                <tr>
+                                    <td>
+                                        <span class="text-muted"> <?php echo $event['user']; ?> </span>
+                                    </td>
+                                    <td>
+                                        <span class="text-muted"> <?php echo $event['date']; ?> </span>
+                                    </td>
+                                    <td>
+                                        <?php echo $event['query']; ?>
+                                    </td>
+                                </tr>
                             <?php endforeach; ?>
                         </tbody>
                     </table>
@@ -75,7 +75,6 @@
                 [1, "desc"]
             ]
         });
-
     </script>
 </body>
 
