@@ -10,7 +10,7 @@ require './partials/_head.php';
     <div class="page">
         <?php require './partials/_nav.php'; ?>
         <div class="content">
-            <div class="container-xl">
+            <div class="container-xl container-fix">
 
                 <!-- Page title -->
                 <div class="page-header">

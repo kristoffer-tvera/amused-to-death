@@ -16,6 +16,9 @@
 }
 
 .container-fix {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem 0;
 }
 
 /*

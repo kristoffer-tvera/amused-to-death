@@ -18,7 +18,7 @@ if ($command == "destroy_session") {
     <div class="page">
         <?php require './partials/_nav.php'; ?>
         <div class="content">
-            <div class="container-xl">
+            <div class="container-xl container-fix">
 
                 <!-- Page title -->
                 <div class="page-header">
