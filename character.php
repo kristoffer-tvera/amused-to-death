@@ -161,8 +161,8 @@ require './partials/_head.php';
                                     <label class="form-label">Rank</label>
                                     <?php if (isset($_SESSION['admin'])) : ?>
                                         <div class="form-check form-check-inline">
-                                            <label class="form-check-label" for="raider">Raider</label>
                                             <input class="form-check-input" type="checkbox" id="raider" name="raider" value="1" <?php if ($raider == 1) echo "checked" ?>>
+                                            <label class="form-check-label" for="raider">Raider</label>
                                         </div>
                                     <?php else : ?>
                                         <div class="form-control-plaintext"><?php echo $raider == 1 ? "Raider" : "Social" ?></div>
@@ -174,8 +174,8 @@ require './partials/_head.php';
                                     <div class="form-group my-4">
                                         <label class="form-label">Custom</label>
                                         <div class="form-check form-check-inline">
-                                            <label class="form-check-label" for="vip">VIP</label>
                                             <input class="form-check-input" type="checkbox" id="vip" name="vip" value="1" <?php if ($vip == 1) echo "checked" ?>>
+                                            <label class="form-check-label" for="vip">VIP</label>
                                         </div>
                                     </div>
                                 <?php endif; ?>

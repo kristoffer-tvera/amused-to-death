@@ -123,7 +123,7 @@ require './partials/_head.php';
                     </div>
                 </div>
 
-                <div class="row">
+                <div class="row row-cards">
                     <?php
                     foreach ($raiders as $raider) :
                     ?>
@@ -208,7 +208,7 @@ require './partials/_head.php';
                         </div>
                     </div>
                 </div>
-                <div class="row">
+                <div class="row row-cards">
                     <?php
                     foreach ($socials as $social) :
                     ?>

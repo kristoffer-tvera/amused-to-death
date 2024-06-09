@@ -140,7 +140,7 @@ require './partials/_head.php';
                         </div>
                     </div>
 
-                    <div class="row" data-players>
+                    <div class="row row-deck row-cards" data-players>
                         <?php
                         for ($i = 0; $i < sizeof($players); $i++) :
                         ?>
