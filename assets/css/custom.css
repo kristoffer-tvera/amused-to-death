@@ -10,9 +10,6 @@
 }
 
 .container-xl {
-    display: flex;
-    flex-direction: column;
-    gap: 2rem 0;
 }
 
 .container-fix {
