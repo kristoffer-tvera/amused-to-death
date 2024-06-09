@@ -1,9 +1,10 @@
 <?php
 
-function GetCharacters($dbservername, $dbusername, $dbpassword, $dbname, $dbtable_characters) {
+function GetCharacters($dbservername, $dbusername, $dbpassword, $dbname, $dbtable_characters)
+{
     $conn = new mysqli($dbservername, $dbusername, $dbpassword, $dbname);
-    if ($conn-> connect_error) {
-        die("Connection failed: ".$conn-> connect_error);
+    if ($conn->connect_error) {
+        die("Connection failed: " . $conn->connect_error);
     }
 
     $stmt = $conn->prepare("SELECT * FROM `$dbtable_characters` WHERE `hidden` = 0");
@@ -12,10 +13,11 @@ function GetCharacters($dbservername, $dbusername, $dbpassword, $dbname, $dbtabl
     return $result->fetch_all(MYSQLI_ASSOC);
 }
 
-function GetMyCharacters($dbservername, $dbusername, $dbpassword, $dbname, $dbtable_characters, $discord){
+function GetMyCharacters($dbservername, $dbusername, $dbpassword, $dbname, $dbtable_characters, $discord)
+{
     $conn = new mysqli($dbservername, $dbusername, $dbpassword, $dbname);
-    if ($conn-> connect_error) {
-        die("Connection failed: ".$conn-> connect_error);
+    if ($conn->connect_error) {
+        die("Connection failed: " . $conn->connect_error);
     }
 
     $stmt = $conn->prepare("SELECT * FROM `$dbtable_characters` WHERE discord=? AND `hidden` = 0");
@@ -25,10 +27,11 @@ function GetMyCharacters($dbservername, $dbusername, $dbpassword, $dbname, $dbta
     return $result->fetch_all(MYSQLI_ASSOC);
 }
 
-function GetCharacterIds($dbservername, $dbusername, $dbpassword, $dbname, $dbtable_characters) {
+function GetCharacterIds($dbservername, $dbusername, $dbpassword, $dbname, $dbtable_characters)
+{
     $conn = new mysqli($dbservername, $dbusername, $dbpassword, $dbname);
-    if ($conn-> connect_error) {
-        die("Connection failed: ".$conn-> connect_error);
+    if ($conn->connect_error) {
+        die("Connection failed: " . $conn->connect_error);
     }
 
     $stmt = $conn->prepare("SELECT `id` FROM `$dbtable_characters` WHERE `hidden` = 0");
@@ -37,10 +40,11 @@ function GetCharacterIds($dbservername, $dbusername, $dbpassword, $dbname, $dbta
     return $result->fetch_all(MYSQLI_ASSOC);
 }
 
-function GetCharacter($dbservername, $dbusername, $dbpassword, $dbname, $dbtable_characters, $id) {
+function GetCharacter($dbservername, $dbusername, $dbpassword, $dbname, $dbtable_characters, $id)
+{
     $conn = new mysqli($dbservername, $dbusername, $dbpassword, $dbname);
-    if ($conn-> connect_error) {
-        die("Connection failed: ".$conn-> connect_error);
+    if ($conn->connect_error) {
+        die("Connection failed: " . $conn->connect_error);
     }
 
     $stmt = $conn->prepare("SELECT * FROM `$dbtable_characters` where id=?");
@@ -50,10 +54,11 @@ function GetCharacter($dbservername, $dbusername, $dbpassword, $dbname, $dbtable
     return $result->fetch_assoc();
 }
 
-function GetRaid($dbservername, $dbusername, $dbpassword, $dbname, $dbtable_raids, $id) {
+function GetRaid($dbservername, $dbusername, $dbpassword, $dbname, $dbtable_raids, $id)
+{
     $conn = new mysqli($dbservername, $dbusername, $dbpassword, $dbname);
-    if ($conn-> connect_error) {
-        die("Connection failed: ".$conn-> connect_error);
+    if ($conn->connect_error) {
+        die("Connection failed: " . $conn->connect_error);
     }
 
     $stmt = $conn->prepare("SELECT * FROM `$dbtable_raids` where id=?");
@@ -63,10 +68,11 @@ function GetRaid($dbservername, $dbusername, $dbpassword, $dbname, $dbtable_raid
     return $result->fetch_assoc();
 }
 
-function GetRaids($dbservername, $dbusername, $dbpassword, $dbname, $dbtable_raids) {
+function GetRaids($dbservername, $dbusername, $dbpassword, $dbname, $dbtable_raids)
+{
     $conn = new mysqli($dbservername, $dbusername, $dbpassword, $dbname);
-    if ($conn-> connect_error) {
-        die("Connection failed: ".$conn-> connect_error);
+    if ($conn->connect_error) {
+        die("Connection failed: " . $conn->connect_error);
     }
 
     $stmt = $conn->prepare("SELECT * FROM `$dbtable_raids`");
@@ -75,10 +81,11 @@ function GetRaids($dbservername, $dbusername, $dbpassword, $dbname, $dbtable_rai
     return $result->fetch_all(MYSQLI_ASSOC);
 }
 
-function GetLog($dbservername, $dbusername, $dbpassword, $dbname, $dbtable_log) {
+function GetLog($dbservername, $dbusername, $dbpassword, $dbname, $dbtable_log)
+{
     $conn = new mysqli($dbservername, $dbusername, $dbpassword, $dbname);
-    if ($conn-> connect_error) {
-        die("Connection failed: ".$conn-> connect_error);
+    if ($conn->connect_error) {
+        die("Connection failed: " . $conn->connect_error);
     }
 
     $stmt = $conn->prepare("SELECT * FROM `$dbtable_log`");
@@ -87,10 +94,11 @@ function GetLog($dbservername, $dbusername, $dbpassword, $dbname, $dbtable_log) 
     return $result->fetch_all(MYSQLI_ASSOC);
 }
 
-function GetApps($dbservername, $dbusername, $dbpassword, $dbname, $dbtable_app) {
+function GetApps($dbservername, $dbusername, $dbpassword, $dbname, $dbtable_app)
+{
     $conn = new mysqli($dbservername, $dbusername, $dbpassword, $dbname);
-    if ($conn-> connect_error) {
-        die("Connection failed: ".$conn-> connect_error);
+    if ($conn->connect_error) {
+        die("Connection failed: " . $conn->connect_error);
     }
 
     $stmt = $conn->prepare("SELECT id, name, server, spec, change_date FROM `$dbtable_app`");
@@ -99,10 +107,11 @@ function GetApps($dbservername, $dbusername, $dbpassword, $dbname, $dbtable_app)
     return $result->fetch_all(MYSQLI_ASSOC);
 }
 
-function GetApp($dbservername, $dbusername, $dbpassword, $dbname, $dbtable_app, $id) {
+function GetApp($dbservername, $dbusername, $dbpassword, $dbname, $dbtable_app, $id)
+{
     $conn = new mysqli($dbservername, $dbusername, $dbpassword, $dbname);
-    if ($conn-> connect_error) {
-        die("Connection failed: ".$conn-> connect_error);
+    if ($conn->connect_error) {
+        die("Connection failed: " . $conn->connect_error);
     }
 
     $stmt = $conn->prepare("SELECT * FROM `$dbtable_app` where id=?");
@@ -125,7 +134,8 @@ function GetApp($dbservername, $dbusername, $dbpassword, $dbname, $dbtable_app, 
 //     return $result->fetch_all(MYSQLI_ASSOC);
 // }
 
-function GetAttendanceForRaid($dbservername, $dbusername, $dbpassword, $dbname, $dbtable_attendance, $dbtable_characters, $id){
+function GetAttendanceForRaid($dbservername, $dbusername, $dbpassword, $dbname, $dbtable_attendance, $dbtable_characters, $id)
+{
     $conn = new mysqli($dbservername, $dbusername, $dbpassword, $dbname);
     if ($conn->connect_error) {
         die("Connection failed: " . $conn->connect_error);
@@ -138,7 +148,8 @@ function GetAttendanceForRaid($dbservername, $dbusername, $dbpassword, $dbname, 
     return $result->fetch_all(MYSQLI_ASSOC);
 }
 
-function GetAttendanceForCharacter($dbservername, $dbusername, $dbpassword, $dbname, $dbtable_attendance, $dbtable_raids, $id){
+function GetAttendanceForCharacter($dbservername, $dbusername, $dbpassword, $dbname, $dbtable_attendance, $dbtable_raids, $id)
+{
     $conn = new mysqli($dbservername, $dbusername, $dbpassword, $dbname);
     if ($conn->connect_error) {
         die("Connection failed: " . $conn->connect_error);
@@ -151,7 +162,8 @@ function GetAttendanceForCharacter($dbservername, $dbusername, $dbpassword, $dbn
     return $result->fetch_all(MYSQLI_ASSOC);
 }
 
-function GetAltsForCharacter($dbservername, $dbusername, $dbpassword, $dbname, $dbtable_characters, $id){
+function GetAltsForCharacter($dbservername, $dbusername, $dbpassword, $dbname, $dbtable_characters, $id)
+{
     $conn = new mysqli($dbservername, $dbusername, $dbpassword, $dbname);
     if ($conn->connect_error) {
         die("Connection failed: " . $conn->connect_error);
@@ -164,7 +176,8 @@ function GetAltsForCharacter($dbservername, $dbusername, $dbpassword, $dbname, $
     return $result->fetch_all(MYSQLI_ASSOC);
 }
 
-function ClassFromId($id) {
+function ClassFromId($id)
+{
     switch ($id) {
         case 0:
             return "Druid";
@@ -190,31 +203,32 @@ function ClassFromId($id) {
             return "Shaman";
         case 11:
             return "Monk";
+        case 12:
+            return "Evoker";
     }
     return "Invalid id";
 }
 
-function AnnouncementNewRaid($raidname, $url, $webhook){
+function AnnouncementNewRaid($raidname, $url, $webhook)
+{
 
     $json = json_encode([
         "content" => "@here New raid (" . $raidname . ") posted! Visit " . $url . " to sign up!",
         "allowed_mentions" => [
             "parse" => ["everyone"]
         ]
-    ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE );
-        
-    $ch = curl_init( $webhook );
-    curl_setopt( $ch, CURLOPT_HTTPHEADER, array('Content-type: application/json'));
-    curl_setopt( $ch, CURLOPT_POST, 1);
-    curl_setopt( $ch, CURLOPT_POSTFIELDS, $json);
-    curl_setopt( $ch, CURLOPT_FOLLOWLOCATION, 1);
-    curl_setopt( $ch, CURLOPT_HEADER, 0);
-    curl_setopt( $ch, CURLOPT_RETURNTRANSFER, 1);
-    
-    $response = curl_exec( $ch );
-    $success = curl_getinfo( $ch, CURLINFO_HTTP_CODE) === 200;
-    curl_close( $ch );
-    return $succes;
-}
+    ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
 
-?>
+    $ch = curl_init($webhook);
+    curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-type: application/json'));
+    curl_setopt($ch, CURLOPT_POST, 1);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, $json);
+    curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
+    curl_setopt($ch, CURLOPT_HEADER, 0);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+
+    $response = curl_exec($ch);
+    $success = curl_getinfo($ch, CURLINFO_HTTP_CODE) === 200;
+    curl_close($ch);
+    return $success;
+}

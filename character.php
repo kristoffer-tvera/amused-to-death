@@ -120,6 +120,8 @@ require './partials/_head.php';
                                         </option>
                                         <option value="11" <?php if ($class == 11) echo "selected=\"selected\"" ?>>Monk
                                         </option>
+                                        <option value="12" <?php if ($class == 12) echo "selected=\"selected\"" ?>>Evoker
+                                        </option>
                                     </select>
                                 </div>
 

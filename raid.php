@@ -10,7 +10,7 @@ require './partials/_head.php';
     <div class="page">
         <?php require './partials/_nav.php'; ?>
         <div class="content">
-            <div class="container-xl">
+            <div class="container-xl container-fix">
                 <!-- Page title -->
                 <div class="page-header">
                     <div class="row align-items-center">
@@ -562,7 +562,8 @@ require './partials/_head.php';
                     'rgb(255, 245, 105)', //Rogue
                     'rgb(0, 112, 222)', //Shaman
                     'rgb(135, 135, 237)', //Warlock
-                    'rgb(199, 156, 110)' //Warrior
+                    'rgb(199, 156, 110)', //Warrior
+                    'rgb(51, 147, 127)' //Evoker
                 ];
                 for (let i = 0; i < playerCards.length; i++) {
                     playerCards[i].addEventListener('click', function(e) {
