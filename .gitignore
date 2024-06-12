@@ -356,3 +356,4 @@ jaina-proudmoore/.env
 api/apps.txt
 
 api/secrets.php
+requests.http
