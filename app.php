@@ -44,8 +44,10 @@ require './partials/_head.php';
 
                 $app = GetApp($dbservername, $dbusername, $dbpassword, $dbname, $dbtable_app, $id);
 
-                $auth  = $_GET["auth"];
-                $auth = htmlspecialchars(strip_tags($auth));
+                $auth = '';
+                if (isset($_GET["auth"]) && !empty($_GET["auth"])) {
+                    $auth = strtolower(htmlspecialchars($_GET["auth"]));
+                }
 
                 $verified = $auth == $app["auth"];
 
