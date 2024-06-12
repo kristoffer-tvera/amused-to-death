@@ -134,7 +134,7 @@ require './partials/_head.php';
                                         <div class="col-auto pr-0">
                                             <span class="avatar avatar-md" style="background-image: url(/assets/images/classes/<?php echo $raider['class']; ?>.png)"></span>
                                         </div>
-                                        <div class="col d-flex">
+                                        <div class="col d-flex justify-content-between">
                                             <h3 class="mb-0 mr-1">
                                                 <a href="/character/?id=<?php echo $raider['id']; ?>" title="Ilvl: <?php echo $raider['ilvl']; ?>" class="text-reset text-decoration-underline"><?php echo $raider["name"] ?></a>
                                                 <?php if ($raider['role_tank'] == 1) : ?>
@@ -151,9 +151,11 @@ require './partials/_head.php';
                                                 <?php endif; ?>
                                             </h3>
 
-                                            <a href="https://worldofwarcraft.com/en-gb/character/eu/<?php echo $raider["realm"] ?>/<?php echo $raider["name"] ?>" target="_blank" rel="noopener" class="px-1 border-left"><span class="avatar avatar-sm" style="background-image: url(/assets/images/external-sources/warcraft.png)"></a>
-                                            <a href="https://www.warcraftlogs.com/character/eu/<?php echo $raider["realm"] ?>/<?php echo $raider["name"] ?>" target="_blank" rel="noopener" class="px-1"><span class="avatar avatar-sm" style="background-image: url(/assets/images/external-sources/warcraftlogs.png)"></a>
-                                            <a href="https://raider.io/characters/eu/<?php echo $raider["realm"] ?>/<?php echo $raider["name"] ?>" target="_blank" rel="noopener" class="px-1"><span class="avatar avatar-sm" style="background-image: url(/assets/images/external-sources/raiderio.png)"></a>
+                                            <div>
+                                                <a href="https://worldofwarcraft.com/en-gb/character/eu/<?php echo $raider["realm"] ?>/<?php echo $raider["name"] ?>" target="_blank" rel="noopener" class="px-1 border-left"><span class="avatar avatar-sm" style="background-image: url(/assets/images/external-sources/warcraft.png)"></a>
+                                                <a href="https://www.warcraftlogs.com/character/eu/<?php echo $raider["realm"] ?>/<?php echo $raider["name"] ?>" target="_blank" rel="noopener" class="px-1"><span class="avatar avatar-sm" style="background-image: url(/assets/images/external-sources/warcraftlogs.png)"></a>
+                                                <a href="https://raider.io/characters/eu/<?php echo $raider["realm"] ?>/<?php echo $raider["name"] ?>" target="_blank" rel="noopener" class="px-1"><span class="avatar avatar-sm" style="background-image: url(/assets/images/external-sources/raiderio.png)"></a>
+                                            </div>
                                         </div>
                                     </div>
                                     <hr class="my-3" />

@@ -144,7 +144,7 @@ require './partials/_head.php';
                         <?php
                         for ($i = 0; $i < sizeof($players); $i++) :
                         ?>
-                            <div class="col-md-6 col-lg-2">
+                            <div class="col-md-6 col-lg-3">
                                 <div class="card" data-player-id="<?php echo $players[$i] ?>" style="border-color: rgb(53, 64, 82)">
                                     <div class="card-body p-1">
                                         <div class="row align-items-center">
@@ -163,12 +163,12 @@ require './partials/_head.php';
 
                                             foreach ($characters as $character) :
                                             ?>
-                                                <div class="ml-2 row w-100">
-                                                    <div class="col-auto px-0">
+                                                <div class="row w-100">
+                                                    <div class="col-auto">
                                                         <span class="avatar avatar-sm" style="background-image: url(/assets/images/classes/<?php echo $character['class']; ?>.png)"></span>
                                                     </div>
                                                     <div class="col-auto d-flex px-1">
-                                                        <h3 class="mb-0 mr-1">
+                                                        <h3 class="mb-1">
                                                             <a href="/character/?id=<?php echo $character['characterId']; ?>" title="Ilvl: <?php echo $character['ilvl']; ?>" class="text-reset text-decoration-underline"><?php echo $character["name"] . ($character["vip"] == 1 ? '*' : '') ?></a>
                                                             <?php if ($character['role_tank'] == 1) : ?>
                                                                 <span class="avatar avatar-sm" style="background-image: url(/assets/images/roles/role_tank.png)">
@@ -436,35 +436,33 @@ require './partials/_head.php';
 
             <!-- Toast success -->
             <div aria-live="polite" aria-atomic="true" style="position: fixed; top: 0; right: 0; width: 320px;">
-                <div class="toast success" role="alert" aria-live="assertive" aria-atomic="true" data-delay="6000">
+                <div class="toast success" role="alert" aria-live="assertive" aria-atomic="true" data-bs-autohide="true" data-bs-toggle="toast">
                     <div class="toast-header">
-                        <strong class="mr-auto">A2D</strong>
-                        <small class="text-muted">just now</small>
-                        <button type="button" class="ml-2 mb-1 close" data-dismiss="toast" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
+                        <strong class="me-auto">A2D</strong>
+                        <small>just now</small>
+                        <button type="button" class="ms-2 btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
                     </div>
-                    <div class="toast-body bg-green">
+                    <div class="toast-body">
                         Change saved
                     </div>
-                </div><!-- toast -->
+                </div>
             </div>
 
             <!-- Toast error -->
             <div aria-live="polite" aria-atomic="true" style="position: fixed; top: 0; right: 0; width: 320px;">
-                <div class="toast error" role="alert" aria-live="assertive" aria-atomic="true" data-delay="6000">
+                <div class="toast error" role="alert" aria-live="assertive" aria-atomic="true" data-bs-autohide="true" data-bs-toggle="toast">
                     <div class="toast-header">
-                        <strong class="mr-auto">A2D</strong>
-                        <small class="text-muted">just now</small>
-                        <button type="button" class="ml-2 mb-1 close" data-dismiss="toast" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
+                        <strong class="me-auto">A2D</strong>
+                        <small>just now</small>
+                        <button type="button" class="ms-2 btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
                     </div>
-                    <div class="toast-body bg-red">
-                        Error. Logged in?
+                    <div class="toast-body">
+                        Error when trying to save
                     </div>
-                </div><!-- toast -->
+                </div>
             </div>
+
+
 
             <?php require './partials/_footer.php' ?>
         </div> <!-- content -->
