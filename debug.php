@@ -39,7 +39,7 @@ if ($command == "destroy_session") {
                         <p>Session Keys:</p>
                         <ul>
                             <?php if (isset($_SESSION)) : foreach ($_SESSION as $key => $value) : ?>
-                                    <li><?php echo $key ?></li>
+                                    <li><?php echo $key . " : " . $value ?></li>
                             <?php endforeach;
                             endif; ?>
                         </ul>

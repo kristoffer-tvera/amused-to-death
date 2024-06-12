@@ -67,8 +67,8 @@ require './partials/_head.php';
 
                                 <div class="form-group my-3">
                                     <div class="form-check form-check-inline">
-                                        <label class="form-check-label" for="paid">Paid by community</label>
                                         <input class="form-check-input" type="checkbox" id="paid" name="paid" value="1" <?php if ($paid == 1) echo "checked";  ?>>
+                                        <label class="form-check-label" for="paid">Paid by community</label>
                                     </div>
                                 </div>
 
