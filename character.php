@@ -226,7 +226,7 @@ require './partials/_head.php';
                     <div class="card-header">
                         <h3 class="card-title">Raids</h3>
                     </div>
-                    <table class="table card-table table-vcenter text-nowrap datatable">
+                    <table class="table card-table table-vcenter text-nowrap datatable" data-page-length='25'>
                         <thead>
                             <tr>
                                 <th class="w-1">Id</th>
@@ -276,7 +276,7 @@ require './partials/_head.php';
                         <div class="card-header">
                             <h3 class="card-title">Alts</h3>
                         </div>
-                        <table class="table card-table table-vcenter text-nowrap datatable">
+                        <table class="table card-table table-vcenter text-nowrap datatable" data-order='[[ 6, "desc" ]]' data-page-length='25'>
                             <thead>
                                 <tr>
                                     <th class="w-1">Id</th>
@@ -323,13 +323,7 @@ require './partials/_head.php';
     </div><!-- page -->
     <?php require './partials/_scripts.php' ?>
     <script>
-        $('.datatable').DataTable({
-            "lengthChange": false,
-            "searching": false,
-            "pageLength": 20,
-            "dom": "<'table-responsive' tr>" +
-                "<'card-footer d-flex align-items-center'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>",
-        });
+        let table = new DataTable('.datatable');
     </script>
 </body>
 

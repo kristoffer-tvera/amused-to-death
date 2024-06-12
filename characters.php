@@ -34,8 +34,8 @@ require './partials/_head.php';
                     <div class="card-header">
                         <h3 class="card-title">Characters</h3>
                     </div>
-                    <div class="table-responsive">
-                        <table class="table card-table table-vcenter text-nowrap datatable">
+                    <div class="">
+                        <table class="table card-table table-vcenter text-nowrap datatable" data-order='[[ 6, "desc" ]]' data-page-length='25'>
                             <thead>
                                 <tr>
                                     <th class="w-1">Id.</th>
@@ -168,12 +168,12 @@ require './partials/_head.php';
 
                                         foreach ($alts as $alt) :
                                         ?>
-                                            <div class="ml-2 row w-100">
-                                                <div class="col-auto px-0">
+                                            <div class="row w-100">
+                                                <div class="col-auto">
                                                     <span class="avatar avatar-sm" style="background-image: url(/assets/images/classes/<?php echo $alt['class']; ?>.png)"></span>
                                                 </div>
-                                                <div class="col-auto d-flex px-1">
-                                                    <h3 class="mb-0 mr-1">
+                                                <div class="col d-flex justify-content-between">
+                                                    <h3 class="">
                                                         <a href="/character/?id=<?php echo $alt['id']; ?>" title="Ilvl: <?php echo $alt['ilvl']; ?>" class="text-reset text-decoration-underline"><?php echo $alt["name"] ?></a>
                                                         <?php if ($alt['role_tank'] == 1) : ?>
                                                             <span class="avatar avatar-sm" style="background-image: url(/assets/images/roles/role_tank.png)">
@@ -188,9 +188,11 @@ require './partials/_head.php';
                                                             </span>
                                                         <?php endif; ?>
                                                     </h3>
-                                                    <a href="https://worldofwarcraft.com/en-gb/character/eu/<?php echo $alt["realm"] ?>/<?php echo $alt["name"] ?>" target="_blank" rel="noopener" class="px-1 border-left"><span class="avatar avatar-sm" style="background-image: url(/assets/images/external-sources/warcraft.png)"></a>
-                                                    <a href="https://www.warcraftlogs.com/character/eu/<?php echo $alt["realm"] ?>/<?php echo $alt["name"] ?>" target="_blank" rel="noopener" class="px-1"><span class="avatar avatar-sm" style="background-image: url(/assets/images/external-sources/warcraftlogs.png)"></a>
-                                                    <a href="https://raider.io/characters/eu/<?php echo $alt["realm"] ?>/<?php echo $alt["name"] ?>" target="_blank" rel="noopener" class="px-1"><span class="avatar avatar-sm" style="background-image: url(/assets/images/external-sources/raiderio.png)"></a>
+                                                    <div>
+                                                        <a href="https://worldofwarcraft.com/en-gb/character/eu/<?php echo $alt["realm"] ?>/<?php echo $alt["name"] ?>" target="_blank" rel="noopener" class="px-1 border-left"><span class="avatar avatar-sm" style="background-image: url(/assets/images/external-sources/warcraft.png)"></a>
+                                                        <a href="https://www.warcraftlogs.com/character/eu/<?php echo $alt["realm"] ?>/<?php echo $alt["name"] ?>" target="_blank" rel="noopener" class="px-1"><span class="avatar avatar-sm" style="background-image: url(/assets/images/external-sources/warcraftlogs.png)"></a>
+                                                        <a href="https://raider.io/characters/eu/<?php echo $alt["realm"] ?>/<?php echo $alt["name"] ?>" target="_blank" rel="noopener" class="px-1"><span class="avatar avatar-sm" style="background-image: url(/assets/images/external-sources/raiderio.png)"></a>
+                                                    </div>
                                                 </div>
                                             </div>
                                         <?php endforeach; ?>
@@ -221,7 +223,7 @@ require './partials/_head.php';
                                         <div class="col-auto pr-0">
                                             <span class="avatar avatar-md" style="background-image: url(/assets/images/classes/<?php echo $social['class']; ?>.png)"></span>
                                         </div>
-                                        <div class="col d-flex">
+                                        <div class="col d-flex justify-content-between">
                                             <h3 class="mb-0 mr-1">
                                                 <a href="/character/?id=<?php echo $social['id']; ?>" title="Ilvl: <?php echo $social['ilvl']; ?>" class="text-reset text-decoration-underline"><?php echo $social["name"] ?></a>
                                                 <?php if ($social['role_tank'] == 1) : ?>
@@ -238,9 +240,11 @@ require './partials/_head.php';
                                                 <?php endif; ?>
                                             </h3>
 
-                                            <a href="https://worldofwarcraft.com/en-gb/character/eu/<?php echo $social["realm"] ?>/<?php echo $social["name"] ?>" target="_blank" rel="noopener" class="px-1 border-left"><span class="avatar avatar-sm" style="background-image: url(/assets/images/external-sources/warcraft.png)"></a>
-                                            <a href="https://www.warcraftlogs.com/character/eu/<?php echo $social["realm"] ?>/<?php echo $social["name"] ?>" target="_blank" rel="noopener" class="px-1"><span class="avatar avatar-sm" style="background-image: url(/assets/images/external-sources/warcraftlogs.png)"></a>
-                                            <a href="https://raider.io/characters/eu/<?php echo $social["realm"] ?>/<?php echo $social["name"] ?>" target="_blank" rel="noopener" class="px-1"><span class="avatar avatar-sm" style="background-image: url(/assets/images/external-sources/raiderio.png)"></a>
+                                            <div>
+                                                <a href="https://worldofwarcraft.com/en-gb/character/eu/<?php echo $social["realm"] ?>/<?php echo $social["name"] ?>" target="_blank" rel="noopener" class="px-1 border-left"><span class="avatar avatar-sm" style="background-image: url(/assets/images/external-sources/warcraft.png)"></a>
+                                                <a href="https://www.warcraftlogs.com/character/eu/<?php echo $social["realm"] ?>/<?php echo $social["name"] ?>" target="_blank" rel="noopener" class="px-1"><span class="avatar avatar-sm" style="background-image: url(/assets/images/external-sources/warcraftlogs.png)"></a>
+                                                <a href="https://raider.io/characters/eu/<?php echo $social["realm"] ?>/<?php echo $social["name"] ?>" target="_blank" rel="noopener" class="px-1"><span class="avatar avatar-sm" style="background-image: url(/assets/images/external-sources/raiderio.png)"></a>
+                                            </div>
                                         </div>
                                     </div>
                                     <hr class="my-3" />
@@ -257,7 +261,7 @@ require './partials/_head.php';
                                                 <div class="col-auto px-0">
                                                     <span class="avatar avatar-sm" style="background-image: url(/assets/images/classes/<?php echo $alt['class']; ?>.png)"></span>
                                                 </div>
-                                                <div class="col-auto d-flex px-1">
+                                                <div class="col d-flex px-1 justify-content-between">
                                                     <h3 class="mb-0 mr-1">
                                                         <a href="/character/?id=<?php echo $alt['id']; ?>" title="Ilvl: <?php echo $alt['ilvl']; ?>" class="text-reset text-decoration-underline"><?php echo $alt["name"] ?></a>
                                                         <?php if ($alt['role_tank'] == 1) : ?>
@@ -273,9 +277,11 @@ require './partials/_head.php';
                                                             </span>
                                                         <?php endif; ?>
                                                     </h3>
-                                                    <a href="https://worldofwarcraft.com/en-gb/character/eu/<?php echo $alt["realm"] ?>/<?php echo $alt["name"] ?>" target="_blank" rel="noopener" class="px-1 border-left"><span class="avatar avatar-sm" style="background-image: url(/assets/images/external-sources/warcraft.png)"></a>
-                                                    <a href="https://www.warcraftlogs.com/character/eu/<?php echo $alt["realm"] ?>/<?php echo $alt["name"] ?>" target="_blank" rel="noopener" class="px-1"><span class="avatar avatar-sm" style="background-image: url(/assets/images/external-sources/warcraftlogs.png)"></a>
-                                                    <a href="https://raider.io/characters/eu/<?php echo $alt["realm"] ?>/<?php echo $alt["name"] ?>" target="_blank" rel="noopener" class="px-1"><span class="avatar avatar-sm" style="background-image: url(/assets/images/external-sources/raiderio.png)"></a>
+                                                    <div>
+                                                        <a href="https://worldofwarcraft.com/en-gb/character/eu/<?php echo $alt["realm"] ?>/<?php echo $alt["name"] ?>" target="_blank" rel="noopener" class="px-1 border-left"><span class="avatar avatar-sm" style="background-image: url(/assets/images/external-sources/warcraft.png)"></a>
+                                                        <a href="https://www.warcraftlogs.com/character/eu/<?php echo $alt["realm"] ?>/<?php echo $alt["name"] ?>" target="_blank" rel="noopener" class="px-1"><span class="avatar avatar-sm" style="background-image: url(/assets/images/external-sources/warcraftlogs.png)"></a>
+                                                        <a href="https://raider.io/characters/eu/<?php echo $alt["realm"] ?>/<?php echo $alt["name"] ?>" target="_blank" rel="noopener" class="px-1"><span class="avatar avatar-sm" style="background-image: url(/assets/images/external-sources/raiderio.png)"></a>
+                                                    </div>
                                                 </div>
                                             </div>
                                         <?php endforeach; ?>
@@ -292,16 +298,7 @@ require './partials/_head.php';
     </div><!-- page -->
     <?php require './partials/_scripts.php' ?>
     <script>
-        $('.datatable').DataTable({
-            "lengthChange": false,
-            "searching": false,
-            "pageLength": 20,
-            "dom": "<'table-responsive' tr>" +
-                "<'card-footer d-flex align-items-center'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>",
-            "order": [
-                [6, "desc"]
-            ]
-        });
+        let table = new DataTable('.datatable');
     </script>
 </body>
 
