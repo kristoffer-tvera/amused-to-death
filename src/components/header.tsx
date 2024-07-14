@@ -1,18 +1,18 @@
 import React from "react";
 import Container from "react-bootstrap/Container";
-import Navbar from "react-bootstrap/Navbar";
 import Nav from "react-bootstrap/Nav";
+import Navbar from "react-bootstrap/Navbar";
 import { User } from "../types/user";
+import { parseJwt } from "../util/jwt";
 
 const Header: React.FC = () => {
     const [user, setUser] = React.useState<User>();
 
     React.useEffect(() => {
-        let user = window.localStorage.getItem("user");
-        if (user) {
-            let json = JSON.parse(user) as User;
-            console.log(json);
-            setUser(json);
+        let jwtString = localStorage.getItem("user");
+        if (jwtString) {
+            let parsedJwt = parseJwt<User>(jwtString);
+            setUser(parsedJwt);
         }
     }, []);
 
@@ -30,7 +30,12 @@ const Header: React.FC = () => {
                     {user ? (
                         <Navbar.Text>
                             Signed in as:{" "}
-                            <a href="#login">{user.unique_name}</a>
+                            <Nav.Link
+                                href="/profile"
+                                className="d-inline-block"
+                            >
+                                {user.unique_name}
+                            </Nav.Link>
                         </Navbar.Text>
                     ) : (
                         <Nav>

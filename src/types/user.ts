@@ -3,4 +3,6 @@ export interface User {
     sid: number;
     access_token: string;
     role: "Member" | "Officer";
+    addedDate: string;
+    changedDate: string;
 }

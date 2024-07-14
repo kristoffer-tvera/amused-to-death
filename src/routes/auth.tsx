@@ -1,8 +1,6 @@
 import React, { useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { login } from "../util/api";
-import { parseJwt } from "../util/jwt";
-import { User } from "../types/user";
 
 const Auth: React.FC = () => {
     const [searchParams] = useSearchParams();
@@ -10,7 +8,7 @@ const Auth: React.FC = () => {
     const code = searchParams.get("code");
 
     const responseType = "code";
-    const scope = "openid";
+    const scope = "openid wow.profile";
     const state = "69";
     const redirectUri = "http://localhost:5173/auth";
     const clientId = "8183bda55fd54566827c595947b189fe";
@@ -19,11 +17,7 @@ const Auth: React.FC = () => {
         if (code) {
             login(code)
                 .then((response) => {
-                    let parsedJwt = parseJwt<User>(response);
-                    window.localStorage.setItem(
-                        "user",
-                        JSON.stringify(parsedJwt)
-                    );
+                    localStorage.setItem("user", response);
                     navigate("/");
                 })
                 .catch((err) => {
