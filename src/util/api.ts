@@ -17,6 +17,31 @@ export const getCharacters = async (): Promise<Character[]> => {
     return response;
 };
 
+export const getMyCharacters = async (): Promise<Character[]> => {
+    let request = await fetch(
+        `${import.meta.env.VITE_API_BASE_PATH}/characters/my`,
+        {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${localStorage.getItem("user")}`,
+            },
+        }
+    );
+    let response = await request.json();
+    return response;
+};
+
+export const deleteCharacter = async (id: number): Promise<void> => {
+    await fetch(`${import.meta.env.VITE_API_BASE_PATH}/characters/${id}`, {
+        method: "DELETE",
+        headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("user")}`,
+        },
+    });
+};
+
 export const addCharacter = async (
     character: Character
 ): Promise<Character> => {
@@ -42,6 +67,34 @@ export const getRaids = async (): Promise<Raid[]> => {
             "Content-Type": "application/json",
             Authorization: `Bearer ${localStorage.getItem("user")}`,
         },
+    });
+    let response = await request.json();
+    return response;
+};
+
+export const getRaid = async (id: number): Promise<Raid> => {
+    let request = await fetch(
+        `${import.meta.env.VITE_API_BASE_PATH}/raids/${id}`,
+        {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${localStorage.getItem("user")}`,
+            },
+        }
+    );
+    let response = await request.json();
+    return response;
+};
+
+export const addRaid = async (raid: Raid): Promise<Raid> => {
+    let request = await fetch(`${import.meta.env.VITE_API_BASE_PATH}/raids`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("user")}`,
+        },
+        body: JSON.stringify(raid),
     });
     let response = await request.json();
     return response;

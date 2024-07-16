@@ -1,6 +1,6 @@
 @media (prefers-color-scheme: light) {
     :root {
-        color: #213547;
+        color: #0b1115;
         background-color: #ffffff;
     }
     a:hover {
@@ -19,6 +19,7 @@ body,
 #root {
     display: flex;
     flex-direction: column;
+    position: relative;
 }
 
 main {
@@ -28,4 +29,39 @@ main {
     justify-content: center;
     align-items: center;
     max-width: 1200px;
+}
+
+main > video {
+    height: 100%;
+    width: 177.77777778vh; /* 100 * 16 / 9 */
+    min-width: 100%;
+    min-height: 56.25vw; /* 100 * 9 / 16 */
+    position: absolute;
+    left: 50%; /* % of surrounding element */
+    top: 50%;
+    transform: translate(-50%, -50%); /* % of current element */
+    z-index: -1;
+}
+
+.textbox {
+    position: relative;
+    padding: 20px;
+    border-radius: 10px;
+    z-index: 2;
+}
+.textbox::after {
+    content: "";
+    display: block;
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    background: #fff;
+    opacity: 25%;
+    z-index: 1;
+}
+
+footer {
+    background-color: #fff6;
 }

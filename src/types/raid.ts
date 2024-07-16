@@ -5,6 +5,6 @@ export interface Raid {
     gold: number;
     paid: boolean;
     comment: string;
-    addedDate: string;
-    changedDate: string;
+    addedDate?: string;
+    changedDate?: string;
 }

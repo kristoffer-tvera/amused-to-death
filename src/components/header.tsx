@@ -23,7 +23,7 @@ const Header: React.FC = () => {
                 <Nav className="me-auto">
                     <Nav.Link href="/raids">Raids</Nav.Link>
                     <Nav.Link href="/characters">Characters</Nav.Link>
-                    <Nav.Link href="/aplications">Applications</Nav.Link>
+                    <Nav.Link href="/applications">Applications</Nav.Link>
                 </Nav>
                 <Navbar.Toggle />
                 <Navbar.Collapse className="justify-content-end">

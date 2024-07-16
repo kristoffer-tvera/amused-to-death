@@ -2,14 +2,15 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import "./index.css";
-import ErrorPage from "./routes/errorPage.tsx";
-import Root from "./routes/root.tsx";
-import Profile from "./routes/profile.tsx";
-import Home from "./routes/home.tsx";
-import Raids from "./routes/raids.tsx";
-import Characters from "./routes/characters.tsx";
 import Applications from "./routes/applications.tsx";
 import Auth from "./routes/auth.tsx";
+import Characters from "./routes/characters.tsx";
+import ErrorPage from "./routes/errorPage.tsx";
+import Home from "./routes/home.tsx";
+import Profile from "./routes/profile.tsx";
+import { default as Raid, default as RaidPage } from "./routes/raidPage.tsx";
+import Raids from "./routes/raids.tsx";
+import Root from "./routes/root.tsx";
 
 const router = createBrowserRouter([
     {
@@ -30,8 +31,35 @@ const router = createBrowserRouter([
                 element: <Profile />,
             },
             {
-                path: "/raids",
+                path: "raids",
+                children: [
+                    {
+                        index: true,
+                        element: <Raids />,
+                    },
+                    {
+                        path: "new",
+                        element: <RaidPage />,
+                    },
+                    {
+                        path: ":raidId",
+                        element: <RaidPage />,
+                    },
+                ],
+            },
+            {
+                path: "raids",
                 element: <Raids />,
+                children: [
+                    {
+                        path: "new",
+                        element: <Raid />,
+                    },
+                    {
+                        path: ":raidId",
+                        element: <Raid />,
+                    },
+                ],
             },
             {
                 path: "/characters",

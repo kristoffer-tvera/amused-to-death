@@ -1,12 +1,19 @@
 import React from "react";
-import { BnetCharacter, ProfileResponse } from "../types/wow-profile-response";
-import { addCharacter, getWowProfile } from "../util/api";
 import Accordion from "react-bootstrap/esm/Accordion";
-import ListGroup from "react-bootstrap/esm/ListGroup";
 import Badge from "react-bootstrap/esm/Badge";
+import ListGroup from "react-bootstrap/esm/ListGroup";
 import { Character } from "../types/character";
+import { BnetCharacter, ProfileResponse } from "../types/wow-profile-response";
+import {
+    addCharacter,
+    deleteCharacter,
+    getMyCharacters,
+    getWowProfile,
+} from "../util/api";
 
 const Profile: React.FC = () => {
+    const [myCharacters, setMyCharacters] = React.useState<Character[]>([]);
+
     const [profileResponse, setProfileResponse] =
         React.useState<ProfileResponse>();
 
@@ -19,14 +26,22 @@ const Profile: React.FC = () => {
             .catch((error) => {
                 console.error("Error loading profile", error);
             });
+
+        getMyCharacters()
+            .then((myCharacters) => {
+                setMyCharacters(myCharacters);
+            })
+            .catch((error) => {
+                console.error("Error loading my characters", error);
+            });
     }, []);
 
     const logout = () => {
         localStorage.removeItem("user");
+        window.location.href = "/";
     };
 
     const addCharacterHandler = (bnetCharacter: BnetCharacter) => {
-        console.log(bnetCharacter);
         let character: Character = {
             id: bnetCharacter.id,
             name: bnetCharacter.name,
@@ -39,10 +54,24 @@ const Profile: React.FC = () => {
 
         addCharacter(character)
             .then((character) => {
-                console.log("Character added", character);
+                let newCharacters = [...myCharacters, character];
+                setMyCharacters(newCharacters);
             })
             .catch((error) => {
                 console.error("Error adding character", error);
+            });
+    };
+
+    const removeCharacerHandler = (character: Character) => {
+        deleteCharacter(character.id)
+            .then(() => {
+                let newCharacters = myCharacters.filter(
+                    (c) => c.id !== character.id
+                );
+                setMyCharacters(newCharacters);
+            })
+            .catch((error) => {
+                console.error("Error deleting character", error);
             });
     };
 
@@ -50,14 +79,30 @@ const Profile: React.FC = () => {
         a.realm.name > b.realm.name ? 1 : -1;
 
     return (
-        <div>
+        <div className="w-100">
             <h1>Profile Page</h1>
             <h3>My characters</h3>
-            <ul>
-                <li> Character A</li>
-                <li> Character b</li>
-                <li> Character c</li>
-            </ul>
+            <ListGroup defaultActiveKey="#link1">
+                {myCharacters.map((character, index) => (
+                    <ListGroup.Item
+                        key={index}
+                        action
+                        onClick={() => {
+                            removeCharacerHandler(character);
+                        }}
+                        className="d-flex justify-content-between align-items-start"
+                    >
+                        <div className="ms-2 me-auto">
+                            <div className="fw-bold">
+                                {character.name}-{character.realm}
+                            </div>
+                        </div>
+                        <Badge bg="primary" pill>
+                            {character.level}
+                        </Badge>
+                    </ListGroup.Item>
+                ))}
+            </ListGroup>
             {profileResponse && (
                 <>
                     <h3>Bnet account data</h3>
