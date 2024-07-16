@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Accordion from "react-bootstrap/esm/Accordion";
 import Badge from "react-bootstrap/esm/Badge";
 import ListGroup from "react-bootstrap/esm/ListGroup";
@@ -12,12 +12,10 @@ import {
 } from "../util/api";
 
 const Profile: React.FC = () => {
-    const [myCharacters, setMyCharacters] = React.useState<Character[]>([]);
+    const [myCharacters, setMyCharacters] = useState<Character[]>([]);
+    const [profileResponse, setProfileResponse] = useState<ProfileResponse>();
 
-    const [profileResponse, setProfileResponse] =
-        React.useState<ProfileResponse>();
-
-    React.useEffect(() => {
+    useEffect(() => {
         getWowProfile()
             .then((profileResponse) => {
                 console.log(profileResponse);
@@ -62,7 +60,7 @@ const Profile: React.FC = () => {
             });
     };
 
-    const removeCharacerHandler = (character: Character) => {
+    const removeCharacterHandler = (character: Character) => {
         deleteCharacter(character.id)
             .then(() => {
                 let newCharacters = myCharacters.filter(
@@ -88,7 +86,7 @@ const Profile: React.FC = () => {
                         key={index}
                         action
                         onClick={() => {
-                            removeCharacerHandler(character);
+                            removeCharacterHandler(character);
                         }}
                         className="d-flex justify-content-between align-items-start"
                     >
@@ -117,7 +115,7 @@ const Profile: React.FC = () => {
                                     characters)
                                 </Accordion.Header>
                                 <Accordion.Body>
-                                    <ListGroup defaultActiveKey="#link1">
+                                    <ListGroup>
                                         {account.characters
                                             .sort(sortCharacters)
                                             .map((character, index) => (
