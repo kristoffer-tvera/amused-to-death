@@ -18,7 +18,6 @@ const Profile: React.FC = () => {
     useEffect(() => {
         getWowProfile()
             .then((profileResponse) => {
-                console.log(profileResponse);
                 setProfileResponse(profileResponse);
             })
             .catch((error) => {
@@ -76,6 +75,35 @@ const Profile: React.FC = () => {
     const sortCharacters = (a: BnetCharacter, b: BnetCharacter) =>
         a.realm.name > b.realm.name ? 1 : -1;
 
+    const sortRealmGroupsBySize = (a: RealmGroup, b: RealmGroup) =>
+        a.characters.length < b.characters.length ? 1 : -1;
+
+    interface RealmGroup {
+        realm: string;
+        characters: BnetCharacter[];
+    }
+    const groupByRealm = (characters: BnetCharacter[]): RealmGroup[] => {
+        let realmGroup: RealmGroup[] = [];
+        characters.sort(sortCharacters).forEach((character) => {
+            let realm = realmGroup.find(
+                (rg) => rg.realm === character.realm.name
+            );
+            if (realm) {
+                realm.characters.push(character);
+            } else {
+                realmGroup.push({
+                    realm: character.realm.name,
+                    characters: [character],
+                });
+            }
+        });
+        return realmGroup;
+    };
+
+    const realmGroupHeader = (realmGroup: RealmGroup): string => {
+        return `${realmGroup.realm} (${realmGroup.characters.length} characters) `;
+    };
+
     return (
         <div className="w-100">
             <h1>Profile Page</h1>
@@ -116,36 +144,53 @@ const Profile: React.FC = () => {
                                 </Accordion.Header>
                                 <Accordion.Body>
                                     <ListGroup>
-                                        {account.characters
-                                            .sort(sortCharacters)
-                                            .map((character, index) => (
-                                                <ListGroup.Item
-                                                    key={index}
-                                                    action
-                                                    onClick={() => {
-                                                        addCharacterHandler(
-                                                            character
-                                                        );
-                                                    }}
-                                                    className="d-flex justify-content-between align-items-start"
-                                                >
-                                                    <div className="ms-2 me-auto">
-                                                        <div className="fw-bold">
-                                                            {character.name}-
-                                                            {
-                                                                character.realm
-                                                                    .slug
-                                                            }
-                                                        </div>
-                                                        {
-                                                            character
-                                                                .playable_class
-                                                                .name
-                                                        }
-                                                    </div>
-                                                    <Badge bg="primary" pill>
-                                                        {character.level}
-                                                    </Badge>
+                                        {groupByRealm(account.characters)
+                                            .sort(sortRealmGroupsBySize)
+                                            .map((realmGroup, index) => (
+                                                <ListGroup.Item key={index}>
+                                                    <Accordion>
+                                                        <Accordion.Item
+                                                            eventKey={index.toString()}
+                                                        >
+                                                            <Accordion.Header>
+                                                                {realmGroupHeader(
+                                                                    realmGroup
+                                                                )}
+                                                            </Accordion.Header>
+                                                            <Accordion.Body>
+                                                                <ListGroup>
+                                                                    {realmGroup.characters.map(
+                                                                        (
+                                                                            character,
+                                                                            index
+                                                                        ) => (
+                                                                            <ListGroup.Item
+                                                                                key={
+                                                                                    index
+                                                                                }
+                                                                                action
+                                                                                onClick={() =>
+                                                                                    addCharacterHandler(
+                                                                                        character
+                                                                                    )
+                                                                                }
+                                                                            >
+                                                                                {
+                                                                                    character.name
+                                                                                }{" "}
+                                                                                (
+                                                                                {
+                                                                                    character.level
+                                                                                }
+
+                                                                                )
+                                                                            </ListGroup.Item>
+                                                                        )
+                                                                    )}
+                                                                </ListGroup>
+                                                            </Accordion.Body>
+                                                        </Accordion.Item>
+                                                    </Accordion>
                                                 </ListGroup.Item>
                                             ))}
                                     </ListGroup>
