@@ -3,7 +3,11 @@ import Accordion from "react-bootstrap/esm/Accordion";
 import Badge from "react-bootstrap/esm/Badge";
 import ListGroup from "react-bootstrap/esm/ListGroup";
 import { Character } from "../types/character";
-import { BnetCharacter, ProfileResponse } from "../types/wow-profile-response";
+import {
+    BnetCharacter,
+    BnetWowaccount,
+    ProfileResponse,
+} from "../types/wow-profile-response";
 import {
     addCharacter,
     deleteCharacter,
@@ -104,99 +108,95 @@ const Profile: React.FC = () => {
         return `${realmGroup.realm} (${realmGroup.characters.length} characters) `;
     };
 
+    const renderMyCharacterRow = (character: Character, index: number) => {
+        return (
+            <ListGroup.Item
+                key={index}
+                action
+                onClick={() => {
+                    removeCharacterHandler(character);
+                }}
+                className="d-flex justify-content-between align-items-start"
+            >
+                <div className="ms-2 me-auto">
+                    <div className="fw-bold">
+                        {character.name}-{character.realm}
+                    </div>
+                </div>
+                <Badge bg="primary" pill>
+                    {character.level}
+                </Badge>
+            </ListGroup.Item>
+        );
+    };
+
+    const renderAccountRow = (account: BnetWowaccount, index: number) => {
+        return (
+            <Accordion.Item eventKey={index.toString()} key={index}>
+                <Accordion.Header>
+                    {account.id} ({account.characters.length} characters)
+                </Accordion.Header>
+                <Accordion.Body>
+                    {groupByRealm(account.characters)
+                        .sort(sortRealmGroupsBySize)
+                        .map((realmGroup, index) => {
+                            return renderRealmGroup(realmGroup, index);
+                        })}
+                </Accordion.Body>
+            </Accordion.Item>
+        );
+    };
+
+    const renderRealmGroup = (realmGroup: RealmGroup, index: number) => {
+        return (
+            <Accordion key={index}>
+                <Accordion.Item eventKey={index.toString()}>
+                    <Accordion.Header>
+                        {realmGroupHeader(realmGroup)}
+                    </Accordion.Header>
+                    <Accordion.Body>
+                        <ListGroup>
+                            {realmGroup.characters.map((character, index) => {
+                                return renderCharacterRow(character, index);
+                            })}
+                        </ListGroup>
+                    </Accordion.Body>
+                </Accordion.Item>
+            </Accordion>
+        );
+    };
+
+    const renderCharacterRow = (character: BnetCharacter, index: number) => {
+        return (
+            <ListGroup.Item
+                key={index}
+                action
+                onClick={() => addCharacterHandler(character)}
+            >
+                {character.name}
+                <Badge bg="primary" pill className="mx-2">
+                    {character.level}
+                </Badge>
+            </ListGroup.Item>
+        );
+    };
+
     return (
         <div className="w-100">
             <h1>Profile Page</h1>
             <h3>My characters</h3>
             <ListGroup defaultActiveKey="#link1">
-                {myCharacters.map((character, index) => (
-                    <ListGroup.Item
-                        key={index}
-                        action
-                        onClick={() => {
-                            removeCharacterHandler(character);
-                        }}
-                        className="d-flex justify-content-between align-items-start"
-                    >
-                        <div className="ms-2 me-auto">
-                            <div className="fw-bold">
-                                {character.name}-{character.realm}
-                            </div>
-                        </div>
-                        <Badge bg="primary" pill>
-                            {character.level}
-                        </Badge>
-                    </ListGroup.Item>
-                ))}
+                {myCharacters.map((character, index) => {
+                    return renderMyCharacterRow(character, index);
+                })}
             </ListGroup>
             {profileResponse && (
                 <>
                     <h3>Bnet account data</h3>
                     <Accordion defaultActiveKey="0">
-                        {profileResponse.wow_accounts.map((account, index) => (
-                            <Accordion.Item
-                                eventKey={index.toString()}
-                                key={index}
-                            >
-                                <Accordion.Header>
-                                    {account.id} ({account.characters.length}{" "}
-                                    characters)
-                                </Accordion.Header>
-                                <Accordion.Body>
-                                    <ListGroup>
-                                        {groupByRealm(account.characters)
-                                            .sort(sortRealmGroupsBySize)
-                                            .map((realmGroup, index) => (
-                                                <ListGroup.Item key={index}>
-                                                    <Accordion>
-                                                        <Accordion.Item
-                                                            eventKey={index.toString()}
-                                                        >
-                                                            <Accordion.Header>
-                                                                {realmGroupHeader(
-                                                                    realmGroup
-                                                                )}
-                                                            </Accordion.Header>
-                                                            <Accordion.Body>
-                                                                <ListGroup>
-                                                                    {realmGroup.characters.map(
-                                                                        (
-                                                                            character,
-                                                                            index
-                                                                        ) => (
-                                                                            <ListGroup.Item
-                                                                                key={
-                                                                                    index
-                                                                                }
-                                                                                action
-                                                                                onClick={() =>
-                                                                                    addCharacterHandler(
-                                                                                        character
-                                                                                    )
-                                                                                }
-                                                                            >
-                                                                                {
-                                                                                    character.name
-                                                                                }{" "}
-                                                                                (
-                                                                                {
-                                                                                    character.level
-                                                                                }
-
-                                                                                )
-                                                                            </ListGroup.Item>
-                                                                        )
-                                                                    )}
-                                                                </ListGroup>
-                                                            </Accordion.Body>
-                                                        </Accordion.Item>
-                                                    </Accordion>
-                                                </ListGroup.Item>
-                                            ))}
-                                    </ListGroup>
-                                </Accordion.Body>
-                            </Accordion.Item>
-                        ))}
+                        {profileResponse.wow_accounts.map((account, index) => {
+                            return renderAccountRow(account, index);
+                        })}
                     </Accordion>
                 </>
             )}

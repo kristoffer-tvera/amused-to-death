@@ -11,6 +11,7 @@ interface BnetGender {
     type: string;
     name: string;
 }
+
 export interface BnetCharacter {
     name: string;
     id: number;
@@ -21,10 +22,12 @@ export interface BnetCharacter {
     faction: BnetGender;
     level: number;
 }
-interface BnetWowaccount {
+
+export interface BnetWowaccount {
     id: number;
     characters: BnetCharacter[];
 }
+
 export interface ProfileResponse {
     id: number;
     wow_accounts: BnetWowaccount[];
