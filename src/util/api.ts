@@ -100,6 +100,22 @@ export const addRaid = async (raid: Raid): Promise<Raid> => {
     return response;
 };
 
+export const updateRaid = async (raid: Raid): Promise<Raid> => {
+    let request = await fetch(
+        `${import.meta.env.VITE_API_BASE_PATH}/raids/${raid.id}`,
+        {
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${localStorage.getItem("user")}`,
+            },
+            body: JSON.stringify(raid),
+        }
+    );
+    let response = await request.json();
+    return response;
+};
+
 export const getApplications = async (): Promise<Application[]> => {
     let request = await fetch(
         `${import.meta.env.VITE_API_BASE_PATH}/applications`,
@@ -131,6 +147,38 @@ export const login = async (code: string): Promise<string> => {
 export const getWowProfile = async (): Promise<any> => {
     let request = await fetch(
         `${import.meta.env.VITE_API_BASE_PATH}/bnet-profile`,
+        {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${localStorage.getItem("user")}`,
+            },
+        }
+    );
+    let response = await request.json();
+    return response;
+};
+
+export const addApplication = async (
+    application: Application
+): Promise<Application> => {
+    let request = await fetch(
+        `${import.meta.env.VITE_API_BASE_PATH}/applications`,
+        {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(application),
+        }
+    );
+    let response = await request.json();
+    return response;
+};
+
+export const getApplication = async (id: number): Promise<Application> => {
+    let request = await fetch(
+        `${import.meta.env.VITE_API_BASE_PATH}/applications/${id}`,
         {
             method: "GET",
             headers: {

@@ -5,4 +5,6 @@ export interface User {
     role: "Member" | "Officer";
     addedDate: string;
     changedDate: string;
+    iat: number;
+    exp: number;
 }

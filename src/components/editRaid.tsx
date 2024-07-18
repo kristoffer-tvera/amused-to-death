@@ -93,6 +93,7 @@ const EditRaid: React.FC<EditRaidProps> = ({ raid, onSave }) => {
                             type="text"
                             placeholder=""
                             required
+                            defaultValue={raid.gold}
                             onBlur={(e) =>
                                 setTempRaid({
                                     ...tempRaid,

@@ -11,6 +11,7 @@ import Profile from "./routes/profile.tsx";
 import { default as Raid, default as RaidPage } from "./routes/raidPage.tsx";
 import Raids from "./routes/raids.tsx";
 import Root from "./routes/root.tsx";
+import ApplicationPage from "./routes/applicationPage.tsx";
 
 const router = createBrowserRouter([
     {
@@ -67,7 +68,20 @@ const router = createBrowserRouter([
             },
             {
                 path: "/applications",
-                element: <Applications />,
+                children: [
+                    {
+                        index: true,
+                        element: <Applications />,
+                    },
+                    {
+                        path: "new",
+                        element: <ApplicationPage />,
+                    },
+                    {
+                        path: ":id",
+                        element: <ApplicationPage />,
+                    },
+                ],
             },
         ],
     },

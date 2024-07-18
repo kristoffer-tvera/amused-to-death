@@ -3,19 +3,12 @@ import Container from "react-bootstrap/Container";
 import Nav from "react-bootstrap/Nav";
 import Navbar from "react-bootstrap/Navbar";
 import { User } from "../types/user";
-import { parseJwt } from "../util/jwt";
 
-const Header: React.FC = () => {
-    const [user, setUser] = React.useState<User>();
+interface HeaderProps {
+    user?: User;
+}
 
-    React.useEffect(() => {
-        let jwtString = localStorage.getItem("user");
-        if (jwtString) {
-            let parsedJwt = parseJwt<User>(jwtString);
-            setUser(parsedJwt);
-        }
-    }, []);
-
+const Header: React.FC<HeaderProps> = (props) => {
     return (
         <Navbar className="bg-body-tertiary">
             <Container>
@@ -27,14 +20,14 @@ const Header: React.FC = () => {
                 </Nav>
                 <Navbar.Toggle />
                 <Navbar.Collapse className="justify-content-end">
-                    {user ? (
+                    {props.user ? (
                         <Navbar.Text>
                             Signed in as:{" "}
                             <Nav.Link
                                 href="/profile"
                                 className="d-inline-block"
                             >
-                                {user.unique_name}
+                                {props.user.unique_name}
                             </Nav.Link>
                         </Navbar.Text>
                     ) : (

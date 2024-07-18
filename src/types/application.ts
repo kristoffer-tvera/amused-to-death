@@ -9,6 +9,6 @@ export interface Application {
     comment: string;
     alts: string;
     changeKey: string;
-    addedDate: string;
-    changedDate: string;
+    addedDate?: string;
+    changedDate?: string;
 }
