@@ -1,16 +1,20 @@
-import React, { useEffect } from "react";
-import { useParams } from "react-router-dom";
-import { addApplication, getApplication } from "../util/api";
+import React, { useContext, useEffect, useState } from "react";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
+import { addApplication, getApplication, updateApplication } from "../util/api";
 import { Application } from "../types/application";
 import ShowApplication from "../components/showApplication";
 import EditApplications from "../components/editApplication";
+import { ToastContext } from "../util/toastContext";
 
 const ApplicationPage: React.FC = () => {
     const { id } = useParams<{ id: string }>();
-    const [application, setApplication] = React.useState<Application>();
-    const [state, setState] = React.useState<"new" | "existing" | "loading">(
+    const [application, setApplication] = useState<Application>();
+    const navigate = useNavigate();
+    const [searchParams] = useSearchParams();
+    const [state, setState] = useState<"new" | "existing" | "loading">(
         "loading"
     );
+    const { setToasts } = useContext(ToastContext);
 
     useEffect(() => {
         if (!id) {
@@ -30,7 +34,10 @@ const ApplicationPage: React.FC = () => {
         } else {
             getApplication(Number(id)).then((application) => {
                 if (application) {
-                    setApplication(application);
+                    setApplication({
+                        ...application,
+                        changeKey: searchParams.get("auth") ?? "",
+                    });
                     setState("existing");
                 }
             });
@@ -40,14 +47,38 @@ const ApplicationPage: React.FC = () => {
     const handleSave = (updatedApplication: Application) => {
         if (updatedApplication.id === 0) {
             addApplication(updatedApplication)
-                .then((newApplicationId) => {
-                    console.log("New application id", newApplicationId);
+                .then((newApplication) => {
+                    console.log("New application:", newApplication);
+                    setToasts((toasts) => [
+                        ...toasts,
+                        {
+                            id: Date.now(),
+                            title: "Application added",
+                            message: `Application ${newApplication} has been added`,
+                        },
+                    ]);
+                    navigate(
+                        `/applications/${newApplication.id}?auth=${application?.changeKey}`
+                    );
                 })
                 .catch((error) => {
                     console.error("Error adding application", error);
                 });
         } else {
-            // Update the application
+            updateApplication(updatedApplication)
+                .then(() => {
+                    setToasts((toasts) => [
+                        ...toasts,
+                        {
+                            id: Date.now(),
+                            title: "Application updated",
+                            message: `Application ${updatedApplication.id} has been updated`,
+                        },
+                    ]);
+                })
+                .catch((error) => {
+                    console.error("Error updating application", error);
+                });
         }
     };
 

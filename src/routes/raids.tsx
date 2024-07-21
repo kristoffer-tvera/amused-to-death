@@ -24,13 +24,7 @@ const Raids: React.FC = () => {
             });
     }, []);
 
-    interface RaidColumnType {
-        id: number;
-        name: string;
-        date: string;
-    }
-
-    const headers: TableColumnType<RaidColumnType>[] = [
+    const headers: TableColumnType<Raid>[] = [
         {
             title: "Id",
             prop: "id",
@@ -54,8 +48,7 @@ const Raids: React.FC = () => {
             <DatatableWrapper
                 body={raids.map((raid) => {
                     return {
-                        id: raid.id,
-                        name: raid.name,
+                        ...raid,
                         date: formatDate(raid.date),
                     };
                 })}
@@ -64,7 +57,7 @@ const Raids: React.FC = () => {
                 <Table>
                     <TableHeader />
                     <TableBody
-                        onRowClick={(row: RaidColumnType) => {
+                        onRowClick={(row: Raid) => {
                             navigate("/raids/" + row.id);
                         }}
                     />

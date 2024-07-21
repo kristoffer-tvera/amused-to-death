@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import Accordion from "react-bootstrap/esm/Accordion";
 import Badge from "react-bootstrap/esm/Badge";
 import ListGroup from "react-bootstrap/esm/ListGroup";
@@ -14,10 +14,12 @@ import {
     getMyCharacters,
     getWowProfile,
 } from "../util/api";
+import { ToastContext } from "../util/toastContext";
 
 const Profile: React.FC = () => {
     const [myCharacters, setMyCharacters] = useState<Character[]>([]);
     const [profileResponse, setProfileResponse] = useState<ProfileResponse>();
+    const { setToasts } = useContext(ToastContext);
 
     useEffect(() => {
         getWowProfile()
@@ -57,6 +59,14 @@ const Profile: React.FC = () => {
             .then((character) => {
                 let newCharacters = [...myCharacters, character];
                 setMyCharacters(newCharacters);
+                setToasts((toasts) => [
+                    ...toasts,
+                    {
+                        id: Date.now(),
+                        title: "Character added",
+                        message: `Character ${character.name} has been added`,
+                    },
+                ]);
             })
             .catch((error) => {
                 console.error("Error adding character", error);
@@ -70,6 +80,14 @@ const Profile: React.FC = () => {
                     (c) => c.id !== character.id
                 );
                 setMyCharacters(newCharacters);
+                setToasts((toasts) => [
+                    ...toasts,
+                    {
+                        id: Date.now(),
+                        title: "Character deleted",
+                        message: `Character ${character.name} has been deleted`,
+                    },
+                ]);
             })
             .catch((error) => {
                 console.error("Error deleting character", error);
@@ -102,10 +120,6 @@ const Profile: React.FC = () => {
             }
         });
         return realmGroup;
-    };
-
-    const realmGroupHeader = (realmGroup: RealmGroup): string => {
-        return `${realmGroup.realm} (${realmGroup.characters.length} characters) `;
     };
 
     const renderMyCharacterRow = (character: Character, index: number) => {
@@ -152,7 +166,7 @@ const Profile: React.FC = () => {
             <Accordion key={index}>
                 <Accordion.Item eventKey={index.toString()}>
                     <Accordion.Header>
-                        {realmGroupHeader(realmGroup)}
+                        {`${realmGroup.realm} (${realmGroup.characters.length} characters) `}
                     </Accordion.Header>
                     <Accordion.Body>
                         <ListGroup>

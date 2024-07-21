@@ -1,8 +1,12 @@
-import React, { useEffect } from "react";
+import React, { useContext, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { login } from "../util/api";
+import { UserContext } from "../util/userContext";
+import { parseJwt } from "../util/jwt";
+import { User } from "../types/user";
 
 const Auth: React.FC = () => {
+    const { setUser } = useContext(UserContext);
     const [searchParams] = useSearchParams();
     const navigate = useNavigate();
     const code = searchParams.get("code");
@@ -18,6 +22,8 @@ const Auth: React.FC = () => {
             login(code)
                 .then((response) => {
                     localStorage.setItem("user", response);
+                    let parsedJwt = parseJwt<User>(response);
+                    setUser(parsedJwt);
                     navigate("/");
                 })
                 .catch((err) => {
@@ -30,8 +36,7 @@ const Auth: React.FC = () => {
 
     return (
         <div>
-            <h1>Auth Screen</h1>
-            <p>Code: {code}</p>
+            <h1>Logging you in</h1>
         </div>
     );
 };

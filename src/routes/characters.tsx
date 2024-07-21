@@ -6,6 +6,7 @@ import { TableHeader } from "react-bs-datatable/lib/esm/components/TableHeader";
 import { TableColumnType } from "react-bs-datatable/lib/esm/helpers/types";
 import { Character } from "../types/character";
 import { getCharacters } from "../util/api";
+import { formatDate } from "../util/formatting";
 
 const Characters: React.FC = () => {
     const [characters, setCharacters] = React.useState<Character[]>([]);
@@ -20,16 +21,22 @@ const Characters: React.FC = () => {
             });
     }, []);
 
-    interface CharacterColumnType {
-        name: string;
-        realm: string;
-        class: string;
-    }
-
-    const headers: TableColumnType<CharacterColumnType>[] = [
+    const headers: TableColumnType<Character>[] = [
         { title: "Name", prop: "name", isSortable: true, isFilterable: true },
         { title: "Realm", prop: "realm", isSortable: true, isFilterable: true },
         { title: "Class", prop: "class", isSortable: true, isFilterable: true },
+        {
+            title: "Updated",
+            prop: "changedDate",
+            isSortable: true,
+            isFilterable: true,
+        },
+        {
+            title: "Added",
+            prop: "addedDate",
+            isSortable: true,
+            isFilterable: true,
+        },
     ];
 
     const capitalizeFirstLetter = (word: string) => {
@@ -41,9 +48,10 @@ const Characters: React.FC = () => {
             <DatatableWrapper
                 body={characters.map((char) => {
                     return {
-                        name: char.name,
+                        ...char,
                         realm: capitalizeFirstLetter(char.realm),
-                        class: char.class,
+                        addedDate: formatDate(char.addedDate),
+                        changedDate: formatDate(char.changedDate),
                     };
                 })}
                 headers={headers}

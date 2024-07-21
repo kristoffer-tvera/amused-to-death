@@ -116,21 +116,6 @@ export const updateRaid = async (raid: Raid): Promise<Raid> => {
     return response;
 };
 
-export const getApplications = async (): Promise<Application[]> => {
-    let request = await fetch(
-        `${import.meta.env.VITE_API_BASE_PATH}/applications`,
-        {
-            method: "GET",
-            headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${localStorage.getItem("user")}`,
-            },
-        }
-    );
-    let response = await request.json();
-    return response;
-};
-
 export const login = async (code: string): Promise<string> => {
     var request = await fetch(`${import.meta.env.VITE_API_BASE_PATH}/login`, {
         method: "POST",
@@ -176,9 +161,41 @@ export const addApplication = async (
     return response;
 };
 
+export const updateApplication = async (
+    application: Application
+): Promise<Application> => {
+    let request = await fetch(
+        `${import.meta.env.VITE_API_BASE_PATH}/applications/${application.id}`,
+        {
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(application),
+        }
+    );
+    let response = await request.json();
+    return response;
+};
+
 export const getApplication = async (id: number): Promise<Application> => {
     let request = await fetch(
         `${import.meta.env.VITE_API_BASE_PATH}/applications/${id}`,
+        {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${localStorage.getItem("user")}`,
+            },
+        }
+    );
+    let response = await request.json();
+    return response;
+};
+
+export const getApplications = async (): Promise<Application[]> => {
+    let request = await fetch(
+        `${import.meta.env.VITE_API_BASE_PATH}/applications`,
         {
             method: "GET",
             headers: {
