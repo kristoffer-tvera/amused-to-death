@@ -85,7 +85,7 @@ if(empty($id)){
     $id = $stmt->insert_id;
 }
 
-$discordWebhookTitle = $discordWebhookTitle . $name . " - " . $server . ") -- https://amused2death.eu/app/?id=" . $id;
+$discordWebhookTitle = $discordWebhookTitle . $name . " - " . $server . ") -- https://amusedtodeath.eu/app/?id=" . $id;
 
 $json = json_encode([
     "content" => $discordWebhookTitle
@@ -101,7 +101,7 @@ curl_setopt( $ch, CURLOPT_RETURNTRANSFER, 1);
 
 $response = curl_exec( $ch );
 
-$author_url = "https://amused2death.eu/app/?id=" . $id . "&auth=" . $auth;
+$author_url = "https://amusedtodeath.eu/app/?id=" . $id . "&auth=" . $auth;
 
 $_SESSION["apply"] = $author_url;
 header("Location: " . $author_url);
