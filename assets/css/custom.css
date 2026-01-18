@@ -18,6 +18,10 @@
     gap: 2rem 0;
 }
 
+body {
+    background: url(https://i.imgur.com/HD3prL7.png) center / cover;
+}
+
 /*
 Fix css classes for all bg images (classes, externals)
 */
