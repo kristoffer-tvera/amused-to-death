@@ -27,7 +27,7 @@ require './partials/_head.php';
                     <div class="card-header">
                         <h3 class="card-title">Showing latest first</h3>
                     </div>
-                    <table class="table card-table table-vcenter text-nowrap datatable" data-order='[[ 3, "desc" ]]' data-page-length='25'>
+                    <table class="table mw-100 card-table table-vcenter text-nowrap datatable" data-order='[[ 3, "desc" ]]' data-page-length='25'>
                         <thead>
                             <tr>
                                 <th class="w-1">Id</th>
