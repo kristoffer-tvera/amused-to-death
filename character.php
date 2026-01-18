@@ -1,4 +1,7 @@
-<?php require './partials/_session_start.php'; ?>
+<?php
+include_once './partials/_session_start.php';
+include_once './partials/_auth_required.php';
+?>
 <!doctype html>
 <html lang="en" dir="ltr">
 <?php
