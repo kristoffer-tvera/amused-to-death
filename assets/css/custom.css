@@ -22,6 +22,10 @@ body {
     background: url(https://i.imgur.com/HD3prL7.png) center / cover;
 }
 
+html {
+    height: unset;
+}
+
 /*
 Fix css classes for all bg images (classes, externals)
 */
