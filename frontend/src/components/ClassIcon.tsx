@@ -12,7 +12,7 @@ export default function ClassIcon({ classId, size = 24 }: ClassIconProps) {
         <Tooltip title={cls.name}>
             <Box
                 component="img"
-                src={`/assets/images/classes/${classId}.png`}
+                src={`/images/classes/${classId}.png`}
                 alt={cls.name}
                 sx={{ width: size, height: size, borderRadius: "4px" }}
                 onError={(e) => {
