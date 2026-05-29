@@ -1,6 +1,8 @@
 <?php
 require_once __DIR__ . '/../core/bootstrap.php';
 
+$adminDiscordUsernames = backend_admins();
+
 if (query_value('discord') !== '') {
     redirect_to('https://discord.com/api/oauth2/authorize?client_id=' . $discord_client_id . '&redirect_uri=' . $discord_oauth_redir . '&response_type=code&scope=identify');
 }
@@ -54,7 +56,7 @@ if (query_value('code') !== '') {
     }
 
     $_SESSION['auth'] = $discordUsername;
-    if (in_array($discordUsername, $admins)) {
+    if (in_array($discordUsername, $adminDiscordUsernames, true)) {
         $_SESSION['admin'] = true;
     }
 
@@ -82,7 +84,7 @@ if (strtotime($auth['expire_date']) < strtotime('now')) {
 
 $discordUsername = $auth['discord'];
 $_SESSION['auth'] = $discordUsername;
-if (in_array($discordUsername, $admins)) {
+if (in_array($discordUsername, $adminDiscordUsernames, true)) {
     $_SESSION['admin'] = true;
 }
 

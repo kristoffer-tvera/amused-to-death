@@ -32,3 +32,8 @@ function backend_tables(): array
         'app' => $GLOBALS['dbtable_app'],
     ];
 }
+
+function backend_admins(): array
+{
+    return $GLOBALS['admins'] ?? [];
+}
