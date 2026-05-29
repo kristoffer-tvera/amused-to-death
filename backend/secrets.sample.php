@@ -4,6 +4,8 @@
 // Never commit backend/secrets.php.
 
 // Database connection
+// Use 'a2d-db' when PHP runs in the Podman container on the documented a2d-net network.
+// Use '127.0.0.1' or 'localhost' when PHP runs directly on the host machine.
 $dbservername = 'localhost';
 $dbusername = 'database_user';
 $dbpassword = 'database_password';

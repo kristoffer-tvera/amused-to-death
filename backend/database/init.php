@@ -3,9 +3,10 @@ require_once __DIR__ . '/../core/bootstrap.php';
 
 function initialize_database(string $host, string $username, string $password, string $database): bool
 {
-    $connection = new mysqli($host, $username, $password);
-    if ($connection->connect_error) {
-        die('Connection failed: ' . $connection->connect_error);
+    try {
+        $connection = new mysqli($host, $username, $password);
+    } catch (mysqli_sql_exception $exception) {
+        die("Connection to database host '{$host}' failed: " . $exception->getMessage() . PHP_EOL);
     }
 
     return $connection->query('CREATE DATABASE IF NOT EXISTS `' . $connection->real_escape_string($database) . '`') === true;
@@ -98,9 +99,11 @@ if (!initialize_database($dbservername, $dbusername, $dbpassword, $dbname)) {
 
 echo 'Database ready' . PHP_EOL;
 
-$connection = new mysqli($dbservername, $dbusername, $dbpassword, $dbname);
-if ($connection->connect_error) {
-    die('Connection failed: ' . $connection->connect_error);
+$connection = null;
+try {
+    $connection = new mysqli($dbservername, $dbusername, $dbpassword, $dbname);
+} catch (mysqli_sql_exception $exception) {
+    die("Connection to database '{$dbname}' on host '{$dbservername}' failed: " . $exception->getMessage() . PHP_EOL);
 }
 
 if (initialize_tables($connection, backend_tables())) {
