@@ -7,9 +7,12 @@ export default function Debug() {
 
     const handleDestroy = async () => {
         try {
-            const res = await fetch("/api/me.php?destroy_session=true", {
-                credentials: "same-origin",
-            });
+            const res = await fetch(
+                "/backend/actions/data.php?action=destroy_session",
+                {
+                    credentials: "same-origin",
+                },
+            );
             if (res.ok) {
                 setMessage("Session destroyed. Refresh the page.");
             }

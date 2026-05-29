@@ -4,7 +4,7 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-require_once __DIR__ . '/../../api/secrets.php';
+require_once __DIR__ . '/../secrets.php';
 require_once __DIR__ . '/Database.php';
 require_once __DIR__ . '/Input.php';
 require_once __DIR__ . '/Response.php';

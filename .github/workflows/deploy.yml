@@ -5,37 +5,37 @@ name: CI
 # Controls when the action will run. Triggers the workflow on push or pull request
 # events but only for the master branch
 on:
-  push:
-    branches: [ master ]
-  pull_request:
-    branches: [ master ]
+    push:
+        branches: [master]
+    pull_request:
+        branches: [master]
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  # This workflow contains a single job called "build"
-  build:
-    # The type of runner that the job will run on
-    runs-on: ubuntu-latest
+    # This workflow contains a single job called "build"
+    build:
+        # The type of runner that the job will run on
+        runs-on: ubuntu-latest
 
-    # Steps represent a sequence of tasks that will be executed as part of the job
-    steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@master
+        # Steps represent a sequence of tasks that will be executed as part of the job
+        steps:
+            # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+            - uses: actions/checkout@master
 
-      # Populate secrets-file for php
-      - run: 'echo "$PHP_SECRET" > ./api/secrets.php'
-        shell: bash
-        env:
-          PHP_SECRET: ${{secrets.PHP}}
-      
-      - name: List output files
-        run: ls
+            # Populate secrets-file for php
+            - run: 'echo "$PHP_SECRET" > ./backend/secrets.php'
+              shell: bash
+              env:
+                  PHP_SECRET: ${{secrets.PHP}}
 
-      - name: FTP-Deploy-Action
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.4
-        with:
-          server: 134.209.176.222
-          username: webroot
-          password: ${{ secrets.FTP_PASSWORD }}
-          local-dir: ./
-          server-dir: ./www.amusedtodeath.eu/
+            - name: List output files
+              run: ls
+
+            - name: FTP-Deploy-Action
+              uses: SamKirkland/FTP-Deploy-Action@v4.3.4
+              with:
+                  server: 134.209.176.222
+                  username: webroot
+                  password: ${{ secrets.FTP_PASSWORD }}
+                  local-dir: ./
+                  server-dir: ./www.amusedtodeath.eu/

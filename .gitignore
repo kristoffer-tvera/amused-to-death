@@ -349,11 +349,9 @@ MigrationBackup/
 # Ionide (cross platform F# VS Code tools) working folder
 .ionide/
 
-api/secrets.php
+backend/secrets.php
 
 jaina-proudmoore/.env
 
-api/apps.txt
-
-api/secrets.php
+backend/apps.txt
 requests.http
