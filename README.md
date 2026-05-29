@@ -5,7 +5,7 @@ Guild management app for the World of Warcraft guild **Amused to Death**. The cu
 ## Tech Stack
 
 - **Frontend:** React, TypeScript, Vite, Wouter, Material UI, MUI Data Grid
-- **Backend:** PHP 8, mysqli, Apache rewrite support
+- **Backend:** PHP 8, mysqli
 - **Database:** MariaDB/MySQL
 - **Auth:** Discord OAuth plus token-based bot auth
 - **Integrations:** Battle.net profile API, Discord webhooks
@@ -158,6 +158,19 @@ podman start a2d-php
 4. Run `podman exec -it a2d-php php backend/database/init.php` once to create tables.
 5. Start the frontend with `npm run dev` from `frontend/`.
 6. Open the Vite dev URL and use the app.
+
+## nginx Hosting
+
+nginx does not read `.htaccess` files. SPA routing and HTTPS redirects should be configured in the nginx site file, usually under `/etc/nginx/sites-available/` and symlinked into `/etc/nginx/sites-enabled/`.
+
+A sample config is available at `.github/nginx-site.sample.conf`. It includes:
+
+- HTTP to HTTPS redirect.
+- React/Vite SPA fallback with `try_files $uri $uri/ /index.html`.
+- Explicit PHP backend handling for `/backend/*.php` endpoints.
+- A deny rule for `backend/secrets.php`.
+
+Adjust the deployed root path, `server_name`, certificate paths, and PHP-FPM socket for the target server.
 
 ## Validation
 
