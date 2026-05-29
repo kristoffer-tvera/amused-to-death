@@ -1,3 +1,3 @@
-backend/secrets.php
+backend/*secrets.php
 backend/apps.txt
 requests.http
