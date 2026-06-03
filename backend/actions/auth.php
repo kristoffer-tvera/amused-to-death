@@ -48,16 +48,16 @@ if (query_value('code') !== '') {
         fail(401, 'Discord username missing');
     }
 
-    $tables = backend_tables();
-    $character = backend_db()->fetchOne("SELECT * FROM `{$tables['characters']}` WHERE discord=?", 's', $discordUsername);
-    if (empty($character)) {
-        http_response_code(401);
-        die('You have no characters. Have an officer make one for you.');
-    }
-
     $_SESSION['auth'] = $discordUsername;
     if (in_array($discordUsername, $adminDiscordUsernames, true)) {
         $_SESSION['admin'] = true;
+    }
+
+    $tables = backend_tables();
+    $character = backend_db()->fetchOne("SELECT * FROM `{$tables['characters']}` WHERE discord=?", 's', $discordUsername);
+    if (empty($character) && !is_admin()) {
+        http_response_code(401);
+        die('You have no characters. Have an officer make one for you.');
     }
 
     setcookie('discord_auth', $refreshToken, time() + 60 * 60 * 24 * 365, '/');

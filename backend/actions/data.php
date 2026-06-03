@@ -14,6 +14,13 @@ if ($action === 'destroy_session') {
     json_response(['success' => true]);
 }
 
+
+if ($action === 'app') {
+    $id = int_value(query_value('id'));
+    $auth = query_value('auth');
+    json_response(application_get($id, is_admin() ? null : $auth));
+}
+
 require_auth();
 
 switch ($action) {
@@ -35,8 +42,6 @@ switch ($action) {
         json_response(attendance_for_character(int_value(query_value('characterId'))));
     case 'apps':
         json_response(application_list());
-    case 'app':
-        json_response(application_get(int_value(query_value('id'))));
     case 'log':
         json_response(log_list());
     case 'bnet_status':

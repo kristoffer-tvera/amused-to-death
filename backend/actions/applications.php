@@ -21,6 +21,6 @@ $result = application_save([
     'alts' => post_value('alts'),
 ]);
 
-$authorUrl = '/app/?id=' . $result['id'] . '&auth=' . $result['auth'];
+$authorUrl = '/app/' . $result['id'] . '?auth=' . $result['auth'];
 $_SESSION['apply'] = 'https://amusedtodeath.eu' . $authorUrl;
 redirect_to($authorUrl);

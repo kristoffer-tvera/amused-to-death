@@ -169,10 +169,22 @@ function application_list(): array
     return backend_db()->fetchAll("SELECT id, name, server, spec, change_date FROM `{$tables['app']}`");
 }
 
-function application_get(int $id): ?array
+function application_get(int $id, ?string $auth = null): ?array
 {
     $tables = backend_tables();
-    return backend_db()->fetchOne("SELECT * FROM `{$tables['app']}` WHERE id=?", 'i', $id);
+    $db = backend_db();
+    if ($auth !== null) {
+        // Non-admin: verify auth token server-side
+        $row = $db->fetchOne("SELECT * FROM `{$tables['app']}` WHERE id=? AND auth=?", 'is', $id, $auth);
+    } else {
+        // Admin: unrestricted access
+        $row = $db->fetchOne("SELECT * FROM `{$tables['app']}` WHERE id=?", 'i', $id);
+    }
+    // Never expose the auth token to the client
+    if ($row) {
+        unset($row['auth']);
+    }
+    return $row;
 }
 
 function application_save(array $data): array

@@ -142,8 +142,10 @@ export async function getApps() {
     return res.json();
 }
 
-export async function getApp(id: number) {
-    const res = await get(`${BASE}/data.php?action=app&id=${id}`);
+export async function getApp(id: number, auth?: string) {
+    const params = new URLSearchParams({ action: "app", id: String(id) });
+    if (auth) params.set("auth", auth);
+    const res = await get(`${BASE}/data.php?${params}`);
     return res.json();
 }
 

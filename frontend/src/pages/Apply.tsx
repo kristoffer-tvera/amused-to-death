@@ -1,34 +1,33 @@
-import { useState, useEffect } from "react";
-import { useLocation } from "wouter";
-import {
-    Box,
-    Stepper,
-    Step,
-    StepLabel,
-    MobileStepper,
-    Button,
-    TextField,
-    Typography,
-    Card,
-    CardContent,
-    Alert,
-    Fade,
-    Divider,
-    useMediaQuery,
-    useTheme,
-    InputAdornment,
-    Paper,
-} from "@mui/material";
+import CheckCircleIcon from "@mui/icons-material/CheckCircle";
+import GroupIcon from "@mui/icons-material/Group";
+import InfoIcon from "@mui/icons-material/Info";
 import KeyboardArrowLeft from "@mui/icons-material/KeyboardArrowLeft";
 import KeyboardArrowRight from "@mui/icons-material/KeyboardArrowRight";
-import CheckCircleIcon from "@mui/icons-material/CheckCircle";
-import PersonIcon from "@mui/icons-material/Person";
 import LinkIcon from "@mui/icons-material/Link";
-import InfoIcon from "@mui/icons-material/Info";
-import GroupIcon from "@mui/icons-material/Group";
+import PersonIcon from "@mui/icons-material/Person";
 import PreviewIcon from "@mui/icons-material/Preview";
-import RealmAutocomplete from "../components/RealmAutocomplete";
+import {
+    Alert,
+    Box,
+    Button,
+    Card,
+    CardContent,
+    Divider,
+    Fade,
+    MobileStepper,
+    Paper,
+    Step,
+    StepLabel,
+    Stepper,
+    TextField,
+    Typography,
+    useMediaQuery,
+    useTheme,
+} from "@mui/material";
+import { useEffect, useState } from "react";
+import { useLocation } from "wouter";
 import { processApplication } from "../api/endpoints";
+import RealmAutocomplete from "../components/RealmAutocomplete";
 
 const STORAGE_KEY = "a2d_application_draft";
 
@@ -182,7 +181,8 @@ export default function Apply() {
                 localStorage.removeItem(STORAGE_KEY);
                 // Try to extract the app link from the redirect URL
                 if (res.redirected && res.url) {
-                    setAppLink(res.url.replace(/.*\/app\//, "/app/"));
+                    const urlObj = new URL(res.url);
+                    setAppLink(urlObj.pathname + urlObj.search);
                 }
             } else {
                 setSubmitError(
@@ -306,15 +306,6 @@ export default function Apply() {
                                     "e.g. username#1234 or just username"
                                 }
                                 required
-                                slotProps={{
-                                    input: {
-                                        startAdornment: (
-                                            <InputAdornment position="start">
-                                                #
-                                            </InputAdornment>
-                                        ),
-                                    },
-                                }}
                             />
                             <TextField
                                 label="Raid UI Screenshot"

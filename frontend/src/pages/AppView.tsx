@@ -1,17 +1,17 @@
-import { useEffect, useState } from "react";
-import { useRoute } from "wouter";
 import {
+    Alert,
+    Box,
+    Button,
     Card,
     CardContent,
-    Typography,
-    TextField,
-    Button,
-    Box,
-    Link,
-    Divider,
-    Alert,
     CircularProgress,
+    Divider,
+    Link,
+    TextField,
+    Typography,
 } from "@mui/material";
+import { useEffect, useState } from "react";
+import { useRoute } from "wouter";
 import { getApp, processApplication } from "../api/endpoints";
 import { useAuth } from "../context/AuthContext";
 
@@ -30,23 +30,23 @@ export default function AppView() {
 
     useEffect(() => {
         if (id) {
-            setLoading(true);
-            getApp(Number(id))
+            // setLoading(true);
+            getApp(Number(id), authToken || undefined)
                 .then((data) => {
                     setApp(data);
                     setForm(data || {});
                 })
                 .finally(() => setLoading(false));
         }
-    }, [id]);
+    }, [id, authToken]);
 
-    const canEdit = isAdmin || (app && app.auth === authToken);
+    const canEdit = isAdmin || (!!app && !!authToken);
 
     const handleSave = async () => {
         setSaving(true);
         await processApplication({
             id: String(id),
-            auth: authToken || app?.auth || "",
+            auth: authToken,
             name: form.name || "",
             server: form.server || "",
             btag: form.btag || "",
@@ -61,7 +61,7 @@ export default function AppView() {
         setSaving(false);
         setEditing(false);
         // Reload
-        const data = await getApp(Number(id));
+        const data = await getApp(Number(id), authToken || undefined);
         setApp(data);
         setForm(data || {});
     };
