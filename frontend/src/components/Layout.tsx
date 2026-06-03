@@ -75,7 +75,7 @@ export default function Layout({ children }: { children: ReactNode }) {
                 display: "flex",
                 flexDirection: "column",
                 background:
-                    "url(https://i.imgur.com/AndS3U1.png) center / cover fixed",
+                    "url(https://i.imgur.com/r17aiOB.png) center / cover fixed",
             }}
         >
             <AppBar position="sticky" sx={{ bgcolor: "rgba(18,18,18,0.95)" }}>
