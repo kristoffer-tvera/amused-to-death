@@ -1,33 +1,34 @@
-import { useEffect, useState } from "react";
-import { useRoute, useLocation } from "wouter";
 import {
+    Box,
+    Button,
     Card,
     CardContent,
-    Typography,
-    TextField,
-    Button,
-    Box,
-    Select,
-    MenuItem,
-    FormControl,
-    InputLabel,
-    FormControlLabel,
     Checkbox,
     CircularProgress,
+    FormControl,
+    FormControlLabel,
+    InputLabel,
+    MenuItem,
+    Select,
+    TextField,
+    Typography,
 } from "@mui/material";
 import { DataGrid, type GridColDef } from "@mui/x-data-grid";
+import { useEffect, useState } from "react";
+import { useLocation, useRoute } from "wouter";
 import {
-    getCharacter,
+    addOrUpdateCharacter,
     getAltsForCharacter,
     getAttendanceForCharacter,
-    addOrUpdateCharacter,
+    getCharacter,
+    getCharacters,
     hideCharacter,
     updateCharacterFromBNet,
 } from "../api/endpoints";
-import { wowClasses } from "../data/classes";
-import { useAuth } from "../context/AuthContext";
-import RealmAutocomplete from "../components/RealmAutocomplete";
 import ProtectedRoute from "../components/ProtectedRoute";
+import RealmAutocomplete from "../components/RealmAutocomplete";
+import { useAuth } from "../context/AuthContext";
+import { wowClasses } from "../data/classes";
 
 const raidColumns: GridColDef[] = [
     { field: "raid_name", headerName: "Raid", flex: 1 },
@@ -55,6 +56,7 @@ export default function Character() {
     const [, navigate] = useLocation();
 
     const [character, setCharacter] = useState<any>(null);
+    const [allCharacters, setAllCharacters] = useState<any[]>([]);
     const [raids, setRaids] = useState<any[]>([]);
     const [alts, setAlts] = useState<any[]>([]);
     const [loading, setLoading] = useState(!isNew);
@@ -71,6 +73,10 @@ export default function Character() {
         vip: false,
         discord: "",
     });
+
+    useEffect(() => {
+        getCharacters().then((chars) => setAllCharacters(chars || []));
+    }, []);
 
     useEffect(() => {
         if (!isNew && id) {
@@ -201,6 +207,34 @@ export default function Character() {
                                     {c.name}
                                 </MenuItem>
                             ))}
+                        </Select>
+                    </FormControl>
+
+                    <FormControl>
+                        <InputLabel>Main</InputLabel>
+                        <Select
+                            value={form.main}
+                            label="Main"
+                            onChange={(e) =>
+                                setForm({
+                                    ...form,
+                                    main: Number(e.target.value),
+                                })
+                            }
+                        >
+                            <MenuItem value={-1}>
+                                None (Main Character)
+                            </MenuItem>
+                            {allCharacters
+                                .filter(
+                                    (c) => !id || Number(c.id) !== Number(id),
+                                )
+                                .map((c) => (
+                                    <MenuItem key={c.id} value={c.id}>
+                                        {c.name}
+                                        {c.realm ? ` - ${c.realm}` : ""}
+                                    </MenuItem>
+                                ))}
                         </Select>
                     </FormControl>
 
