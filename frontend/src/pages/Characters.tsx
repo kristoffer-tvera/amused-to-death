@@ -30,7 +30,7 @@ const columns: GridColDef[] = [
         valueGetter: (_value, row) => getClassName(row.class),
     },
     { field: "ilvl", headerName: "ilvl", width: 70 },
-    { field: "create_date", headerName: "Created", width: 140 },
+    { field: "added_date", headerName: "Created", width: 140 },
     { field: "change_date", headerName: "Updated", width: 140 },
 ];
 

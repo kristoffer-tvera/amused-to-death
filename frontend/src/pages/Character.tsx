@@ -31,7 +31,7 @@ import { useAuth } from "../context/AuthContext";
 import { wowClasses } from "../data/classes";
 
 const raidColumns: GridColDef[] = [
-    { field: "raid_name", headerName: "Raid", flex: 1 },
+    { field: "name", headerName: "Raid", flex: 1 },
     { field: "bosses", headerName: "Bosses", width: 80 },
     {
         field: "paid",
@@ -39,12 +39,12 @@ const raidColumns: GridColDef[] = [
         width: 80,
         valueGetter: (_value, row) => (row.paid ? "Yes" : "No"),
     },
-    { field: "create_date", headerName: "Date", width: 140 },
+    { field: "added_date", headerName: "Date", width: 140 },
 ];
 
 const altColumns: GridColDef[] = [
     { field: "name", headerName: "Name", flex: 1 },
-    { field: "class_name", headerName: "Class", width: 120 },
+    { field: "realm", headerName: "Realm", width: 120 },
     { field: "ilvl", headerName: "ilvl", width: 70 },
 ];
 

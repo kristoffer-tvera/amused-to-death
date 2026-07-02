@@ -1,41 +1,41 @@
-import { useEffect, useState } from "react";
-import { useRoute, useLocation } from "wouter";
 import {
+    Alert,
+    Box,
+    Button,
     Card,
     CardContent,
-    Typography,
-    TextField,
-    Button,
-    Box,
-    FormControlLabel,
     Checkbox,
     CircularProgress,
+    Dialog,
+    DialogActions,
+    DialogContent,
+    DialogTitle,
+    Divider,
+    FormControlLabel,
     Grid,
     Snackbar,
-    Alert,
-    Divider,
-    Dialog,
-    DialogTitle,
-    DialogContent,
-    DialogActions,
+    TextField,
+    Typography,
 } from "@mui/material";
 import { DataGrid, type GridColDef } from "@mui/x-data-grid";
+import { useEffect, useState } from "react";
+import { useLocation, useRoute } from "wouter";
 import {
-    getRaid,
-    getAttendanceForRaid,
-    addOrUpdateRaid,
     addAllRaiders,
+    addAttendance,
+    addOrUpdateRaid,
+    deleteAttendance,
+    getAttendanceForRaid,
+    getMyCharacters,
+    getRaid,
     removeAttendeesWithNoBosses,
     setAllPaid,
     updateAttendance,
-    deleteAttendance,
-    addAttendance,
-    getMyCharacters,
 } from "../api/endpoints";
-import { getClassColor } from "../data/classes";
-import { useAuth } from "../context/AuthContext";
 import ClassIcon from "../components/ClassIcon";
 import ProtectedRoute from "../components/ProtectedRoute";
+import { useAuth } from "../context/AuthContext";
+import { getClassColor } from "../data/classes";
 
 export default function Raid() {
     const [, params] = useRoute("/raid/:id");
@@ -151,8 +151,8 @@ export default function Raid() {
     const gold = Number(form.gold) || 0;
 
     const attendanceColumns: GridColDef[] = [
-        { field: "character_name", headerName: "Character", flex: 1 },
-        { field: "create_date", headerName: "Signed Up", width: 140 },
+        { field: "name", headerName: "Character", flex: 1 },
+        { field: "added_date", headerName: "Signed Up", width: 140 },
         {
             field: "cut",
             headerName: "Cut",

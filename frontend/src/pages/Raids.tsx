@@ -1,11 +1,11 @@
+import AddIcon from "@mui/icons-material/Add";
+import { Box, Button, Typography } from "@mui/material";
+import { DataGrid, type GridColDef } from "@mui/x-data-grid";
 import { useEffect, useState } from "react";
 import { useLocation } from "wouter";
-import { Typography, Button, Box } from "@mui/material";
-import { DataGrid, type GridColDef } from "@mui/x-data-grid";
-import AddIcon from "@mui/icons-material/Add";
 import { getRaids } from "../api/endpoints";
-import { useAuth } from "../context/AuthContext";
 import ProtectedRoute from "../components/ProtectedRoute";
+import { useAuth } from "../context/AuthContext";
 
 const columns: GridColDef[] = [
     { field: "id", headerName: "ID", width: 60 },
@@ -17,7 +17,7 @@ const columns: GridColDef[] = [
         valueFormatter: (value) =>
             value ? Number(value).toLocaleString() : "0",
     },
-    { field: "create_date", headerName: "Created", width: 160 },
+    { field: "added_date", headerName: "Created", width: 160 },
     { field: "change_date", headerName: "Updated", width: 160 },
 ];
 
