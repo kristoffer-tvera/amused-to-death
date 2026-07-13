@@ -212,7 +212,7 @@ function application_save(array $data): array
         $db->log("INSERT INTO {$tables['app']} (...) VALUES (...)");
     }
 
-    $title = ($id > 0 ? 'App update!' : 'New app!') . ' (' . $name . ' - ' . $server . ') -- https://amusedtodeath.eu/app/?id=' . $id;
+    $title = ($id > 0 ? 'App update!' : 'New app!') . ' (' . $name . ' - ' . $server . ') -- https://amusedtodeath.eu/app/' . $id;
     discord_webhook($GLOBALS['webhookurl_recruitment'] ?? '', $title);
 
     return ['id' => $id, 'auth' => $auth];
