@@ -43,10 +43,11 @@ if ($action === 'update_character') {
 
     $name = urlencode(strtolower($character['name']));
     $realm = strtolower($character['realm']);
-    $url = "https://eu.api.blizzard.com/profile/wow/character/{$realm}/{$name}?namespace=profile-eu&locale=en_GB&access_token=";
+    $url = "https://eu.api.blizzard.com/profile/wow/character/{$realm}/{$name}?namespace=profile-eu&locale=en_GB";
 
-    $ch = curl_init($url . $_SESSION['token']);
+    $ch = curl_init($url);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_HTTPHEADER, ['Authorization: Bearer ' . $_SESSION['token']]);
     $response = curl_exec($ch);
     $status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
     curl_close($ch);
