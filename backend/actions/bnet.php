@@ -53,6 +53,8 @@ if ($action === 'update_character') {
     curl_close($ch);
 
     if ($status !== 200) {
+        $tables = backend_tables();
+        backend_db()->execute("UPDATE `{$tables['characters']}` SET ilvl=? WHERE id=?", 'ii', -1, $id);
         if ($ajax) {
             http_response_code($status);
             header('Content-Type: application/json');
@@ -64,7 +66,6 @@ if ($action === 'update_character') {
 
     $decoded = json_decode($response);
     $ilvl = intval($decoded->average_item_level ?? 0);
-    $tables = backend_tables();
     backend_db()->execute("UPDATE `{$tables['characters']}` SET ilvl=? WHERE id=?", 'ii', $ilvl, $id);
 
     if (!$ajax) {
