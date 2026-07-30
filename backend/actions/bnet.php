@@ -52,8 +52,9 @@ if ($action === 'update_character') {
     $status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
     curl_close($ch);
 
+    $tables = backend_tables();
+
     if ($status !== 200) {
-        $tables = backend_tables();
         backend_db()->execute("UPDATE `{$tables['characters']}` SET ilvl=? WHERE id=?", 'ii', -1, $id);
         if ($ajax) {
             http_response_code($status);
