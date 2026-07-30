@@ -37,3 +37,22 @@ function backend_admins(): array
 {
     return $GLOBALS['admins'] ?? [];
 }
+
+// If the PHP session has expired but the user has a valid persistent auth cookie,
+// silently restore their session so they do not need to re-login.
+if (empty($_SESSION['auth']) && !empty($_COOKIE['auth'])) {
+    $cookieToken = $_COOKIE['auth'];
+    $restoredTables = backend_tables();
+    $storedAuth = backend_db()->fetchOne(
+        "SELECT * FROM `{$restoredTables['auth']}` WHERE token=?",
+        's',
+        $cookieToken
+    );
+    if (!empty($storedAuth) && strtotime($storedAuth['expire_date']) >= time()) {
+        $restoredUsername = $storedAuth['discord'];
+        $_SESSION['auth'] = $restoredUsername;
+        if (in_array($restoredUsername, backend_admins(), true)) {
+            $_SESSION['admin'] = true;
+        }
+    }
+}

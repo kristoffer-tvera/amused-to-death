@@ -60,7 +60,19 @@ if (query_value('code') !== '') {
         die('You have no characters. Have an officer make one for you.');
     }
 
-    setcookie('discord_auth', $refreshToken, time() + 60 * 60 * 24 * 365, '/');
+    // Create a persistent auth token so the session can be silently restored
+    // after PHP's session expires without requiring a full Discord re-auth.
+    $persistToken = bin2hex(random_bytes(13));
+    $expireDate = date('Y-m-d H:i:s', strtotime('+30 days'));
+    backend_db()->execute(
+        "INSERT INTO `{$tables['auth']}` (token, discord, expire_date) VALUES (?, ?, ?)",
+        'sss',
+        $persistToken,
+        $discordUsername,
+        $expireDate
+    );
+    setcookie('auth', $persistToken, time() + 60 * 60 * 24 * 30, '/', '', true, true);
+
     redirect_to('/');
 }
 
