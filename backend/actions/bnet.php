@@ -55,7 +55,7 @@ if ($action === 'update_character') {
         if ($ajax) {
             http_response_code($status);
             header('Content-Type: application/json');
-            echo json_encode(['error' => 'BNet API returned ' . $status]);
+            echo json_encode(['error' => 'BNet API returned ' . $status, 'url' => $url . 'REDACTED', 'body' => $response]);
             exit;
         }
         redirect_to($return . '&error=true');
