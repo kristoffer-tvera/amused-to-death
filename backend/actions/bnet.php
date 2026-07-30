@@ -54,7 +54,8 @@ if ($action === 'update_character') {
     if ($status !== 200) {
         if ($ajax) {
             http_response_code($status);
-            echo $name;
+            header('Content-Type: application/json');
+            echo json_encode(['error' => 'BNet API returned ' . $status]);
             exit;
         }
         redirect_to($return . '&error=true');
@@ -71,7 +72,8 @@ if ($action === 'update_character') {
     }
 
     http_response_code(200);
-    echo $name;
+    header('Content-Type: application/json');
+    echo json_encode(['ilvl' => $ilvl]);
     exit;
 }
 
