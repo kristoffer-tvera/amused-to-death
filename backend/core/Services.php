@@ -192,6 +192,7 @@ function application_save(array $data): array
     $tables = backend_tables();
     $db = backend_db();
     $id = int_value($data['id'] ?? 0);
+    $isNew = $id === 0;
     $auth = (string)($data['auth'] ?? '');
     $name = (string)($data['name'] ?? '');
     $server = (string)($data['server'] ?? '');
@@ -212,7 +213,7 @@ function application_save(array $data): array
         $db->log("INSERT INTO {$tables['app']} (...) VALUES (...)");
     }
 
-    $title = ($id > 0 ? 'App update!' : 'New app!') . ' (' . $name . ' - ' . $server . ') -- https://amusedtodeath.eu/app/' . $id;
+    $title = ($isNew ? 'New app!' : 'App update!') . ' (' . $name . ' - ' . $server . ') -- https://amusedtodeath.eu/app/' . $id;
     discord_webhook($GLOBALS['webhookurl_recruitment'] ?? '', $title);
 
     return ['id' => $id, 'auth' => $auth];

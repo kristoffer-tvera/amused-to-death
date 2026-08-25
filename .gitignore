@@ -1,3 +1,4 @@
 backend/*secrets.php
 backend/apps.txt
 requests.http
+bnet.http
