@@ -63,3 +63,10 @@ public sealed class ApplicationSaveRequest
 }
 
 public sealed record ApplicationSaveResult(int Id, string Auth);
+
+/// <summary>
+/// Result of an application update. <see cref="Changed"/> is false when the
+/// submitted fields were identical to the stored ones, so the write (and its
+/// updated_at trigger) was skipped and the caller should suppress side effects.
+/// </summary>
+public sealed record ApplicationUpdateResult(int Id, string Auth, bool Changed);

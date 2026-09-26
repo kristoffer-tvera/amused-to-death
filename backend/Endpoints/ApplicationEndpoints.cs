@@ -58,25 +58,30 @@ public static class ApplicationEndpoints
 
             var isNew = body.Id == 0;
 
-            // Sanitize all free-text fields, matching legacy input handling.
-            body.Name = InputSanitizer.Clean(body.Name);
-            body.Server = InputSanitizer.Clean(body.Server);
-            body.Btag = InputSanitizer.Clean(body.Btag);
-            body.Spec = InputSanitizer.Clean(body.Spec);
-            body.Ui = InputSanitizer.Clean(body.Ui);
-            body.Reason = InputSanitizer.Clean(body.Reason);
-            body.History = InputSanitizer.Clean(body.History);
-            body.Alts = InputSanitizer.Clean(body.Alts);
+            // Free-text fields are stored raw. React escapes on render, and all
+            // DB access is parameterized via Dapper, so no input-time encoding is
+            // needed (see migration 0008, which decoded the legacy entity soup).
 
-            var result = isNew
-                ? await repo.InsertAsync(body, ct)
-                : await repo.UpdateAsync(body, ct);
+            if (isNew)
+            {
+                var inserted = await repo.InsertAsync(body, ct);
+                var title = $"New app! ({body.Name} - {body.Server}) -- {options.Value.FrontendBaseUrl}/app/{inserted.Id}";
+                await webhooks.SendAsync(options.Value.Webhooks.Recruitment, title, ct: ct);
+                return Results.Ok(inserted);
+            }
 
-            var title = (isNew ? "New app!" : "App update!")
-                + $" ({body.Name} - {body.Server}) -- {options.Value.FrontendBaseUrl}/app/{result.Id}";
-            await webhooks.SendAsync(options.Value.Webhooks.Recruitment, title, ct: ct);
+            var updated = await repo.UpdateAsync(body, ct);
 
-            return Results.Ok(result);
+            // No-op update (button click with zero diff): skip the Discord ping.
+            // updated_at was already left untouched by skipping the write itself.
+            // Still report success to the client so the UX is unchanged.
+            if (updated.Changed)
+            {
+                var title = $"App update! ({body.Name} - {body.Server}) -- {options.Value.FrontendBaseUrl}/app/{updated.Id}";
+                await webhooks.SendAsync(options.Value.Webhooks.Recruitment, title, ct: ct);
+            }
+
+            return Results.Ok(new ApplicationSaveResult(updated.Id, updated.Auth));
         })
             .WithSummary("Submit or update an application (public)")
             .WithDescription("Honeypot-protected. Returns { id, auth } so the applicant can revisit their application at /app/{id}?auth={token}.");

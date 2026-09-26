@@ -73,13 +73,15 @@ public static class RaidEndpoints
     private static async Task<IResult> SaveRaid(RaidSaveRequest body, RaidRepository repo,
         DiscordWebhookService webhooks, AppOptions options, CancellationToken ct)
     {
+        // Stored raw: React escapes on render and Dapper parameterizes all writes,
+        // so no input-time HTML encoding is needed (see migration 0008).
         var raid = new Raid
         {
             Id = body.Id,
-            Name = InputSanitizer.Clean(body.Name),
+            Name = body.Name,
             Gold = body.Gold,
             Paid = body.Paid,
-            Comment = InputSanitizer.Clean(body.Comment),
+            Comment = body.Comment,
         };
 
         if (raid.Id > 0)

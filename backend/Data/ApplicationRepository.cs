@@ -68,11 +68,33 @@ public sealed class ApplicationRepository
 
     /// <summary>
     /// Updates an existing application, but only if the supplied edit token
-    /// matches. Returns the (id, token) pair on success.
+    /// matches. Returns the (id, token) pair, plus whether a row was actually
+    /// changed. When the incoming fields are byte-for-byte identical to what is
+    /// stored, the UPDATE is skipped entirely so the updated_at trigger does not
+    /// fire and callers can suppress side effects (e.g. the Discord webhook).
     /// </summary>
-    public async Task<ApplicationSaveResult> UpdateAsync(ApplicationSaveRequest r, CancellationToken ct = default)
+    public async Task<ApplicationUpdateResult> UpdateAsync(ApplicationSaveRequest r, CancellationToken ct = default)
     {
         await using var db = await _connections.OpenConnectionAsync(ct);
+
+        // Load the current editable fields for this application (token-gated,
+        // same as the write below). If nothing comes back the token is wrong or
+        // the row is gone — fall through to the UPDATE, which will match nothing.
+        var current = await db.QuerySingleOrDefaultAsync<EditableFields>(new CommandDefinition(
+            """
+            SELECT name, server, battle_tag, spec, ui_screenshot_url, reason, history, alts
+            FROM applications
+            WHERE id=@Id AND edit_token=@Auth
+            """,
+            r, cancellationToken: ct));
+
+        if (current is not null && current.Matches(r))
+        {
+            // No real change — skip the write so the BEFORE UPDATE trigger never
+            // bumps updated_at, and signal "unchanged" so the webhook is skipped.
+            return new ApplicationUpdateResult(r.Id, r.Auth ?? "", Changed: false);
+        }
+
         await db.ExecuteAsync(new CommandDefinition(
             """
             UPDATE applications
@@ -81,6 +103,38 @@ public sealed class ApplicationRepository
             WHERE id=@Id AND edit_token=@Auth
             """,
             r, cancellationToken: ct));
-        return new ApplicationSaveResult(r.Id, r.Auth ?? "");
+        return new ApplicationUpdateResult(r.Id, r.Auth ?? "", Changed: true);
+    }
+
+    /// <summary>
+    /// The editable columns, loaded for no-op detection. Column names map to
+    /// these properties via Dapper's underscore matching (battle_tag -> BattleTag).
+    /// </summary>
+    private sealed class EditableFields
+    {
+        public string? Name { get; set; }
+        public string? Server { get; set; }
+        public string? BattleTag { get; set; }
+        public string? Spec { get; set; }
+        public string? UiScreenshotUrl { get; set; }
+        public string? Reason { get; set; }
+        public string? History { get; set; }
+        public string? Alts { get; set; }
+
+        /// <summary>True when every editable field equals the incoming request.</summary>
+        public bool Matches(ApplicationSaveRequest r) =>
+            Same(Name, r.Name)
+            && Same(Server, r.Server)
+            && Same(BattleTag, r.Btag)
+            && Same(Spec, r.Spec)
+            && Same(UiScreenshotUrl, r.Ui)
+            && Same(Reason, r.Reason)
+            && Same(History, r.History)
+            && Same(Alts, r.Alts);
+
+        // Treat NULL in the DB as equivalent to an empty incoming string, since
+        // the request model defaults these to "" and never sends null.
+        private static bool Same(string? stored, string incoming) =>
+            string.Equals(stored ?? "", incoming ?? "", StringComparison.Ordinal);
     }
 }
