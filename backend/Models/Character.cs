@@ -1,10 +1,12 @@
+using System.Text.Json.Serialization;
+
 namespace AmusedToDeath.Api.Models;
 
 /// <summary>
-/// A guild character. Field names serialize to snake_case (global JSON policy)
-/// to match the shape the frontend already consumes. The BIT flags from the old
-/// MySQL schema are proper booleans now (Postgres boolean); the frontend reads
-/// them with truthy checks, so booleans are compatible.
+/// A guild character. Property names match the snake_case DB columns (Dapper
+/// maps role_tank -> RoleTank etc.). The timestamp columns are created_at /
+/// updated_at in the DB, but the frontend still reads added_date / change_date,
+/// so those two are pinned to the legacy JSON names via [JsonPropertyName].
 /// </summary>
 public sealed class Character
 {
@@ -21,6 +23,7 @@ public sealed class Character
     public bool Raider { get; set; }
     public bool Vip { get; set; }
     public string? Discord { get; set; }
-    public DateTime AddedDate { get; set; }
-    public DateTime ChangeDate { get; set; }
+
+    [JsonPropertyName("added_date")] public DateTime CreatedAt { get; set; }
+    [JsonPropertyName("change_date")] public DateTime UpdatedAt { get; set; }
 }

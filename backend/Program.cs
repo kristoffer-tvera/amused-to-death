@@ -73,6 +73,12 @@ builder.Services.AddOpenApi();
 
 var app = builder.Build();
 
+// ─── Database migrations ─────────────────────────────────────────────────────
+// Apply any pending migrations on startup (DbUp). Small project, so the tiny
+// startup cost is fine; already-applied scripts are skipped. Fails fast if a
+// migration errors, so the app never serves against a half-migrated schema.
+DatabaseMigrator.Run(connectionString, app.Logger);
+
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();

@@ -13,30 +13,32 @@ public sealed class ApplicationRepository
         _connections = connections;
     }
 
-    /// <summary>Public list — no secrets (id, name, server, spec, change_date).</summary>
+    /// <summary>Public list — no secrets. updated_at maps to UpdatedAt.</summary>
     public async Task<IReadOnlyList<ApplicationSummary>> ListAsync(CancellationToken ct = default)
     {
         await using var db = await _connections.OpenConnectionAsync(ct);
         var rows = await db.QueryAsync<ApplicationSummary>(new CommandDefinition(
-            "SELECT id, name, server, spec, change_date FROM applications", cancellationToken: ct));
+            "SELECT id, name, server, spec, updated_at FROM applications", cancellationToken: ct));
         return rows.AsList();
     }
 
     /// <summary>
-    /// Fetches one application. When <paramref name="auth"/> is provided the
+    /// Fetches one application. When <paramref name="editToken"/> is provided the
     /// applicant's token must match (self-service access); when null the caller
-    /// is treated as admin (unrestricted). The auth token is never selected into
+    /// is treated as admin (unrestricted). The edit_token is never selected into
     /// the result model, so it cannot leak to the client.
     /// </summary>
-    public async Task<ApplicationDetail?> GetAsync(int id, string? auth, CancellationToken ct = default)
+    public async Task<ApplicationDetail?> GetAsync(int id, string? editToken, CancellationToken ct = default)
     {
         await using var db = await _connections.OpenConnectionAsync(ct);
-        const string cols = "id, name, server, btag, spec, ui, reason, history, alts, added_date, change_date";
-        if (auth is not null)
+        // battle_tag / ui_screenshot_url map to BattleTag / UiScreenshotUrl via
+        // Dapper's underscore matching; created_at/updated_at likewise.
+        const string cols = "id, name, server, battle_tag, spec, ui_screenshot_url, reason, history, alts, created_at, updated_at";
+        if (editToken is not null)
         {
             return await db.QuerySingleOrDefaultAsync<ApplicationDetail>(new CommandDefinition(
-                $"SELECT {cols} FROM applications WHERE id = @id AND auth = @auth",
-                new { id, auth }, cancellationToken: ct));
+                $"SELECT {cols} FROM applications WHERE id = @id AND edit_token = @editToken",
+                new { id, editToken }, cancellationToken: ct));
         }
 
         return await db.QuerySingleOrDefaultAsync<ApplicationDetail>(new CommandDefinition(
@@ -45,27 +47,28 @@ public sealed class ApplicationRepository
     }
 
     /// <summary>
-    /// Inserts a new application, generating a fresh auth token (18 hex chars,
-    /// matching the legacy bin2hex(random_bytes(9))). Returns id + token.
+    /// Inserts a new application, generating a fresh edit token (18 hex chars,
+    /// matching the legacy bin2hex(random_bytes(9))). Returns id + token so the
+    /// applicant can be handed their /app/{id}?auth={token} URL.
     /// </summary>
     public async Task<ApplicationSaveResult> InsertAsync(ApplicationSaveRequest r, CancellationToken ct = default)
     {
-        var auth = Convert.ToHexString(RandomNumberGenerator.GetBytes(9)).ToLowerInvariant();
+        var editToken = Convert.ToHexString(RandomNumberGenerator.GetBytes(9)).ToLowerInvariant();
         await using var db = await _connections.OpenConnectionAsync(ct);
         var id = await db.ExecuteScalarAsync<int>(new CommandDefinition(
             """
-            INSERT INTO applications (name, auth, server, btag, spec, ui, reason, history, alts)
-            VALUES (@Name, @auth, @Server, @Btag, @Spec, @Ui, @Reason, @History, @Alts)
+            INSERT INTO applications (name, edit_token, server, battle_tag, spec, ui_screenshot_url, reason, history, alts)
+            VALUES (@Name, @editToken, @Server, @Btag, @Spec, @Ui, @Reason, @History, @Alts)
             RETURNING id
             """,
-            new { r.Name, auth, r.Server, r.Btag, r.Spec, r.Ui, r.Reason, r.History, r.Alts },
+            new { r.Name, editToken, r.Server, r.Btag, r.Spec, r.Ui, r.Reason, r.History, r.Alts },
             cancellationToken: ct));
-        return new ApplicationSaveResult(id, auth);
+        return new ApplicationSaveResult(id, editToken);
     }
 
     /// <summary>
-    /// Updates an existing application, but only if the supplied auth token
-    /// matches. Returns the (id, auth) pair on success.
+    /// Updates an existing application, but only if the supplied edit token
+    /// matches. Returns the (id, token) pair on success.
     /// </summary>
     public async Task<ApplicationSaveResult> UpdateAsync(ApplicationSaveRequest r, CancellationToken ct = default)
     {
@@ -73,9 +76,9 @@ public sealed class ApplicationRepository
         await db.ExecuteAsync(new CommandDefinition(
             """
             UPDATE applications
-            SET name=@Name, server=@Server, btag=@Btag, spec=@Spec, ui=@Ui,
+            SET name=@Name, server=@Server, battle_tag=@Btag, spec=@Spec, ui_screenshot_url=@Ui,
                 reason=@Reason, history=@History, alts=@Alts
-            WHERE id=@Id AND auth=@Auth
+            WHERE id=@Id AND edit_token=@Auth
             """,
             r, cancellationToken: ct));
         return new ApplicationSaveResult(r.Id, r.Auth ?? "");

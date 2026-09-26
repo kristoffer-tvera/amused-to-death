@@ -4,19 +4,18 @@ namespace AmusedToDeath.Api.Models;
 
 /// <summary>
 /// The joined attendance row returned for a raid roster: the attendance record
-/// plus the attending character's details. The JSON field names are chosen to
-/// match exactly what the frontend Raid page reads:
+/// plus the attending character's details. DB columns are snake_case
+/// (character_id, raid_id, created_at), but the frontend Raid page reads
+/// camelCase / prefixed JSON names, so those are pinned with [JsonPropertyName]:
 ///   attendance:  id, added_date, bosses, paid, raidId, characterId
 ///   character:   character_name, character_class, character_main,
 ///                character_discord, character_vip, character_ilvl,
 ///                character_role_tank/heal/dps
-/// The character_* prefix disambiguates the joined columns from the attendance
-/// row's own fields (both tables have e.g. an id/name).
 /// </summary>
 public sealed class RaidAttendanceRow
 {
     public int Id { get; set; }
-    public DateTime AddedDate { get; set; }
+    [JsonPropertyName("added_date")] public DateTime CreatedAt { get; set; }
     public int Bosses { get; set; }
     public bool Paid { get; set; }
     [JsonPropertyName("raidId")] public int RaidId { get; set; }
@@ -44,8 +43,8 @@ public sealed class CharacterAttendanceRow
     [JsonPropertyName("raidId")] public int RaidId { get; set; }
     public int Bosses { get; set; }
     public bool Paid { get; set; }
-    public DateTime AddedDate { get; set; }
-    public DateTime ChangeDate { get; set; }
+    [JsonPropertyName("added_date")] public DateTime CreatedAt { get; set; }
+    [JsonPropertyName("change_date")] public DateTime UpdatedAt { get; set; }
 
     // Raid columns (joined)
     public string? Name { get; set; }

@@ -6,6 +6,10 @@ on:
     paths:
       - "backend/**"
       - ".github/workflows/deploy-api.yml"
+  pull_request:
+    branches: [master]
+    paths:
+      - "backend/**"
   workflow_dispatch:
 
 jobs:
@@ -29,7 +33,9 @@ jobs:
             --self-contained true \
             -o ./publish
 
+      # Everything below only runs on pushes to master, not on PRs.
       - name: Deploy to staging directory
+        if: github.event_name == 'push'
         uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.DO_HOST }}
@@ -45,6 +51,7 @@ jobs:
           command_timeout: 10m
 
       - name: Stop, swap, and start service
+        if: github.event_name == 'push'
         uses: appleboy/ssh-action@v1.2.0
         with:
           host: ${{ secrets.DO_HOST }}

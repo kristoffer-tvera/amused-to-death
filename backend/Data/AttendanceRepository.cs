@@ -17,13 +17,13 @@ public sealed class AttendanceRepository
         await using var db = await _connections.OpenConnectionAsync(ct);
         var rows = await db.QueryAsync<RaidAttendanceRow>(new CommandDefinition(
             """
-            SELECT a.id, a.added_date, a.bosses, a.paid, a."raidId", a."characterId",
+            SELECT a.id, a.created_at, a.bosses, a.paid, a.raid_id, a.character_id,
                    c.name, c.class, c.main, c.discord, c.vip, c.ilvl,
                    c.role_tank, c.role_heal, c.role_dps
             FROM attendance a
-            INNER JOIN characters c ON a."characterId" = c.id
-            WHERE a."raidId" = @raidId
-            ORDER BY a.added_date ASC
+            INNER JOIN characters c ON a.character_id = c.id
+            WHERE a.raid_id = @raidId
+            ORDER BY a.created_at ASC
             """,
             new { raidId }, cancellationToken: ct));
         return rows.AsList();
@@ -34,12 +34,12 @@ public sealed class AttendanceRepository
         await using var db = await _connections.OpenConnectionAsync(ct);
         var rows = await db.QueryAsync<CharacterAttendanceRow>(new CommandDefinition(
             """
-            SELECT a.id, a."characterId", a."raidId", a.bosses, a.paid,
-                   a.added_date, a.change_date,
+            SELECT a.id, a.character_id, a.raid_id, a.bosses, a.paid,
+                   a.created_at, a.updated_at,
                    r.name, r.gold, r.comment
             FROM attendance a
-            INNER JOIN raids r ON a."raidId" = r.id
-            WHERE a."characterId" = @characterId
+            INNER JOIN raids r ON a.raid_id = r.id
+            WHERE a.character_id = @characterId
             """,
             new { characterId }, cancellationToken: ct));
         return rows.AsList();
@@ -50,7 +50,7 @@ public sealed class AttendanceRepository
         await using var db = await _connections.OpenConnectionAsync(ct);
         await db.ExecuteAsync(new CommandDefinition(
             """
-            INSERT INTO attendance ("characterId", "raidId", bosses)
+            INSERT INTO attendance (character_id, raid_id, bosses)
             VALUES (@characterId, @raidId, @bosses)
             """,
             new { characterId, raidId, bosses }, cancellationToken: ct));
@@ -62,7 +62,7 @@ public sealed class AttendanceRepository
         await db.ExecuteAsync(new CommandDefinition(
             """
             UPDATE attendance SET bosses = @bosses, paid = @paid
-            WHERE "characterId" = @characterId AND "raidId" = @raidId
+            WHERE character_id = @characterId AND raid_id = @raidId
             """,
             new { characterId, raidId, bosses, paid }, cancellationToken: ct));
     }
@@ -71,21 +71,20 @@ public sealed class AttendanceRepository
     {
         await using var db = await _connections.OpenConnectionAsync(ct);
         await db.ExecuteAsync(new CommandDefinition(
-            """DELETE FROM attendance WHERE "characterId" = @characterId AND "raidId" = @raidId""",
+            "DELETE FROM attendance WHERE character_id = @characterId AND raid_id = @raidId",
             new { characterId, raidId }, cancellationToken: ct));
     }
 
     /// <summary>Adds every raider (character.raider = true) to the raid, ignoring
-    /// any that already exist (matches legacy INSERT IGNORE via the unique
-    /// (raidId, characterId) constraint).</summary>
+    /// any that already exist (via the unique (raid_id, character_id) constraint).</summary>
     public async Task AddAllRaidersAsync(int raidId, CancellationToken ct = default)
     {
         await using var db = await _connections.OpenConnectionAsync(ct);
         await db.ExecuteAsync(new CommandDefinition(
             """
-            INSERT INTO attendance ("characterId", "raidId", bosses)
+            INSERT INTO attendance (character_id, raid_id, bosses)
             SELECT c.id, @raidId, 0 FROM characters c WHERE c.raider = true
-            ON CONFLICT ("raidId", "characterId") DO NOTHING
+            ON CONFLICT (raid_id, character_id) DO NOTHING
             """,
             new { raidId }, cancellationToken: ct));
     }
@@ -94,7 +93,7 @@ public sealed class AttendanceRepository
     {
         await using var db = await _connections.OpenConnectionAsync(ct);
         await db.ExecuteAsync(new CommandDefinition(
-            """DELETE FROM attendance WHERE bosses = 0 AND "raidId" = @raidId""",
+            "DELETE FROM attendance WHERE bosses = 0 AND raid_id = @raidId",
             new { raidId }, cancellationToken: ct));
     }
 
@@ -102,7 +101,7 @@ public sealed class AttendanceRepository
     {
         await using var db = await _connections.OpenConnectionAsync(ct);
         await db.ExecuteAsync(new CommandDefinition(
-            """UPDATE attendance SET paid = true WHERE "raidId" = @raidId""",
+            "UPDATE attendance SET paid = true WHERE raid_id = @raidId",
             new { raidId }, cancellationToken: ct));
     }
 }

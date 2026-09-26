@@ -10,8 +10,15 @@
 
   <ItemGroup>
     <PackageReference Include="Dapper" Version="2.1.89" />
+    <PackageReference Include="dbup-postgresql" Version="7.0.1" />
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.12" />
     <PackageReference Include="Npgsql" Version="10.0.3" />
+  </ItemGroup>
+
+  <!-- Migration scripts are embedded so DbUp can run them from the assembly on
+       startup. Files are named NNNN_Description.sql and applied in lexical order. -->
+  <ItemGroup>
+    <EmbeddedResource Include="Migrations\*.sql" />
   </ItemGroup>
 
   <!-- Never ship local dev secrets to a deployment. The Development settings

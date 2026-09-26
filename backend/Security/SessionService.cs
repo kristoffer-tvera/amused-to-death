@@ -7,14 +7,14 @@ using AmusedToDeath.Api.Data;
 namespace AmusedToDeath.Api.Security;
 
 /// <summary>
-/// Owns the session lifecycle. A session is a random token stored in the "auth"
-/// table (token, discord, expire_date) and mirrored in an HttpOnly cookie.
+/// Owns the session lifecycle. A session is a random token stored in the
+/// "sessions" table (token, username, expires_at) and mirrored in an HttpOnly
+/// cookie.
 ///
-/// This replaces the PHP $_SESSION plus the persistent auth-cookie restore in
-/// bootstrap.php. Because the session is a DB-backed bearer token, it survives
-/// process restarts and works across a stateless API — no server-side session
-/// store required. The identity provider (Discord today, Battle.net later) only
-/// supplies the username; everything after that is IdP-agnostic.
+/// Because the session is a DB-backed bearer token, it survives process restarts
+/// and works across a stateless API — no server-side session store required. The
+/// identity provider (Discord today, Battle.net later) only supplies the
+/// username; everything after that is IdP-agnostic.
 /// </summary>
 public sealed class SessionService
 {
@@ -44,34 +44,34 @@ public sealed class SessionService
         }
 
         await using var db = await _connections.OpenConnectionAsync(ct);
-        var row = await db.QuerySingleOrDefaultAsync<(string discord, DateTime expire)?>(
+        var row = await db.QuerySingleOrDefaultAsync<(string username, DateTime expiresAt)?>(
             new CommandDefinition(
-                "SELECT discord, expire_date FROM auth WHERE token = @token",
+                "SELECT username, expires_at FROM sessions WHERE token = @token",
                 new { token },
                 cancellationToken: ct));
 
-        if (row is null || row.Value.expire < DateTime.UtcNow)
+        if (row is null || row.Value.expiresAt < DateTime.UtcNow)
         {
             return null;
         }
 
-        return row.Value.discord;
+        return row.Value.username;
     }
 
     /// <summary>
     /// Creates a new session token for the given username, persists it, and
-    /// returns the token. Tokens live in the same 26-char space the legacy
-    /// scheme used (auth.token is VARCHAR(26)); we use 13 random bytes -> 26 hex.
+    /// returns the token. Tokens are 13 random bytes -> 26 hex chars
+    /// (sessions.token is VARCHAR(26)).
     /// </summary>
     public async Task<string> CreateSessionAsync(string username, TimeSpan lifetime, CancellationToken ct = default)
     {
         var token = Convert.ToHexString(RandomNumberGenerator.GetBytes(13)).ToLowerInvariant();
-        var expire = DateTime.UtcNow.Add(lifetime);
+        var expiresAt = DateTime.UtcNow.Add(lifetime);
 
         await using var db = await _connections.OpenConnectionAsync(ct);
         await db.ExecuteAsync(new CommandDefinition(
-            "INSERT INTO auth (token, discord, expire_date) VALUES (@token, @username, @expire)",
-            new { token, username, expire },
+            "INSERT INTO sessions (token, username, expires_at) VALUES (@token, @username, @expiresAt)",
+            new { token, username, expiresAt },
             cancellationToken: ct));
 
         return token;
@@ -87,7 +87,7 @@ public sealed class SessionService
 
         await using var db = await _connections.OpenConnectionAsync(ct);
         await db.ExecuteAsync(new CommandDefinition(
-            "DELETE FROM auth WHERE token = @token",
+            "DELETE FROM sessions WHERE token = @token",
             new { token },
             cancellationToken: ct));
     }
