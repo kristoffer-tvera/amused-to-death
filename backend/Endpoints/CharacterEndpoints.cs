@@ -17,12 +17,12 @@ public static class CharacterEndpoints
         var group = app.MapGroup("/api/characters").WithTags("Characters");
 
         group.MapGet("/", async (CharacterRepository repo, CancellationToken ct) =>
-            Results.Ok(await repo.ListAsync(ownerDiscord: null, ct)))
+            Results.Ok(await repo.ListAsync(ownerId: null, ct)))
             .RequireAuth()
             .WithSummary("List all visible characters");
 
         group.MapGet("/mine", async (CharacterRepository repo, ICurrentUser user, CancellationToken ct) =>
-            Results.Ok(await repo.ListAsync(ownerDiscord: user.Name, ct)))
+            Results.Ok(await repo.ListAsync(ownerId: user.OwnerId, ct)))
             .RequireAuth()
             .WithSummary("List the current user's characters");
 
@@ -68,9 +68,9 @@ public static class CharacterEndpoints
     {
         var isAdmin = user.IsAdmin;
 
-        // Non-admins may only own their own character; admins may assign discord.
-        var discord = isAdmin ? (body.Discord ?? user.Name) : user.Name;
-
+        // Ownership is the Blizzard account id. A newly created character is owned
+        // by the acting account. Admins editing someone else's character leave the
+        // existing owner untouched (includeOwner: false).
         var character = new Character
         {
             Id = body.Id,
@@ -83,12 +83,13 @@ public static class CharacterEndpoints
             RoleDps = body.RoleDps,
             Raider = body.Raider,
             Vip = body.Vip,
-            Discord = discord,
+            OwnerId = user.OwnerId,
         };
 
         if (character.Id > 0)
         {
-            await repo.UpdateAsync(character, includeDiscord: isAdmin, ct);
+            // Only set owner on create; edits don't reassign ownership.
+            await repo.UpdateAsync(character, includeOwner: false, ct);
             return Results.Ok(new { id = character.Id });
         }
 

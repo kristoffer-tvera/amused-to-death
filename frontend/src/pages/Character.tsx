@@ -71,7 +71,6 @@ export default function Character() {
         role_dps: false,
         raider: false,
         vip: false,
-        discord: "",
     });
 
     useEffect(() => {
@@ -101,7 +100,6 @@ export default function Character() {
                             role_dps: !!char.role_dps,
                             raider: !!char.raider,
                             vip: !!char.vip,
-                            discord: char.discord || "",
                         });
                     }
                 })
@@ -121,7 +119,6 @@ export default function Character() {
             role_dps: form.role_dps ? "1" : "0",
             raider: form.raider ? "1" : "0",
             vip: form.vip ? "1" : "0",
-            discord: form.discord,
             return: "/characters",
         };
         if (!isNew) data.id = String(id);
@@ -168,16 +165,6 @@ export default function Character() {
                             ? "New Character"
                             : `Edit: ${character?.name || ""}`}
                     </Typography>
-
-                    {isAdmin && (
-                        <TextField
-                            label="Owner (Discord)"
-                            value={form.discord}
-                            onChange={(e) =>
-                                setForm({ ...form, discord: e.target.value })
-                            }
-                        />
-                    )}
 
                     <TextField
                         label="Name"

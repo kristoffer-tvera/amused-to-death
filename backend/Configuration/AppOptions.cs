@@ -14,16 +14,8 @@ public sealed class AppOptions
     /// <summary>Origins allowed by CORS (the SPA origin(s)).</summary>
     public string[] CorsOrigins { get; set; } = [];
 
-    public DiscordOptions Discord { get; set; } = new();
     public BattleNetOptions BattleNet { get; set; } = new();
     public WebhookOptions Webhooks { get; set; } = new();
-}
-
-public sealed class DiscordOptions
-{
-    public string ClientId { get; set; } = "";
-    public string ClientSecret { get; set; } = "";
-    public string RedirectUri { get; set; } = "";
 }
 
 public sealed class BattleNetOptions

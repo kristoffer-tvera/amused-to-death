@@ -59,12 +59,50 @@ export async function getMe() {
     return res.json() as Promise<{ user: string; admin: boolean } | null>;
 }
 
-export function getDiscordLoginUrl() {
-    return `${BASE}/auth/discord/login`;
+export function getBattleNetLoginUrl() {
+    return `${BASE}/auth/bnet/login`;
 }
 
 export async function logout() {
     return postJson(`/auth/logout`, {});
+}
+
+// ─── Battle.net login / character import ───────────────────────────────────────
+
+export interface BNetCharacter {
+    name: string;
+    realm: string;
+    realm_slug: string;
+    level: number;
+    class_id: number;
+    guild: string | null;
+    in_guild: boolean;
+}
+
+export interface BNetCharacterList {
+    battle_tag: string;
+    max_level: number;
+    characters: BNetCharacter[];
+    has_guild_character: boolean;
+}
+
+// Reads the max-level characters for the login in progress (pending-login cookie).
+export async function getBNetLoginCharacters(): Promise<BNetCharacterList | null> {
+    const res = await get(`/auth/bnet/characters`);
+    if (!res.ok) return null;
+    return res.json() as Promise<BNetCharacterList>;
+}
+
+// Imports the chosen characters and finishes login. Picks are {name, realm};
+// mainIndex points at which pick is the main.
+export async function importBNetCharacters(
+    picks: { name: string; realm: string }[],
+    mainIndex: number,
+): Promise<Response> {
+    return postJson(`/auth/bnet/import`, {
+        picks,
+        main_index: mainIndex,
+    });
 }
 
 // ─── Characters ──────────────────────────────────────────────────────────────
@@ -97,7 +135,6 @@ export async function addOrUpdateCharacter(data: Record<string, string>) {
         role_dps: bool(data.role_dps),
         raider: bool(data.raider),
         vip: bool(data.vip),
-        discord: data.discord || undefined,
     };
     return body.id > 0
         ? putJson(`/characters/${body.id}`, body)

@@ -18,7 +18,7 @@ import {
 import MenuIcon from "@mui/icons-material/Menu";
 import { useState, useEffect } from "react";
 import { useAuth } from "../context/AuthContext";
-import { getDiscordLoginUrl } from "../api/endpoints";
+import { getBattleNetLoginUrl } from "../api/endpoints";
 
 const navItems = [
     { label: "Home", path: "/", auth: false, admin: false },
@@ -129,9 +129,9 @@ export default function Layout({ children }: { children: ReactNode }) {
                                 variant="outlined"
                                 size="small"
                                 color="inherit"
-                                href={getDiscordLoginUrl()}
+                                href={getBattleNetLoginUrl()}
                             >
-                                Login with Discord
+                                Login with Battle.net
                             </Button>
                         )}
                     </Box>

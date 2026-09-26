@@ -18,7 +18,7 @@ public sealed class AttendanceRepository
         var rows = await db.QueryAsync<RaidAttendanceRow>(new CommandDefinition(
             """
             SELECT a.id, a.created_at, a.bosses, a.paid, a.raid_id, a.character_id,
-                   c.name, c.class, c.main, c.discord, c.vip, c.ilvl,
+                   c.name, c.class, c.main, c.vip, c.ilvl,
                    c.role_tank, c.role_heal, c.role_dps
             FROM attendance a
             INNER JOIN characters c ON a.character_id = c.id

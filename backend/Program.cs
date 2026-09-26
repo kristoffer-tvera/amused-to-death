@@ -53,7 +53,6 @@ builder.Services.AddScoped<SessionService>();
 
 // ─── External services ───────────────────────────────────────────────────────
 builder.Services.AddHttpClient<DiscordWebhookService>();
-builder.Services.AddHttpClient<DiscordOAuthService>();
 builder.Services.AddHttpClient<BattleNetAuthService>();
 
 // Battle.net token is application-scoped and cached in the service instance, so

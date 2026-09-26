@@ -192,9 +192,9 @@ public static class BattleNetAuthEndpoints
                 await characters.SetMainAsync(ids[i], mainId, ct);
             }
 
-            // Establish the real session (identity = BattleTag for now, admin from
-            // guild rank) and clean up the pending-login state.
-            var token = await sessions.CreateSessionAsync(login.BattleTag, isAdmin, SessionLifetime, ct);
+            // Establish the real session: BattleTag as display name, Blizzard sub
+            // as the owner id (matches characters.owner_id), admin from guild rank.
+            var token = await sessions.CreateSessionAsync(login.BattleTag, login.Sub, isAdmin, SessionLifetime, ct);
             sessions.WriteCookie(ctx.Response, token, SessionLifetime);
             ClearPendingCookie(ctx.Response);
             pending.Remove(ReadPendingToken(ctx)!);

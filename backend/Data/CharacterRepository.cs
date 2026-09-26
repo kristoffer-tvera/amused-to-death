@@ -17,14 +17,14 @@ public sealed class CharacterRepository
         _connections = connections;
     }
 
-    public async Task<IReadOnlyList<Character>> ListAsync(string? ownerDiscord, CancellationToken ct = default)
+    public async Task<IReadOnlyList<Character>> ListAsync(string? ownerId, CancellationToken ct = default)
     {
         await using var db = await _connections.OpenConnectionAsync(ct);
-        if (ownerDiscord is not null)
+        if (ownerId is not null)
         {
             var mine = await db.QueryAsync<Character>(new CommandDefinition(
-                "SELECT * FROM characters WHERE discord = @ownerDiscord AND hidden = false",
-                new { ownerDiscord }, cancellationToken: ct));
+                "SELECT * FROM characters WHERE owner_id = @ownerId AND hidden = false",
+                new { ownerId }, cancellationToken: ct));
             return mine.AsList();
         }
 
@@ -55,23 +55,23 @@ public sealed class CharacterRepository
         await using var db = await _connections.OpenConnectionAsync(ct);
         return await db.ExecuteScalarAsync<int>(new CommandDefinition(
             """
-            INSERT INTO characters (name, class, main, realm, role_tank, role_heal, role_dps, raider, vip, discord)
-            VALUES (@Name, @Class, @Main, @Realm, @RoleTank, @RoleHeal, @RoleDps, @Raider, @Vip, @Discord)
+            INSERT INTO characters (name, class, main, realm, role_tank, role_heal, role_dps, raider, vip, owner_id)
+            VALUES (@Name, @Class, @Main, @Realm, @RoleTank, @RoleHeal, @RoleDps, @Raider, @Vip, @OwnerId)
             RETURNING id
             """,
             c, cancellationToken: ct));
     }
 
-    /// <summary>Updates a character. When <paramref name="includeDiscord"/> is
-    /// false the discord/owner column is left untouched (non-admin path).</summary>
-    public async Task UpdateAsync(Character c, bool includeDiscord, CancellationToken ct = default)
+    /// <summary>Updates a character. When <paramref name="includeOwner"/> is
+    /// false the owner_id column is left untouched (non-admin path).</summary>
+    public async Task UpdateAsync(Character c, bool includeOwner, CancellationToken ct = default)
     {
         await using var db = await _connections.OpenConnectionAsync(ct);
-        var sql = includeDiscord
+        var sql = includeOwner
             ? """
               UPDATE characters SET name=@Name, class=@Class, main=@Main, realm=@Realm,
                      role_tank=@RoleTank, role_heal=@RoleHeal, role_dps=@RoleDps,
-                     raider=@Raider, vip=@Vip, discord=@Discord
+                     raider=@Raider, vip=@Vip, owner_id=@OwnerId
               WHERE id=@Id
               """
             : """
@@ -95,15 +95,6 @@ public sealed class CharacterRepository
         await using var db = await _connections.OpenConnectionAsync(ct);
         await db.ExecuteAsync(new CommandDefinition(
             "UPDATE characters SET ilvl = @ilvl WHERE id = @id", new { id, ilvl }, cancellationToken: ct));
-    }
-
-    /// <summary>True if a character row exists for the given discord username.</summary>
-    public async Task<bool> ExistsForDiscordAsync(string discord, CancellationToken ct = default)
-    {
-        await using var db = await _connections.OpenConnectionAsync(ct);
-        return await db.ExecuteScalarAsync<bool>(new CommandDefinition(
-            "SELECT EXISTS(SELECT 1 FROM characters WHERE discord = @discord)",
-            new { discord }, cancellationToken: ct));
     }
 
     // ─── Battle.net import support ───────────────────────────────────────────

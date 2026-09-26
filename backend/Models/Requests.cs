@@ -20,7 +20,6 @@ public sealed class CharacterSaveRequest
     public bool RoleDps { get; set; }
     public bool Raider { get; set; }
     public bool Vip { get; set; }
-    public string? Discord { get; set; }
 }
 
 // ─── Raid save ───────────────────────────────────────────────────────────────

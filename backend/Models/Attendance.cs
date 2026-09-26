@@ -24,7 +24,6 @@ public sealed class RaidAttendanceRow
     [JsonPropertyName("character_name")] public string Name { get; set; } = "";
     [JsonPropertyName("character_class")] public int Class { get; set; }
     [JsonPropertyName("character_main")] public int? Main { get; set; }
-    [JsonPropertyName("character_discord")] public string? Discord { get; set; }
     [JsonPropertyName("character_vip")] public bool Vip { get; set; }
     [JsonPropertyName("character_ilvl")] public int Ilvl { get; set; }
     [JsonPropertyName("character_role_tank")] public bool RoleTank { get; set; }

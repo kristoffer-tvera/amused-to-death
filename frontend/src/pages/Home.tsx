@@ -10,7 +10,7 @@ import {
 } from "@mui/material";
 import { DataGrid, type GridColDef } from "@mui/x-data-grid";
 import { useAuth } from "../context/AuthContext";
-import { getMyCharacters, getDiscordLoginUrl } from "../api/endpoints";
+import { getMyCharacters, getBattleNetLoginUrl } from "../api/endpoints";
 import { getClassName } from "../data/classes";
 
 const columns: GridColDef[] = [
@@ -56,7 +56,7 @@ export default function Home() {
                         sx={{ mb: 3 }}
                     >
                         A World of Warcraft guild management portal. Log in with
-                        Discord to view your characters, raids, and more.
+                        Battle.net to import your characters and get started.
                     </Typography>
                     <Box
                         sx={{
@@ -66,8 +66,11 @@ export default function Home() {
                             flexWrap: "wrap",
                         }}
                     >
-                        <Button variant="contained" href={getDiscordLoginUrl()}>
-                            Login with Discord
+                        <Button
+                            variant="contained"
+                            href={getBattleNetLoginUrl()}
+                        >
+                            Login with Battle.net
                         </Button>
                         <Button
                             variant="outlined"

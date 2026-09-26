@@ -26,10 +26,10 @@ public sealed class SessionService
     }
 
     /// <summary>
-    /// Resolves a session token to its principal (username + admin flag) if it
-    /// exists and has not expired. Returns null for missing/expired tokens.
+    /// Resolves a session token to its principal (BattleTag, owner id, admin flag)
+    /// if it exists and has not expired. Returns null for missing/expired tokens.
     /// </summary>
-    public async Task<(string Username, bool IsAdmin)?> ResolveUserAsync(string token, CancellationToken ct = default)
+    public async Task<(string Username, string? OwnerId, bool IsAdmin)?> ResolveUserAsync(string token, CancellationToken ct = default)
     {
         if (string.IsNullOrEmpty(token))
         {
@@ -37,9 +37,9 @@ public sealed class SessionService
         }
 
         await using var db = await _connections.OpenConnectionAsync(ct);
-        var row = await db.QuerySingleOrDefaultAsync<(string username, bool isAdmin, DateTime expiresAt)?>(
+        var row = await db.QuerySingleOrDefaultAsync<(string username, string? ownerId, bool isAdmin, DateTime expiresAt)?>(
             new CommandDefinition(
-                "SELECT username, is_admin, expires_at FROM sessions WHERE token = @token",
+                "SELECT username, owner_id, is_admin, expires_at FROM sessions WHERE token = @token",
                 new { token },
                 cancellationToken: ct));
 
@@ -48,23 +48,23 @@ public sealed class SessionService
             return null;
         }
 
-        return (row.Value.username, row.Value.isAdmin);
+        return (row.Value.username, row.Value.ownerId, row.Value.isAdmin);
     }
 
     /// <summary>
-    /// Creates a new session token for the given username with the given admin
-    /// flag, persists it, and returns the token. Tokens are 13 random bytes ->
-    /// 26 hex chars (sessions.token is VARCHAR(26)).
+    /// Creates a session for the given account: BattleTag as the display name,
+    /// the Blizzard sub as the owner id, plus the admin flag. Returns the token.
+    /// Tokens are 13 random bytes -> 26 hex chars (sessions.token is VARCHAR(26)).
     /// </summary>
-    public async Task<string> CreateSessionAsync(string username, bool isAdmin, TimeSpan lifetime, CancellationToken ct = default)
+    public async Task<string> CreateSessionAsync(string username, string ownerId, bool isAdmin, TimeSpan lifetime, CancellationToken ct = default)
     {
         var token = Convert.ToHexString(RandomNumberGenerator.GetBytes(13)).ToLowerInvariant();
         var expiresAt = DateTime.UtcNow.Add(lifetime);
 
         await using var db = await _connections.OpenConnectionAsync(ct);
         await db.ExecuteAsync(new CommandDefinition(
-            "INSERT INTO sessions (token, username, is_admin, expires_at) VALUES (@token, @username, @isAdmin, @expiresAt)",
-            new { token, username, isAdmin, expiresAt },
+            "INSERT INTO sessions (token, username, owner_id, is_admin, expires_at) VALUES (@token, @username, @ownerId, @isAdmin, @expiresAt)",
+            new { token, username, ownerId, isAdmin, expiresAt },
             cancellationToken: ct));
 
         return token;

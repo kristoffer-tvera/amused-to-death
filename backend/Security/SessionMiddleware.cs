@@ -22,7 +22,7 @@ public sealed class SessionMiddleware
             var principal = await sessions.ResolveUserAsync(token, context.RequestAborted);
             if (principal is not null)
             {
-                currentUser.Set(principal.Value.Username, principal.Value.IsAdmin);
+                currentUser.Set(principal.Value.Username, principal.Value.OwnerId, principal.Value.IsAdmin);
             }
         }
 

@@ -9,6 +9,7 @@ import Character from "./pages/Character";
 import Raids from "./pages/Raids";
 import Raid from "./pages/Raid";
 import BattleNet from "./pages/BattleNet";
+import BattleNetPick from "./pages/BattleNetPick";
 import Debug from "./pages/Debug";
 import { Typography } from "@mui/material";
 
@@ -25,6 +26,7 @@ export default function App() {
                 <Route path="/raids" component={Raids} />
                 <Route path="/raid/:id" component={Raid} />
                 <Route path="/bnet" component={BattleNet} />
+                <Route path="/bnet/pick" component={BattleNetPick} />
                 <Route path="/debug" component={Debug} />
                 <Route>
                     <Typography

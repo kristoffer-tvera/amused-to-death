@@ -22,7 +22,6 @@ public sealed class Character
     public bool Hidden { get; set; }
     public bool Raider { get; set; }
     public bool Vip { get; set; }
-    public string? Discord { get; set; }
 
     /// <summary>Blizzard account id (OAuth sub) that owns this character, if claimed.</summary>
     public string? OwnerId { get; set; }
