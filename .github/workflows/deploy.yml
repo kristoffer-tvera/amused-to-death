@@ -45,7 +45,7 @@ jobs:
           key: ${{ secrets.DO_SSH_KEY }}
           port: 22
           source: "frontend/dist/*"
-          target: "/var/www/amusedtodeath.eu-staging"
+          target: "/var/www/www.amusedtodeath.eu-staging"
           strip_components: 2
           overwrite: true
           rm: true
@@ -66,8 +66,8 @@ jobs:
             # Swap the freshly uploaded build into the live web root, keeping the
             # previous build for rollback. Atomic enough that nginx never serves
             # a half-uploaded SPA.
-            rm -rf /var/www/amusedtodeath.eu-old
-            if [ -d /var/www/amusedtodeath.eu ]; then
-              mv /var/www/amusedtodeath.eu /var/www/amusedtodeath.eu-old
+            rm -rf /var/www/www.amusedtodeath.eu-old
+            if [ -d /var/www/www.amusedtodeath.eu ]; then
+              mv /var/www/www.amusedtodeath.eu /var/www/www.amusedtodeath.eu-old
             fi
-            mv /var/www/amusedtodeath.eu-staging /var/www/amusedtodeath.eu
+            mv /var/www/www.amusedtodeath.eu-staging /var/www/www.amusedtodeath.eu

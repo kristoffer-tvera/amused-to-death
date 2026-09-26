@@ -121,9 +121,11 @@ sudo systemctl start a2d-api
 ## Frontend deployment
 
 The SPA is built with `npm run build` (output in `frontend/dist/`) and served
-by nginx from the web root. Ship `frontend/dist/` to the nginx root (e.g.
-`/var/www/amusedtodeath.eu`). Automating this is a separate workflow from the
-API deploy.
+by nginx from the web root `/var/www/www.amusedtodeath.eu`. This is automated by
+`.github/workflows/deploy.yml` (frontend-only): on pushes to `master` touching
+`frontend/**`, it builds the SPA, SCPs it to
+`/var/www/www.amusedtodeath.eu-staging`, then swaps it into the live root
+(keeping `-old` for rollback).
 
 ## Operations
 
