@@ -10,11 +10,8 @@ import {
     ListItemText,
     LinearProgress,
     Alert,
-    Link,
 } from "@mui/material";
 import {
-    getBNetTokenStatus,
-    getBNetTokenUrl,
     getCharacters,
     updateCharacterFromBNet,
     purgeNonGuildCharacters,
@@ -31,7 +28,6 @@ interface UpdateResult {
 }
 
 export default function BattleNet() {
-    const [tokenStatus, setTokenStatus] = useState<any>(null);
     const [characters, setCharacters] = useState<any[]>([]);
     const [updating, setUpdating] = useState(false);
     const [results, setResults] = useState<UpdateResult[]>([]);
@@ -42,7 +38,6 @@ export default function BattleNet() {
     const [refreshAllMessage, setRefreshAllMessage] = useState<string>("");
 
     useEffect(() => {
-        getBNetTokenStatus().then(setTokenStatus);
         getCharacters().then(setCharacters);
     }, []);
 
@@ -76,7 +71,6 @@ export default function BattleNet() {
                 ]);
             }
             setProgress(((i + 1) / characters.length) * 100);
-            // 1s delay
             await new Promise((r) => setTimeout(r, 1000));
         }
         setUpdating(false);
@@ -90,7 +84,7 @@ export default function BattleNet() {
             if ("refreshed" in res) {
                 if (res.systemic_failure) {
                     setRefreshAllMessage(
-                        "No characters could be refreshed — likely a Battle.net outage or token issue. Nothing was hidden.",
+                        "No characters could be refreshed — likely a Battle.net outage. Nothing was hidden.",
                     );
                 } else {
                     setRefreshAllMessage(
@@ -117,7 +111,6 @@ export default function BattleNet() {
                 setPurgeMessage(
                     `Hid ${res.hidden} character(s) no longer in the guild.`,
                 );
-                // Refresh the character list so counts stay accurate.
                 getCharacters().then(setCharacters);
             } else {
                 setPurgeMessage(res.error);
@@ -129,115 +122,80 @@ export default function BattleNet() {
         }
     };
 
-    const hasToken = tokenStatus && tokenStatus.remaining > 0;
-
     return (
         <AdminRoute>
             <Typography variant="h5">Battle.net Integration</Typography>
 
             <Card>
                 <CardContent>
-                    <Typography variant="h6" gutterBottom>
-                        Token Status
-                    </Typography>
-                    {tokenStatus ? (
-                        hasToken ? (
-                            <Alert severity="success">
-                                Token active — {tokenStatus.remaining}s
-                                remaining
-                            </Alert>
-                        ) : (
-                            <Alert severity="warning">
-                                No valid token.{" "}
-                                <Link href={getBNetTokenUrl()}>
-                                    Click here to get a new token
-                                </Link>
-                            </Alert>
-                        )
-                    ) : (
-                        <Typography color="text.secondary">
-                            Loading...
+                    <Box
+                        sx={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 2,
+                            mb: 2,
+                            flexWrap: "wrap",
+                        }}
+                    >
+                        <Typography variant="h6">
+                            Update All Characters
                         </Typography>
+                        <Button
+                            variant="contained"
+                            onClick={handleUpdateAll}
+                            disabled={updating}
+                        >
+                            {updating
+                                ? "Updating..."
+                                : `Update ${characters.length} Characters`}
+                        </Button>
+                        <Button
+                            variant="outlined"
+                            color="warning"
+                            onClick={handleRefreshAll}
+                            disabled={refreshingAll}
+                        >
+                            {refreshingAll
+                                ? "Refreshing..."
+                                : "Refresh all & hide duds"}
+                        </Button>
+                    </Box>
+
+                    {refreshAllMessage && (
+                        <Alert severity="info" sx={{ mb: 2 }}>
+                            {refreshAllMessage}
+                        </Alert>
+                    )}
+
+                    {updating && (
+                        <LinearProgress
+                            variant="determinate"
+                            value={progress}
+                            sx={{ mb: 2 }}
+                        />
+                    )}
+
+                    {results.length > 0 && (
+                        <List dense sx={{ maxHeight: 400, overflow: "auto" }}>
+                            {results.map((r) => (
+                                <ListItem key={r.id}>
+                                    <ListItemText
+                                        primary={r.name}
+                                        secondary={
+                                            r.success ? `ilvl: ${r.ilvl}` : r.error
+                                        }
+                                        sx={{
+                                            color: r.success
+                                                ? "success.main"
+                                                : "error.main",
+                                        }}
+                                    />
+                                </ListItem>
+                            ))}
+                        </List>
                     )}
                 </CardContent>
             </Card>
-
-            {hasToken && (
-                <Card>
-                    <CardContent>
-                        <Box
-                            sx={{
-                                display: "flex",
-                                alignItems: "center",
-                                gap: 2,
-                                mb: 2,
-                            }}
-                        >
-                            <Typography variant="h6">
-                                Update All Characters
-                            </Typography>
-                            <Button
-                                variant="contained"
-                                onClick={handleUpdateAll}
-                                disabled={updating}
-                            >
-                                {updating
-                                    ? "Updating..."
-                                    : `Update ${characters.length} Characters`}
-                            </Button>
-                            <Button
-                                variant="outlined"
-                                color="warning"
-                                onClick={handleRefreshAll}
-                                disabled={refreshingAll}
-                            >
-                                {refreshingAll
-                                    ? "Refreshing..."
-                                    : "Refresh all & hide duds"}
-                            </Button>
-                        </Box>
-
-                        {refreshAllMessage && (
-                            <Alert severity="info" sx={{ mb: 2 }}>
-                                {refreshAllMessage}
-                            </Alert>
-                        )}
-
-                        {updating && (
-                            <LinearProgress
-                                variant="determinate"
-                                value={progress}
-                                sx={{ mb: 2 }}
-                            />
-                        )}
-
-                        {results.length > 0 && (
-                            <List
-                                dense
-                                sx={{ maxHeight: 400, overflow: "auto" }}
-                            >
-                                {results.map((r) => (
-                                    <ListItem key={r.id}>
-                                        <ListItemText
-                                            primary={r.name}
-                                            secondary={
-                                                r.success
-                                                    ? `ilvl: ${r.ilvl}`
-                                                    : r.error
-                                            }
-                                            sx={{
-                                                color: r.success
-                                                    ? "success.main"
-                                                    : "error.main",
-                                            }}
-                                        />
-                                    </ListItem>
-                                ))}
-                            </List>
-                        )}
-                    </CardContent>
-                </Card>
-            )}
 
             <Card>
                 <CardContent>

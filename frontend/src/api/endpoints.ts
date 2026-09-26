@@ -260,24 +260,7 @@ export async function processApplication(data: Record<string, string>) {
 }
 
 // ─── Battle.net ──────────────────────────────────────────────────────────────
-
-export async function getBNetTokenStatus() {
-    return getJson(`/bnet/status`);
-}
-
-// Acquiring a token is now a POST (an app-level action), but the BattleNet page
-// links to this as an href. Keep a URL-returning helper that points at a small
-// GET shim is unnecessary — instead expose an async trigger the page can call.
-export function getBNetTokenUrl() {
-    // Kept for compatibility with the existing <Link href>. Points at the SPA
-    // route; the page also has requestBNetToken() for the actual call.
-    return `${BASE}/bnet/token`;
-}
-
-export async function requestBNetToken() {
-    const res = await postJson(`/bnet/token`, {});
-    return res.json();
-}
+// The Blizzard token is acquired server-side on demand; there's no token UI.
 
 // Hides characters no longer in the guild (admin, on-demand). Returns { hidden }.
 export async function purgeNonGuildCharacters() {

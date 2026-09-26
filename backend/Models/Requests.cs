@@ -3,9 +3,6 @@ namespace AmusedToDeath.Api.Models;
 /// <summary>Response for GET /api/auth/me. Null body when not logged in.</summary>
 public sealed record MeResponse(string User, bool Admin);
 
-/// <summary>Battle.net token status for the /bnet page.</summary>
-public sealed record BNetStatus(bool HasToken, int Remaining);
-
 // ─── Character roles ───────────────────────────────────────────────────────
 // The only user-editable character data. Everything else is Blizzard-sourced.
 public sealed class CharacterRolesRequest

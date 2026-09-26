@@ -1,18 +1,17 @@
 using Microsoft.Extensions.Options;
 using AmusedToDeath.Api.Configuration;
 using AmusedToDeath.Api.Data;
-using AmusedToDeath.Api.Models;
 using AmusedToDeath.Api.Security;
 using AmusedToDeath.Api.Services;
 
 namespace AmusedToDeath.Api.Endpoints;
 
 /// <summary>
-/// Battle.net integration. All routes require a logged-in session.
-///   POST /api/bnet/token             -> acquire an app access token (admin action)
-///   GET  /api/bnet/status            -> whether a token is held + seconds remaining
-///   POST /api/bnet/purge-non-guild   -> hide characters no longer in the guild (admin)
-///   POST /api/bnet/refresh-all       -> refresh every character's ilvl; hide duds (admin)
+/// Battle.net integration. All routes require a logged-in session. The Blizzard
+/// access token is acquired transparently by BattleNetService as needed — there
+/// is no manual token step.
+///   POST /api/bnet/purge-non-guild         -> hide characters no longer in the guild (admin)
+///   POST /api/bnet/refresh-all             -> refresh every character's ilvl; hide duds (admin)
 ///   POST /api/characters/{id}/refresh-ilvl -> refresh a character's item level
 /// </summary>
 public static class BattleNetEndpoints
@@ -21,24 +20,8 @@ public static class BattleNetEndpoints
     {
         var group = app.MapGroup("/api/bnet").WithTags("Battle.net");
 
-        group.MapPost("/token", async (BattleNetService bnet, CancellationToken ct) =>
-        {
-            var ok = await bnet.AcquireTokenAsync(ct);
-            return ok
-                ? Results.Ok(new { success = true, remaining = bnet.RemainingSeconds })
-                : Results.Json(new { error = "Failed to create Battle.net access token" },
-                    statusCode: StatusCodes.Status502BadGateway);
-        }).RequireAuth()
-            .WithSummary("Acquire a Battle.net access token");
-
-        group.MapGet("/status", (BattleNetService bnet) =>
-            Results.Ok(new BNetStatus(bnet.HasToken, bnet.RemainingSeconds)))
-            .RequireAuth()
-            .WithSummary("Battle.net token status");
-
-        // Cross-reference the current guild roster and hide any owned/raider
-        // characters no longer in the guild. Never deletes (preserves raid
-        // history). Admin-only, on-demand.
+        // Cross-reference the current guild roster and hide any owned characters
+        // no longer in the guild. Never deletes (preserves raid history). Admin-only.
         group.MapPost("/purge-non-guild", async (CharacterRepository characters, BattleNetService gameData,
             IOptions<AppOptions> options, CancellationToken ct) =>
         {
@@ -54,21 +37,16 @@ public static class BattleNetEndpoints
             return Results.Ok(new { success = true, hidden });
         }).RequireAdmin()
             .WithSummary("Hide characters no longer in the guild (admin)")
-            .WithDescription("Fetches the current guild roster and hides owned/raider characters absent from it. Characters are hidden, never deleted, to preserve raid history.");
+            .WithDescription("Fetches the current guild roster and hides owned characters absent from it. Characters are hidden, never deleted, to preserve raid history.");
 
         // Refresh every visible character's item level from Battle.net. A character
         // that Blizzard returns nothing for is a likely dud (deleted, renamed, or
         // transferred) and gets hidden — BUT only if at least one character
         // refreshed successfully. If ZERO succeed we assume a systemic outage
-        // (bad token, Blizzard down) and hide nothing, so we never wipe the roster
-        // over a transient failure. Hiding preserves raid history (never deletes).
+        // (bad credentials, Blizzard down) and hide nothing, so we never wipe the
+        // roster over a transient failure. Hiding preserves raid history.
         group.MapPost("/refresh-all", async (CharacterRepository characters, BattleNetService bnet, CancellationToken ct) =>
         {
-            if (!bnet.HasToken)
-            {
-                return Results.Json(new { error = "Missing Battle.net token" }, statusCode: StatusCodes.Status401Unauthorized);
-            }
-
             var all = await characters.ListAsync(ownerId: null, ct);
 
             var succeeded = 0;
@@ -77,9 +55,9 @@ public static class BattleNetEndpoints
             foreach (var c in all)
             {
                 var result = await bnet.GetItemLevelAsync(c.Realm, c.Name, ct);
-                if (result is not null && result.Value.Success)
+                if (result.Success)
                 {
-                    await characters.SetIlvlAsync(c.Id, result.Value.Ilvl, ct);
+                    await characters.SetIlvlAsync(c.Id, result.Ilvl, ct);
                     succeeded++;
                 }
                 else
@@ -128,22 +106,17 @@ public static class BattleNetEndpoints
                 return Results.Json(new { error = "Character not found" }, statusCode: StatusCodes.Status404NotFound);
             }
 
-            if (!bnet.HasToken)
-            {
-                return Results.Json(new { error = "Missing Battle.net token" }, statusCode: StatusCodes.Status401Unauthorized);
-            }
-
             var result = await bnet.GetItemLevelAsync(character.Realm, character.Name, ct);
-            if (result is null || !result.Value.Success)
+            if (!result.Success)
             {
                 // Mark the character with ilvl = -1 on failure, matching legacy behaviour.
                 await characters.SetIlvlAsync(id, -1, ct);
-                var status = result?.UpstreamStatus ?? StatusCodes.Status401Unauthorized;
-                return Results.Json(new { error = $"BNet API returned {status}" }, statusCode: status);
+                return Results.Json(new { error = $"BNet API returned {result.UpstreamStatus}" },
+                    statusCode: result.UpstreamStatus);
             }
 
-            await characters.SetIlvlAsync(id, result.Value.Ilvl, ct);
-            return Results.Ok(new { ilvl = result.Value.Ilvl });
+            await characters.SetIlvlAsync(id, result.Ilvl, ct);
+            return Results.Ok(new { ilvl = result.Ilvl });
         }).RequireAuth()
             .WithTags("Battle.net")
             .WithSummary("Refresh a character's item level from Battle.net");

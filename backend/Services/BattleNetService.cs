@@ -1,5 +1,6 @@
 using System.Net.Http.Headers;
 using System.Text.Json;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
 using AmusedToDeath.Api.Configuration;
@@ -9,11 +10,10 @@ namespace AmusedToDeath.Api.Services;
 /// <summary>
 /// Talks to the Battle.net / Blizzard APIs.
 ///
-/// The legacy code fetched a client-credentials access token and stashed it in
-/// the PHP session, then used it to read a character's average item level. The
-/// token is application-scoped (client_credentials), not user-scoped, so here it
-/// is cached once at the app level and reused across requests. bnet_status
-/// reports whether a token is currently held and how many seconds remain.
+/// The client-credentials access token is an implementation detail: it is
+/// acquired lazily and cached, and refreshed automatically when missing or
+/// expired. Callers just call the data methods (item level, guild roster) and
+/// the token is handled transparently — there is no manual "get a token" step.
 /// </summary>
 public sealed class BattleNetService
 {
@@ -39,23 +39,32 @@ public sealed class BattleNetService
 
     private HttpClient CreateClient() => _httpFactory.CreateClient("battlenet");
 
-    public bool HasToken => _token is not null && _tokenExpiry > DateTimeOffset.UtcNow;
-
-    public int RemainingSeconds =>
-        HasToken ? (int)Math.Max(0, (_tokenExpiry - DateTimeOffset.UtcNow).TotalSeconds) : 0;
+    private bool HasValidToken => _token is not null && _tokenExpiry > DateTimeOffset.UtcNow;
 
     private string OAuthHost => $"https://{_options.Region}.battle.net";
     private string ApiHost => $"https://{_options.Region}.api.blizzard.com";
 
     /// <summary>
-    /// Acquires (or refreshes) an application access token via the
-    /// client_credentials grant. Returns true on success.
+    /// Ensures a valid client-credentials token is held, acquiring one if the
+    /// current token is missing or expired. Returns the token, or null if
+    /// acquisition failed. Serialised so concurrent callers don't stampede.
     /// </summary>
-    public async Task<bool> AcquireTokenAsync(CancellationToken ct = default)
+    private async Task<string?> EnsureTokenAsync(CancellationToken ct)
     {
+        if (HasValidToken)
+        {
+            return _token;
+        }
+
         await _lock.WaitAsync(ct);
         try
         {
+            // Re-check inside the lock — another caller may have just refreshed it.
+            if (HasValidToken)
+            {
+                return _token;
+            }
+
             using var request = new HttpRequestMessage(HttpMethod.Post, $"{OAuthHost}/oauth/token");
             request.Content = new FormUrlEncodedContent(new Dictionary<string, string>
             {
@@ -69,14 +78,14 @@ public sealed class BattleNetService
             if (!response.IsSuccessStatusCode)
             {
                 _logger.LogWarning("Battle.net token request failed with {Status}", (int)response.StatusCode);
-                return false;
+                return null;
             }
 
             using var doc = JsonDocument.Parse(await response.Content.ReadAsStringAsync(ct));
             _token = doc.RootElement.GetProperty("access_token").GetString();
             var expiresIn = doc.RootElement.TryGetProperty("expires_in", out var e) ? e.GetInt32() : 0;
             _tokenExpiry = DateTimeOffset.UtcNow.AddSeconds(expiresIn);
-            return _token is not null;
+            return _token;
         }
         finally
         {
@@ -85,15 +94,16 @@ public sealed class BattleNetService
     }
 
     /// <summary>
-    /// Fetches the average item level for a character. Returns null if no token
-    /// is held; otherwise returns a result carrying either the ilvl or the
-    /// upstream HTTP status on failure.
+    /// Fetches the average item level for a character. Acquires a token as needed.
+    /// Returns a result carrying the ilvl, or a failure with the upstream HTTP
+    /// status (or 401 if a token could not be acquired).
     /// </summary>
-    public async Task<BattleNetIlvlResult?> GetItemLevelAsync(string realm, string name, CancellationToken ct = default)
+    public async Task<BattleNetIlvlResult> GetItemLevelAsync(string realm, string name, CancellationToken ct = default)
     {
-        if (!HasToken)
+        var token = await EnsureTokenAsync(ct);
+        if (token is null)
         {
-            return null;
+            return BattleNetIlvlResult.Failed(StatusCodes.Status401Unauthorized);
         }
 
         var encodedName = Uri.EscapeDataString(name.ToLowerInvariant());
@@ -101,7 +111,7 @@ public sealed class BattleNetService
         var url = $"{ApiHost}/profile/wow/character/{realmSlug}/{encodedName}?namespace=profile-{_options.Region}&locale=en_GB";
 
         using var request = new HttpRequestMessage(HttpMethod.Get, url);
-        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", _token);
+        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
         using var response = await CreateClient().SendAsync(request, ct);
         if (!response.IsSuccessStatusCode)
@@ -131,7 +141,8 @@ public sealed class BattleNetService
         }
 
         // Ensure we have an app token (roster is Game Data, client-credentials).
-        if (!HasToken && !await AcquireTokenAsync(ct))
+        var token = await EnsureTokenAsync(ct);
+        if (token is null)
         {
             return new Dictionary<string, int>();
         }
@@ -140,7 +151,7 @@ public sealed class BattleNetService
                   $"?namespace=profile-{_options.Region}&locale=en_GB";
 
         using var request = new HttpRequestMessage(HttpMethod.Get, url);
-        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", _token);
+        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
         using var response = await CreateClient().SendAsync(request, ct);
         if (!response.IsSuccessStatusCode)
