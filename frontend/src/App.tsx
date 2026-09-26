@@ -3,6 +3,7 @@ import Layout from "./components/Layout";
 import Home from "./pages/Home";
 import Apply from "./pages/Apply";
 import AppView from "./pages/AppView";
+import AppDiff from "./pages/AppDiff";
 import Apps from "./pages/Apps";
 import Characters from "./pages/Characters";
 import Character from "./pages/Character";
@@ -19,6 +20,7 @@ export default function App() {
             <Switch>
                 <Route path="/" component={Home} />
                 <Route path="/apply" component={Apply} />
+                <Route path="/app/:id/diff" component={AppDiff} />
                 <Route path="/app/:id" component={AppView} />
                 <Route path="/apps" component={Apps} />
                 <Route path="/characters" component={Characters} />

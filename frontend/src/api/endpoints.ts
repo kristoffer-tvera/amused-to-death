@@ -149,6 +149,28 @@ export interface ApplicationDetail {
     change_date: string;
 }
 
+// One immutable application snapshot (backend ApplicationVersion). Reviewer-only.
+// Field names mirror ApplicationDetail so the same view can render either shape;
+// the distinguishing fields are version_no and version_date.
+export interface ApplicationVersion {
+    version_no: number;
+    name: string | null;
+    server: string | null;
+    btag: string | null;
+    spec: string | null;
+    ui: string | null;
+    reason: string | null;
+    history: string | null;
+    alts: string | null;
+    version_date: string;
+}
+
+// Lightweight revision-list entry (backend ApplicationVersionSummary).
+export interface ApplicationVersionSummary {
+    version_no: number;
+    version_date: string;
+}
+
 // Result of refreshing a single character's item level (refresh-ilvl endpoint).
 export interface RefreshIlvlResult {
     ilvl: number;
@@ -335,6 +357,19 @@ export async function getApps() {
 export async function getApp(id: number, auth?: string) {
     const query = auth ? `?auth=${encodeURIComponent(auth)}` : "";
     return getJson<ApplicationDetail | null>(`/applications/${id}${query}`);
+}
+
+// Reviewer-only: the revision history for an application, newest first.
+export async function listAppVersions(id: number) {
+    return getJson<ApplicationVersionSummary[]>(`/applications/${id}/versions`);
+}
+
+// Reviewer-only: a single immutable snapshot by version number. Returns null
+// when the application or that version number does not exist.
+export async function getAppVersion(id: number, versionNo: number) {
+    return getJson<ApplicationVersion | null>(
+        `/applications/${id}/versions/${versionNo}`,
+    );
 }
 
 // Submits/updates an application. The backend now returns JSON { id, auth }

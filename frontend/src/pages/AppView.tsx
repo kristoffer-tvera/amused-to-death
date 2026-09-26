@@ -14,6 +14,7 @@ import { useEffect, useState } from "react";
 import { useRoute } from "wouter";
 import {
     getApp,
+    getAppVersion,
     processApplication,
     type ApplicationDetail,
 } from "../api/endpoints";
@@ -40,6 +41,11 @@ export default function AppView() {
     const id = params?.id;
     const searchParams = new URLSearchParams(window.location.search);
     const authToken = searchParams.get("auth") || "";
+    // ?v= pins the view to a specific historical snapshot. A missing or
+    // non-positive value means "show the latest state" (the default).
+    const versionParam = Number(searchParams.get("v"));
+    const versionNo =
+        Number.isInteger(versionParam) && versionParam > 0 ? versionParam : null;
     const { isAdmin } = useAuth();
 
     const [app, setApp] = useState<ApplicationDetail | null>(null);
@@ -49,18 +55,44 @@ export default function AppView() {
     const [saving, setSaving] = useState(false);
 
     useEffect(() => {
-        if (id) {
-            // setLoading(true);
-            getApp(Number(id), authToken || undefined)
-                .then((data) => {
-                    setApp(data);
-                    setForm(toForm(data));
-                })
-                .finally(() => setLoading(false));
-        }
-    }, [id, authToken]);
+        if (!id) return;
+        setLoading(true);
 
-    const canEdit = isAdmin || (!!app && !!authToken);
+        // A pinned version is fetched from the reviewer-only snapshot endpoint
+        // and normalized onto the ApplicationDetail shape the view renders. The
+        // latest state comes from the regular endpoint. Fetching a version needs
+        // reviewer auth; anonymous applicants only ever see the latest via ?auth=.
+        const load = versionNo
+            ? getAppVersion(Number(id), versionNo).then((v) =>
+                  v
+                      ? ({
+                            id: Number(id),
+                            name: v.name,
+                            server: v.server,
+                            btag: v.btag,
+                            spec: v.spec,
+                            ui: v.ui,
+                            reason: v.reason,
+                            history: v.history,
+                            alts: v.alts,
+                            added_date: v.version_date,
+                            change_date: v.version_date,
+                        } satisfies ApplicationDetail)
+                      : null,
+              )
+            : getApp(Number(id), authToken || undefined);
+
+        load
+            .then((data) => {
+                setApp(data);
+                setForm(toForm(data));
+            })
+            .finally(() => setLoading(false));
+    }, [id, authToken, versionNo]);
+
+    // Editing always targets the live application, so a pinned historical
+    // version is never editable — you can only edit "latest".
+    const canEdit = !versionNo && (isAdmin || (!!app && !!authToken));
 
     const handleSave = async () => {
         setSaving(true);
@@ -190,6 +222,12 @@ export default function AppView() {
     return (
         <Card sx={{ maxWidth: 700, mx: "auto", width: "100%" }}>
             <CardContent>
+                {versionNo && (
+                    <Alert severity="info" sx={{ mb: 2 }}>
+                        Viewing version {versionNo} (a historical snapshot). This
+                        view is read-only.
+                    </Alert>
+                )}
                 <Box
                     sx={{
                         display: "flex",
