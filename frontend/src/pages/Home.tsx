@@ -15,25 +15,13 @@ import {
     getBattleNetLoginUrl,
     getBattleNetReimportUrl,
     setCharacterVisibility,
+    type Character,
 } from "../api/endpoints";
 import CharacterCard from "../components/CharacterCard";
 
-interface MyCharacter {
-    id: number;
-    name: string;
-    class: number;
-    ilvl: number;
-    realm: string;
-    hidden: boolean;
-    role_tank: boolean;
-    role_heal: boolean;
-    role_dps: boolean;
-    [key: string]: unknown;
-}
-
 export default function Home() {
     const { isAuthenticated } = useAuth();
-    const [characters, setCharacters] = useState<MyCharacter[]>([]);
+    const [characters, setCharacters] = useState<Character[]>([]);
     const [loading, setLoading] = useState(false);
     const [, navigate] = useLocation();
 
@@ -47,7 +35,7 @@ export default function Home() {
     }, [isAuthenticated]);
 
     // Optimistically flip visibility, then persist. Revert on failure.
-    const toggleVisibility = async (char: MyCharacter) => {
+    const toggleVisibility = async (char: Character) => {
         const nextHidden = !char.hidden;
         setCharacters((prev) =>
             prev.map((c) =>

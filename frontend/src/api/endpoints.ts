@@ -5,12 +5,12 @@
 // flows on same-origin calls. Reads are JSON GETs; writes are JSON bodies.
 const BASE = "/api";
 
-// Returns `any` to match the loose contract the pages relied on with the old
-// `res.json()` calls (the pages store results in `any`/`any[]` state).
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-async function getJson(url: string): Promise<any> {
+// Reads a JSON GET and parses it as T. Callers pass the expected response shape
+// (one of the interfaces below); the pages can still store the result in loosely
+// typed state, but the API surface is now typed instead of returning `any`.
+async function getJson<T>(url: string): Promise<T> {
     const res = await fetch(`${BASE}${url}`, { credentials: "include" });
-    return res.json();
+    return res.json() as Promise<T>;
 }
 
 async function get(url: string): Promise<Response> {
@@ -51,12 +51,115 @@ function bool(v: string | number | boolean | undefined): boolean {
     return v === true || v === "1" || v === 1;
 }
 
+// ─── Response shapes ───────────────────────────────────────────────────────────
+// These mirror the JSON the .NET endpoints emit. Where the backend pins legacy
+// JSON names via [JsonPropertyName] (added_date/change_date, btag/ui, the
+// character_* attendance columns), the field names here match those wire names,
+// not the C# property names.
+
+// The current session, or null when not logged in (getMe returns null on 401).
+export interface Me {
+    user: string;
+    admin: boolean;
+}
+
+// A guild character (backend Models/Character.cs).
+export interface Character {
+    id: number;
+    ilvl: number;
+    main: number | null;
+    name: string;
+    class: number;
+    realm: string;
+    role_tank: boolean;
+    role_heal: boolean;
+    role_dps: boolean;
+    hidden: boolean;
+    owner_id: string | null;
+    added_date: string;
+    change_date: string;
+}
+
+// A raid (backend Models/Raid.cs).
+export interface Raid {
+    id: number;
+    name: string | null;
+    gold: number;
+    paid: boolean;
+    comment: string | null;
+    added_date: string;
+    change_date: string;
+}
+
+// One row of a raid's attendance roster: the attendance record joined with the
+// attending character's details (backend Models/Attendance.cs RaidAttendanceRow).
+export interface RaidAttendanceRow {
+    id: number;
+    added_date: string;
+    bosses: number;
+    paid: boolean;
+    raidId: number;
+    characterId: number;
+    character_name: string;
+    character_class: number;
+    character_main: number | null;
+    character_ilvl: number;
+    character_role_tank: boolean;
+    character_role_heal: boolean;
+    character_role_dps: boolean;
+}
+
+// A character's attendance joined with the raid it belongs to
+// (backend Models/Attendance.cs CharacterAttendanceRow).
+export interface CharacterAttendanceRow {
+    id: number;
+    characterId: number;
+    raidId: number;
+    bosses: number;
+    paid: boolean;
+    added_date: string;
+    change_date: string;
+    name: string | null;
+    gold: number;
+    comment: string | null;
+}
+
+// Application list entry for the admin Apps page (backend ApplicationSummary).
+export interface ApplicationSummary {
+    id: number;
+    name: string | null;
+    server: string | null;
+    spec: string | null;
+    change_date: string;
+}
+
+// Full application detail (backend ApplicationDetail). The edit token is never
+// serialized, so it is intentionally absent here.
+export interface ApplicationDetail {
+    id: number;
+    name: string | null;
+    server: string | null;
+    btag: string | null;
+    spec: string | null;
+    ui: string | null;
+    reason: string | null;
+    history: string | null;
+    alts: string | null;
+    added_date: string;
+    change_date: string;
+}
+
+// Result of refreshing a single character's item level (refresh-ilvl endpoint).
+export interface RefreshIlvlResult {
+    ilvl: number;
+}
+
 // ─── Auth ────────────────────────────────────────────────────────────────────
 
-export async function getMe() {
+export async function getMe(): Promise<Me | null> {
     const res = await get(`/auth/me`);
     if (!res.ok) return null;
-    return res.json() as Promise<{ user: string; admin: boolean } | null>;
+    return res.json() as Promise<Me | null>;
 }
 
 export function getBattleNetLoginUrl() {
@@ -114,26 +217,26 @@ export async function importBNetCharacters(
 // ─── Characters ──────────────────────────────────────────────────────────────
 
 export async function getMyCharacters() {
-    return getJson(`/characters/mine`);
+    return getJson<Character[]>(`/characters/mine`);
 }
 
 export async function getCharacters() {
-    return getJson(`/characters`);
+    return getJson<Character[]>(`/characters`);
 }
 
 // Admin-only: every hidden character, regardless of owner. Used by the
 // Characters page to render a "Hidden" group so admins can un-hide characters
 // they don't own (including ownerless ones). Non-admins get 401/403 here.
 export async function getHiddenCharacters() {
-    return getJson(`/characters/hidden`);
+    return getJson<Character[]>(`/characters/hidden`);
 }
 
 export async function getCharacter(id: number) {
-    return getJson(`/characters/${id}`);
+    return getJson<Character | null>(`/characters/${id}`);
 }
 
 export async function getAltsForCharacter(id: number) {
-    return getJson(`/characters/${id}/alts`);
+    return getJson<Character[]>(`/characters/${id}/alts`);
 }
 
 // Set a character's tank/heal/dps roles — the only editable character data.
@@ -152,17 +255,17 @@ export async function setCharacterVisibility(id: number, hidden: boolean) {
 
 export async function updateCharacterFromBNet(id: number) {
     const res = await postJson(`/characters/${id}/refresh-ilvl`, {});
-    return res.json();
+    return res.json() as Promise<RefreshIlvlResult>;
 }
 
 // ─── Raids ───────────────────────────────────────────────────────────────────
 
 export async function getRaids() {
-    return getJson(`/raids`);
+    return getJson<Raid[]>(`/raids`);
 }
 
 export async function getRaid(id: number) {
-    return getJson(`/raids/${id}`);
+    return getJson<Raid | null>(`/raids/${id}`);
 }
 
 export async function addOrUpdateRaid(data: Record<string, string>) {
@@ -188,17 +291,17 @@ export async function removeAttendeesWithNoBosses(raidId: number) {
 
 export async function setAllPaid(raidId: number) {
     const res = await postJson(`/raids/${raidId}/set-all-paid`, {});
-    return res.json();
+    return res.json() as Promise<{ success: true }>;
 }
 
 // ─── Attendance ──────────────────────────────────────────────────────────────
 
 export async function getAttendanceForRaid(raidId: number) {
-    return getJson(`/raids/${raidId}/attendance`);
+    return getJson<RaidAttendanceRow[]>(`/raids/${raidId}/attendance`);
 }
 
 export async function getAttendanceForCharacter(characterId: number) {
-    return getJson(`/characters/${characterId}/attendance`);
+    return getJson<CharacterAttendanceRow[]>(`/characters/${characterId}/attendance`);
 }
 
 export async function addAttendance(data: Record<string, string>) {
@@ -216,7 +319,7 @@ export async function updateAttendance(data: Record<string, string>) {
         bosses: num(data.bosses),
         paid: bool(data.paid),
     });
-    return res.json();
+    return res.json() as Promise<boolean>;
 }
 
 export async function deleteAttendance(characterId: number, raidId: number) {
@@ -226,12 +329,12 @@ export async function deleteAttendance(characterId: number, raidId: number) {
 // ─── Applications ────────────────────────────────────────────────────────────
 
 export async function getApps() {
-    return getJson(`/applications`);
+    return getJson<ApplicationSummary[]>(`/applications`);
 }
 
 export async function getApp(id: number, auth?: string) {
     const query = auth ? `?auth=${encodeURIComponent(auth)}` : "";
-    return getJson(`/applications/${id}${query}`);
+    return getJson<ApplicationDetail | null>(`/applications/${id}${query}`);
 }
 
 // Submits/updates an application. The backend now returns JSON { id, auth }

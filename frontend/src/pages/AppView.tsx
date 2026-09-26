@@ -12,8 +12,28 @@ import {
 } from "@mui/material";
 import { useEffect, useState } from "react";
 import { useRoute } from "wouter";
-import { getApp, processApplication } from "../api/endpoints";
+import {
+    getApp,
+    processApplication,
+    type ApplicationDetail,
+} from "../api/endpoints";
 import { useAuth } from "../context/AuthContext";
+
+// The application detail is a mixed-type object; the edit form is a flat map of
+// string fields. This picks the editable text fields out of a detail into that
+// form shape (missing values become empty strings).
+function toForm(app: ApplicationDetail | null): Record<string, string> {
+    return {
+        name: app?.name ?? "",
+        server: app?.server ?? "",
+        btag: app?.btag ?? "",
+        spec: app?.spec ?? "",
+        ui: app?.ui ?? "",
+        reason: app?.reason ?? "",
+        history: app?.history ?? "",
+        alts: app?.alts ?? "",
+    };
+}
 
 export default function AppView() {
     const [, params] = useRoute("/app/:id");
@@ -22,7 +42,7 @@ export default function AppView() {
     const authToken = searchParams.get("auth") || "";
     const { isAdmin } = useAuth();
 
-    const [app, setApp] = useState<any>(null);
+    const [app, setApp] = useState<ApplicationDetail | null>(null);
     const [loading, setLoading] = useState(true);
     const [editing, setEditing] = useState(false);
     const [form, setForm] = useState<Record<string, string>>({});
@@ -34,7 +54,7 @@ export default function AppView() {
             getApp(Number(id), authToken || undefined)
                 .then((data) => {
                     setApp(data);
-                    setForm(data || {});
+                    setForm(toForm(data));
                 })
                 .finally(() => setLoading(false));
         }
@@ -63,7 +83,7 @@ export default function AppView() {
         // Reload
         const data = await getApp(Number(id), authToken || undefined);
         setApp(data);
-        setForm(data || {});
+        setForm(toForm(data));
     };
 
     if (loading) {
@@ -258,7 +278,7 @@ function InfoRow({
     isLink,
 }: {
     label: string;
-    value?: string;
+    value?: string | null;
     multiline?: boolean;
     isLink?: boolean;
 }) {

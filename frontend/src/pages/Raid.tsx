@@ -69,7 +69,7 @@ export default function Raid() {
                     if (r) {
                         setForm({
                             name: r.name || "",
-                            gold: r.gold || "",
+                            gold: r.gold ? String(r.gold) : "",
                             comment: r.comment || "",
                             paid: !!r.paid,
                         });

@@ -5,23 +5,11 @@ import {
     getCharacters,
     getHiddenCharacters,
     setCharacterVisibility,
+    type Character,
 } from "../api/endpoints";
 import { useAuth } from "../context/AuthContext";
 import CharacterCard from "../components/CharacterCard";
 import ProtectedRoute from "../components/ProtectedRoute";
-
-interface Character {
-    id: number;
-    name: string;
-    class: number;
-    ilvl: number;
-    realm: string;
-    main: number | null;
-    role_tank: number | boolean;
-    role_heal: number | boolean;
-    role_dps: number | boolean;
-    [key: string]: unknown;
-}
 
 // Fetches the visible list plus, for admins, the hidden list. Non-admins can't
 // hit /characters/hidden (403), so it's only requested when isAdmin.
@@ -29,10 +17,8 @@ async function fetchAll(
     isAdmin: boolean,
 ): Promise<{ visible: Character[]; hidden: Character[] }> {
     const [visible, hidden] = await Promise.all([
-        getCharacters() as Promise<Character[]>,
-        isAdmin
-            ? (getHiddenCharacters() as Promise<Character[]>)
-            : Promise.resolve([] as Character[]),
+        getCharacters(),
+        isAdmin ? getHiddenCharacters() : Promise.resolve([] as Character[]),
     ]);
     return { visible, hidden };
 }
