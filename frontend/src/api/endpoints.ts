@@ -63,6 +63,12 @@ export function getBattleNetLoginUrl() {
     return `${BASE}/auth/bnet/login`;
 }
 
+// Forces the character picker even for an account that already has characters
+// (used by the Home "Re-import" button to add new characters / change main).
+export function getBattleNetReimportUrl() {
+    return `${BASE}/auth/bnet/login?reimport=true`;
+}
+
 export async function logout() {
     return postJson(`/auth/logout`, {});
 }
@@ -123,26 +129,18 @@ export async function getAltsForCharacter(id: number) {
     return getJson(`/characters/${id}/alts`);
 }
 
-export async function addOrUpdateCharacter(data: Record<string, string>) {
-    const body = {
-        id: num(data.id),
-        name: data.name ?? "",
-        realm: data.realm ?? "",
-        class: num(data.class),
-        main: num(data.main, -1),
-        role_tank: bool(data.role_tank),
-        role_heal: bool(data.role_heal),
-        role_dps: bool(data.role_dps),
-        raider: bool(data.raider),
-        vip: bool(data.vip),
-    };
-    return body.id > 0
-        ? putJson(`/characters/${body.id}`, body)
-        : postJson(`/characters`, body);
+// Set a character's tank/heal/dps roles — the only editable character data.
+// Owners may set their own; admins any.
+export async function setCharacterRoles(
+    id: number,
+    roles: { role_tank: boolean; role_heal: boolean; role_dps: boolean },
+) {
+    return postJson(`/characters/${id}/roles`, roles);
 }
 
-export async function hideCharacter(id: number) {
-    return postJson(`/characters/${id}/hide`, {});
+// Show or hide a character. Owners may toggle their own; admins any.
+export async function setCharacterVisibility(id: number, hidden: boolean) {
+    return postJson(`/characters/${id}/visibility`, { hidden });
 }
 
 export async function updateCharacterFromBNet(id: number) {
@@ -279,6 +277,30 @@ export function getBNetTokenUrl() {
 export async function requestBNetToken() {
     const res = await postJson(`/bnet/token`, {});
     return res.json();
+}
+
+// Hides characters no longer in the guild (admin, on-demand). Returns { hidden }.
+export async function purgeNonGuildCharacters() {
+    const res = await postJson(`/bnet/purge-non-guild`, {});
+    return res.json() as Promise<
+        { success: true; hidden: number } | { error: string }
+    >;
+}
+
+// Refreshes every character's item level from Battle.net and hides duds (chars
+// Blizzard returns nothing for) — but only if at least one refresh succeeded.
+export async function refreshAllFromBNet() {
+    const res = await postJson(`/bnet/refresh-all`, {});
+    return res.json() as Promise<
+        | {
+              success: true;
+              refreshed: number;
+              failed: number;
+              hidden: number;
+              systemic_failure: boolean;
+          }
+        | { error: string }
+    >;
 }
 
 export async function updateAllCharactersFromBNet(ids: number[]) {

@@ -18,7 +18,7 @@ public sealed class AttendanceRepository
         var rows = await db.QueryAsync<RaidAttendanceRow>(new CommandDefinition(
             """
             SELECT a.id, a.created_at, a.bosses, a.paid, a.raid_id, a.character_id,
-                   c.name, c.class, c.main, c.vip, c.ilvl,
+                   c.name, c.class, c.main, c.ilvl,
                    c.role_tank, c.role_heal, c.role_dps
             FROM attendance a
             INNER JOIN characters c ON a.character_id = c.id
@@ -75,15 +75,18 @@ public sealed class AttendanceRepository
             new { characterId, raidId }, cancellationToken: ct));
     }
 
-    /// <summary>Adds every raider (character.raider = true) to the raid, ignoring
-    /// any that already exist (via the unique (raid_id, character_id) constraint).</summary>
+    /// <summary>Adds every owned, non-hidden MAIN character to the raid, ignoring
+    /// any that already exist (via the unique (raid_id, character_id) constraint).
+    /// A main is a character that is its own main (or has no main set).</summary>
     public async Task AddAllRaidersAsync(int raidId, CancellationToken ct = default)
     {
         await using var db = await _connections.OpenConnectionAsync(ct);
         await db.ExecuteAsync(new CommandDefinition(
             """
             INSERT INTO attendance (character_id, raid_id, bosses)
-            SELECT c.id, @raidId, 0 FROM characters c WHERE c.raider = true
+            SELECT c.id, @raidId, 0 FROM characters c
+            WHERE c.owner_id IS NOT NULL AND c.hidden = false
+              AND (c.main IS NULL OR c.main = -1 OR c.main = c.id)
             ON CONFLICT (raid_id, character_id) DO NOTHING
             """,
             new { raidId }, cancellationToken: ct));

@@ -9,8 +9,7 @@ namespace AmusedToDeath.Api.Models;
 /// camelCase / prefixed JSON names, so those are pinned with [JsonPropertyName]:
 ///   attendance:  id, added_date, bosses, paid, raidId, characterId
 ///   character:   character_name, character_class, character_main,
-///                character_discord, character_vip, character_ilvl,
-///                character_role_tank/heal/dps
+///                character_ilvl, character_role_tank/heal/dps
 /// </summary>
 public sealed class RaidAttendanceRow
 {
@@ -24,7 +23,6 @@ public sealed class RaidAttendanceRow
     [JsonPropertyName("character_name")] public string Name { get; set; } = "";
     [JsonPropertyName("character_class")] public int Class { get; set; }
     [JsonPropertyName("character_main")] public int? Main { get; set; }
-    [JsonPropertyName("character_vip")] public bool Vip { get; set; }
     [JsonPropertyName("character_ilvl")] public int Ilvl { get; set; }
     [JsonPropertyName("character_role_tank")] public bool RoleTank { get; set; }
     [JsonPropertyName("character_role_heal")] public bool RoleHeal { get; set; }

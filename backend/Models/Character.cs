@@ -20,8 +20,6 @@ public sealed class Character
     public bool RoleHeal { get; set; }
     public bool RoleDps { get; set; }
     public bool Hidden { get; set; }
-    public bool Raider { get; set; }
-    public bool Vip { get; set; }
 
     /// <summary>Blizzard account id (OAuth sub) that owns this character, if claimed.</summary>
     public string? OwnerId { get; set; }

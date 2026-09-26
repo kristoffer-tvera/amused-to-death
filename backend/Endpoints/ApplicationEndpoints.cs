@@ -24,17 +24,19 @@ public static class ApplicationEndpoints
         group.MapGet("/", async (ApplicationRepository repo, CancellationToken ct) =>
             Results.Ok(await repo.ListAsync(ct)))
             .RequireAuth()
-            .WithSummary("List applications (admin)");
+            .WithSummary("List applications")
+            .WithDescription("Any logged-in guild member can list applications.");
 
-        // Public route: admins get full access; applicants must supply their
-        // matching auth token via ?auth=. Not gated by RequireAuth because
-        // applicants are anonymous — access control is the token itself.
+        // Public route: any logged-in guild member gets full access. Anonymous
+        // applicants must supply their own edit token via ?auth=. Not gated by
+        // RequireAuth because applicants are anonymous — the token is their access.
         group.MapGet("/{id:int}", async (int id, string? auth, ApplicationRepository repo,
             ICurrentUser user, CancellationToken ct) =>
         {
-            var effectiveAuth = user.IsAdmin ? null : auth;
-            // A non-admin with no token cannot see anything.
-            if (!user.IsAdmin && string.IsNullOrEmpty(auth))
+            // Logged-in members see any application (auth = null -> unrestricted).
+            // Anonymous callers are restricted to the application matching their token.
+            var effectiveAuth = user.IsAuthenticated ? null : auth;
+            if (!user.IsAuthenticated && string.IsNullOrEmpty(auth))
             {
                 return Results.Ok<ApplicationDetail?>(null);
             }
@@ -42,7 +44,7 @@ public static class ApplicationEndpoints
             return Results.Ok(result);
         })
             .WithSummary("Get an application")
-            .WithDescription("Admins see any application; applicants must pass their edit token as ?auth=.");
+            .WithDescription("Logged-in members see any application; anonymous applicants must pass their edit token as ?auth=.");
 
         // Public submit. Honeypot: pepe must equal "meme" or we no-op silently.
         group.MapPost("/", async (ApplicationSaveRequest body, ApplicationRepository repo,

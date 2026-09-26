@@ -33,6 +33,19 @@ public sealed class CharacterRepository
         return all.AsList();
     }
 
+    /// <summary>
+    /// Lists everything owned by an account, INCLUDING hidden characters. Used for
+    /// the owner's own "my characters" view so they can see and un-hide them.
+    /// </summary>
+    public async Task<IReadOnlyList<Character>> ListOwnedIncludingHiddenAsync(string ownerId, CancellationToken ct = default)
+    {
+        await using var db = await _connections.OpenConnectionAsync(ct);
+        var rows = await db.QueryAsync<Character>(new CommandDefinition(
+            "SELECT * FROM characters WHERE owner_id = @ownerId",
+            new { ownerId }, cancellationToken: ct));
+        return rows.AsList();
+    }
+
     public async Task<Character?> GetAsync(int id, CancellationToken ct = default)
     {
         await using var db = await _connections.OpenConnectionAsync(ct);
@@ -49,38 +62,16 @@ public sealed class CharacterRepository
         return rows.AsList();
     }
 
-    /// <summary>Inserts a new character and returns its id.</summary>
-    public async Task<int> InsertAsync(Character c, CancellationToken ct = default)
+    /// <summary>
+    /// Sets the tank/heal/dps role flags on a character. This is the only
+    /// user-editable character data — everything else is Blizzard-sourced.
+    /// </summary>
+    public async Task SetRolesAsync(int id, bool tank, bool heal, bool dps, CancellationToken ct = default)
     {
         await using var db = await _connections.OpenConnectionAsync(ct);
-        return await db.ExecuteScalarAsync<int>(new CommandDefinition(
-            """
-            INSERT INTO characters (name, class, main, realm, role_tank, role_heal, role_dps, raider, vip, owner_id)
-            VALUES (@Name, @Class, @Main, @Realm, @RoleTank, @RoleHeal, @RoleDps, @Raider, @Vip, @OwnerId)
-            RETURNING id
-            """,
-            c, cancellationToken: ct));
-    }
-
-    /// <summary>Updates a character. When <paramref name="includeOwner"/> is
-    /// false the owner_id column is left untouched (non-admin path).</summary>
-    public async Task UpdateAsync(Character c, bool includeOwner, CancellationToken ct = default)
-    {
-        await using var db = await _connections.OpenConnectionAsync(ct);
-        var sql = includeOwner
-            ? """
-              UPDATE characters SET name=@Name, class=@Class, main=@Main, realm=@Realm,
-                     role_tank=@RoleTank, role_heal=@RoleHeal, role_dps=@RoleDps,
-                     raider=@Raider, vip=@Vip, owner_id=@OwnerId
-              WHERE id=@Id
-              """
-            : """
-              UPDATE characters SET name=@Name, class=@Class, main=@Main, realm=@Realm,
-                     role_tank=@RoleTank, role_heal=@RoleHeal, role_dps=@RoleDps,
-                     raider=@Raider, vip=@Vip
-              WHERE id=@Id
-              """;
-        await db.ExecuteAsync(new CommandDefinition(sql, c, cancellationToken: ct));
+        await db.ExecuteAsync(new CommandDefinition(
+            "UPDATE characters SET role_tank = @tank, role_heal = @heal, role_dps = @dps WHERE id = @id",
+            new { id, tank, heal, dps }, cancellationToken: ct));
     }
 
     public async Task HideAsync(int id, CancellationToken ct = default)
@@ -88,6 +79,14 @@ public sealed class CharacterRepository
         await using var db = await _connections.OpenConnectionAsync(ct);
         await db.ExecuteAsync(new CommandDefinition(
             "UPDATE characters SET hidden = true WHERE id = @id", new { id }, cancellationToken: ct));
+    }
+
+    /// <summary>Sets a character's hidden flag to an explicit value.</summary>
+    public async Task SetHiddenAsync(int id, bool hidden, CancellationToken ct = default)
+    {
+        await using var db = await _connections.OpenConnectionAsync(ct);
+        await db.ExecuteAsync(new CommandDefinition(
+            "UPDATE characters SET hidden = @hidden WHERE id = @id", new { id, hidden }, cancellationToken: ct));
     }
 
     public async Task SetIlvlAsync(int id, int ilvl, CancellationToken ct = default)
@@ -122,14 +121,14 @@ public sealed class CharacterRepository
             new { name, classId, realm, ownerId, main }, cancellationToken: ct));
     }
 
-    /// <summary>Claims an existing character for an account (the "migrate" path):
-    /// sets owner_id, and optionally the class and main, without disturbing other
-    /// data on the record.</summary>
+    /// <summary>Claims a character for an account (the "migrate"/re-import path):
+    /// sets owner_id and main, and un-hides it (a re-imported character should be
+    /// visible again). Other data on the record is preserved.</summary>
     public async Task ClaimAsync(int id, string ownerId, int? main, CancellationToken ct = default)
     {
         await using var db = await _connections.OpenConnectionAsync(ct);
         await db.ExecuteAsync(new CommandDefinition(
-            "UPDATE characters SET owner_id = @ownerId, main = @main WHERE id = @id",
+            "UPDATE characters SET owner_id = @ownerId, main = @main, hidden = false WHERE id = @id",
             new { id, ownerId, main }, cancellationToken: ct));
     }
 
@@ -140,5 +139,46 @@ public sealed class CharacterRepository
         await db.ExecuteAsync(new CommandDefinition(
             "UPDATE characters SET main = @main WHERE id = @id",
             new { id, main }, cancellationToken: ct));
+    }
+
+    /// <summary>All (visible) character names owned by an account. Used to
+    /// re-verify guild membership on login without re-fetching from Blizzard.</summary>
+    public async Task<IReadOnlyList<string>> OwnedNamesAsync(string ownerId, CancellationToken ct = default)
+    {
+        await using var db = await _connections.OpenConnectionAsync(ct);
+        var rows = await db.QueryAsync<string>(new CommandDefinition(
+            "SELECT name FROM characters WHERE owner_id = @ownerId AND hidden = false",
+            new { ownerId }, cancellationToken: ct));
+        return rows.AsList();
+    }
+
+    /// <summary>True if the account owns at least one (visible) character.</summary>
+    public async Task<bool> HasOwnedAsync(string ownerId, CancellationToken ct = default)
+    {
+        await using var db = await _connections.OpenConnectionAsync(ct);
+        return await db.ExecuteScalarAsync<bool>(new CommandDefinition(
+            "SELECT EXISTS(SELECT 1 FROM characters WHERE owner_id = @ownerId AND hidden = false)",
+            new { ownerId }, cancellationToken: ct));
+    }
+
+    /// <summary>
+    /// Hides all owned characters whose name is not in the supplied current-roster
+    /// set. Never deletes — hiding preserves raid history. Returns the number hidden.
+    /// </summary>
+    public async Task<int> HideAbsentFromRosterAsync(IReadOnlyCollection<string> rosterNames, CancellationToken ct = default)
+    {
+        await using var db = await _connections.OpenConnectionAsync(ct);
+        // Only consider owned characters (guild members). Anything visible whose
+        // name is not in the current roster gets hidden.
+        return await db.ExecuteAsync(new CommandDefinition(
+            """
+            UPDATE characters
+            SET hidden = true
+            WHERE hidden = false
+              AND owner_id IS NOT NULL
+              AND lower(name) <> ALL(@names)
+            """,
+            new { names = rosterNames.Select(n => n.ToLowerInvariant()).ToArray() },
+            cancellationToken: ct));
     }
 }

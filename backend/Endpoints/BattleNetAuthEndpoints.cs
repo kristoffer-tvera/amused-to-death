@@ -31,17 +31,24 @@ public static class BattleNetAuthEndpoints
     {
         var group = app.MapGroup("/api/auth/bnet").WithTags("Battle.net Login");
 
-        // 1. Begin login (browser navigation).
-        group.MapGet("/login", (BattleNetAuthService bnet) =>
+        // 1. Begin login (browser navigation). ?reimport=true forces the character
+        //    picker even for a returning account (used by the Home "Re-import" button).
+        group.MapGet("/login", (bool? reimport, BattleNetAuthService bnet) =>
         {
-            var state = Convert.ToHexString(RandomNumberGenerator.GetBytes(8)).ToLowerInvariant();
+            var state = reimport == true
+                ? "reimport"
+                : Convert.ToHexString(RandomNumberGenerator.GetBytes(8)).ToLowerInvariant();
             return Results.Redirect(bnet.BuildAuthorizeUrl(state));
         })
             .WithSummary("Start Battle.net login");
 
-        // 2. OAuth callback: exchange, fetch characters, park in pending cache.
-        group.MapGet("/callback", async (string? code, HttpContext ctx,
-            BattleNetAuthService bnet, PendingLoginStore pending, IOptions<AppOptions> options, CancellationToken ct) =>
+        // 2. OAuth callback. Returning users (who already own characters) are
+        //    logged straight in after a strict guild re-verify; only accounts with
+        //    no characters — or an explicit ?reimport=true — see the picker.
+        group.MapGet("/callback", async (string? code, string? state, HttpContext ctx,
+            BattleNetAuthService bnet, BattleNetService gameData, PendingLoginStore pending,
+            SessionService sessions, CharacterRepository characters, IOptions<AppOptions> options,
+            CancellationToken ct) =>
         {
             if (string.IsNullOrEmpty(code))
             {
@@ -60,14 +67,48 @@ public static class BattleNetAuthEndpoints
                 return Results.Json(new { error = "Could not read Battle.net account" }, statusCode: StatusCodes.Status401Unauthorized);
             }
 
-            var characters = await bnet.GetMaxLevelCharactersAsync(accessToken, ct);
+            var maxLevelChars = await bnet.GetMaxLevelCharactersAsync(accessToken, ct);
 
-            // Park the login-in-progress under a random token carried by a cookie.
+            // "reimport" is carried through the OAuth state param so the Home button
+            // can force the picker even for an account that already has characters.
+            var forceReimport = state == "reimport";
+
+            // Returning user fast-path: already owns characters and isn't forcing a
+            // re-import. Re-verify guild membership and log straight in.
+            if (!forceReimport && await characters.HasOwnedAsync(identity.Sub, ct))
+            {
+                var ownedNames = await characters.OwnedNamesAsync(identity.Sub, ct);
+
+                // Strict re-verify: at least one owned character must still be in the
+                // guild. Use the max-level realm for the roster lookup (falls back to
+                // the guild's configured realm via the first owned character's realm).
+                var realmSlug = maxLevelChars.Count > 0 ? maxLevelChars[0].RealmSlug : "stormscale";
+                var ranks = await gameData.GetGuildRanksAsync(realmSlug, bnet.GuildName, ct);
+
+                var bestRank = int.MaxValue;
+                foreach (var name in ownedNames)
+                {
+                    if (ranks.TryGetValue(name, out var rank) && rank < bestRank)
+                    {
+                        bestRank = rank;
+                    }
+                }
+
+                if (bestRank == int.MaxValue)
+                {
+                    return Results.Redirect(options.Value.FrontendBaseUrl + "/?error=not-in-guild");
+                }
+
+                var admin = bestRank <= options.Value.BattleNet.AdminMaxRank;
+                var sessionToken = await sessions.CreateSessionAsync(identity.BattleTag, identity.Sub, admin, SessionLifetime, ct);
+                sessions.WriteCookie(ctx.Response, sessionToken, SessionLifetime);
+                return Results.Redirect(options.Value.FrontendBaseUrl + "/");
+            }
+
+            // First-time (or forced re-import): park the login and show the picker.
             var pendingToken = Convert.ToHexString(RandomNumberGenerator.GetBytes(16)).ToLowerInvariant();
-            pending.Set(pendingToken, new PendingLogin(identity.Sub, identity.BattleTag, accessToken, characters));
+            pending.Set(pendingToken, new PendingLogin(identity.Sub, identity.BattleTag, accessToken, maxLevelChars));
             WritePendingCookie(ctx.Response, pendingToken);
-
-            // Send the browser to the SPA character picker.
             return Results.Redirect(options.Value.FrontendBaseUrl + "/bnet/pick");
         })
             .WithSummary("Battle.net OAuth callback");

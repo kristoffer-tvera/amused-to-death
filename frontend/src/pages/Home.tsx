@@ -7,30 +7,33 @@ import {
     Button,
     Box,
     Alert,
+    Grid,
 } from "@mui/material";
-import { DataGrid, type GridColDef } from "@mui/x-data-grid";
 import { useAuth } from "../context/AuthContext";
-import { getMyCharacters, getBattleNetLoginUrl } from "../api/endpoints";
-import { getClassName } from "../data/classes";
+import {
+    getMyCharacters,
+    getBattleNetLoginUrl,
+    getBattleNetReimportUrl,
+    setCharacterVisibility,
+} from "../api/endpoints";
+import CharacterCard from "../components/CharacterCard";
 
-const columns: GridColDef[] = [
-    { field: "id", headerName: "ID", width: 70 },
-    { field: "name", headerName: "Name", flex: 1 },
-    { field: "main_name", headerName: "Main", flex: 1 },
-    {
-        field: "class",
-        headerName: "Class",
-        width: 130,
-        valueGetter: (_value, row) => getClassName(row.class),
-    },
-    { field: "ilvl", headerName: "ilvl", width: 80 },
-    { field: "realm", headerName: "Server", width: 140 },
-    { field: "change_date", headerName: "Updated", width: 160 },
-];
+interface MyCharacter {
+    id: number;
+    name: string;
+    class: number;
+    ilvl: number;
+    realm: string;
+    hidden: boolean;
+    role_tank: boolean;
+    role_heal: boolean;
+    role_dps: boolean;
+    [key: string]: unknown;
+}
 
 export default function Home() {
     const { isAuthenticated } = useAuth();
-    const [characters, setCharacters] = useState<any[]>([]);
+    const [characters, setCharacters] = useState<MyCharacter[]>([]);
     const [loading, setLoading] = useState(false);
     const [, navigate] = useLocation();
 
@@ -42,6 +45,25 @@ export default function Home() {
                 .finally(() => setLoading(false));
         }
     }, [isAuthenticated]);
+
+    // Optimistically flip visibility, then persist. Revert on failure.
+    const toggleVisibility = async (char: MyCharacter) => {
+        const nextHidden = !char.hidden;
+        setCharacters((prev) =>
+            prev.map((c) =>
+                c.id === char.id ? { ...c, hidden: nextHidden } : c,
+            ),
+        );
+        try {
+            await setCharacterVisibility(char.id, nextHidden);
+        } catch {
+            setCharacters((prev) =>
+                prev.map((c) =>
+                    c.id === char.id ? { ...c, hidden: char.hidden } : c,
+                ),
+            );
+        }
+    };
 
     if (!isAuthenticated) {
         return (
@@ -86,26 +108,44 @@ export default function Home() {
 
     return (
         <>
-            <Typography variant="h5">My Characters</Typography>
+            <Box
+                sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    mb: 1,
+                    gap: 2,
+                    flexWrap: "wrap",
+                }}
+            >
+                <Typography variant="h5">My Characters</Typography>
+                <Button
+                    variant="outlined"
+                    size="small"
+                    href={getBattleNetReimportUrl()}
+                >
+                    Re-import from Battle.net
+                </Button>
+            </Box>
+
             {characters.length === 0 && !loading && (
                 <Alert severity="info">
-                    You don't have any characters yet. Go to Characters to add
-                    one.
+                    No characters here yet. Use "Re-import from Battle.net" to add
+                    your characters.
                 </Alert>
             )}
-            <DataGrid
-                rows={characters}
-                columns={columns}
-                loading={loading}
-                pageSizeOptions={[25, 50]}
-                initialState={{
-                    pagination: { paginationModel: { pageSize: 25 } },
-                }}
-                autoHeight
-                disableRowSelectionOnClick
-                onRowClick={(params) => navigate(`/character/${params.row.id}`)}
-                sx={{ bgcolor: "background.paper", cursor: "pointer" }}
-            />
+
+            <Grid container spacing={2}>
+                {characters.map((char) => (
+                    <Grid size={{ xs: 12, sm: 6, md: 4 }} key={char.id}>
+                        <CharacterCard
+                            character={char}
+                            onToggleVisibility={() => toggleVisibility(char)}
+                            onOpen={() => navigate(`/character/${char.id}`)}
+                        />
+                    </Grid>
+                ))}
+            </Grid>
         </>
     );
 }

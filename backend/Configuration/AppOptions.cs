@@ -38,6 +38,9 @@ public sealed class BattleNetOptions
     /// </summary>
     public string GuildName { get; set; } = "Amused to Death";
 
+    /// <summary>Realm slug the guild lives on, used to fetch its roster.</summary>
+    public string GuildRealmSlug { get; set; } = "stormscale";
+
     /// <summary>
     /// Highest guild-rank NUMBER that still grants admin. Blizzard ranks are
     /// 0-based with 0 = Guild Master (most authority) ascending. So a value of 3

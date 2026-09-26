@@ -189,6 +189,7 @@ export default function BattleNetPick() {
                                     gap: 1,
                                     py: 0.5,
                                     px: 1,
+                                    my: 1,
                                     borderRadius: 1,
                                     bgcolor: isSelected
                                         ? "action.selected"

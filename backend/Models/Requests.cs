@@ -6,20 +6,19 @@ public sealed record MeResponse(string User, bool Admin);
 /// <summary>Battle.net token status for the /bnet page.</summary>
 public sealed record BNetStatus(bool HasToken, int Remaining);
 
-// ─── Character save ────────────────────────────────────────────────────────
-// Accepts JSON. Non-admins cannot change discord/ownership (enforced server-side).
-public sealed class CharacterSaveRequest
+// ─── Character roles ───────────────────────────────────────────────────────
+// The only user-editable character data. Everything else is Blizzard-sourced.
+public sealed class CharacterRolesRequest
 {
-    public int Id { get; set; }
-    public string Name { get; set; } = "";
-    public string Realm { get; set; } = "";
-    public int Class { get; set; }
-    public int Main { get; set; } = -1;
     public bool RoleTank { get; set; }
     public bool RoleHeal { get; set; }
     public bool RoleDps { get; set; }
-    public bool Raider { get; set; }
-    public bool Vip { get; set; }
+}
+
+/// <summary>Toggle a character's visibility (hidden true/false).</summary>
+public sealed class CharacterVisibilityRequest
+{
+    public bool Hidden { get; set; }
 }
 
 // ─── Raid save ───────────────────────────────────────────────────────────────
