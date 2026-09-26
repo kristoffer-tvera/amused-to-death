@@ -35,7 +35,7 @@ export default function Apps() {
                 initialState={{
                     pagination: { paginationModel: { pageSize: 25 } },
                     sorting: {
-                        sortModel: [{ field: "change_date", sort: "desc" }],
+                        sortModel: [{ field: "id", sort: "desc" }],
                     },
                 }}
                 autoHeight
