@@ -151,7 +151,7 @@ export default function Raid() {
     const gold = Number(form.gold) || 0;
 
     const attendanceColumns: GridColDef[] = [
-        { field: "name", headerName: "Character", flex: 1 },
+        { field: "character_name", headerName: "Character", flex: 1 },
         { field: "added_date", headerName: "Signed Up", width: 140 },
         {
             field: "cut",
