@@ -46,6 +46,20 @@ public sealed class CharacterRepository
         return rows.AsList();
     }
 
+    /// <summary>
+    /// Lists every hidden character regardless of owner. Admin-only: this is the
+    /// counterpart to <see cref="ListAsync"/> so admins can see and un-hide
+    /// characters they do not own (including ownerless ones), which is otherwise
+    /// impossible once hidden. Ordered by name for a stable admin view.
+    /// </summary>
+    public async Task<IReadOnlyList<Character>> ListHiddenAsync(CancellationToken ct = default)
+    {
+        await using var db = await _connections.OpenConnectionAsync(ct);
+        var rows = await db.QueryAsync<Character>(new CommandDefinition(
+            "SELECT * FROM characters WHERE hidden = true ORDER BY name", cancellationToken: ct));
+        return rows.AsList();
+    }
+
     public async Task<Character?> GetAsync(int id, CancellationToken ct = default)
     {
         await using var db = await _connections.OpenConnectionAsync(ct);

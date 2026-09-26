@@ -121,6 +121,13 @@ export async function getCharacters() {
     return getJson(`/characters`);
 }
 
+// Admin-only: every hidden character, regardless of owner. Used by the
+// Characters page to render a "Hidden" group so admins can un-hide characters
+// they don't own (including ownerless ones). Non-admins get 401/403 here.
+export async function getHiddenCharacters() {
+    return getJson(`/characters/hidden`);
+}
+
 export async function getCharacter(id: number) {
     return getJson(`/characters/${id}`);
 }

@@ -21,6 +21,17 @@ public static class CharacterEndpoints
             .RequireAuth()
             .WithSummary("List all visible characters");
 
+        // Admin-only: every hidden character, regardless of owner. This is what
+        // lets an admin see (and then un-hide via /visibility) characters that are
+        // otherwise invisible to everyone — including ownerless ones. The frontend
+        // renders these as their own "Hidden" group on the Characters page, shown
+        // to admins only.
+        group.MapGet("/hidden", async (CharacterRepository repo, CancellationToken ct) =>
+            Results.Ok(await repo.ListHiddenAsync(ct)))
+            .RequireAdmin()
+            .WithSummary("List all hidden characters (admin)")
+            .WithDescription("Admin-only. Returns every hidden character so admins can un-hide any of them.");
+
         group.MapGet("/mine", async (CharacterRepository repo, ICurrentUser user, CancellationToken ct) =>
             Results.Ok(user.OwnerId is null
                 ? Array.Empty<Character>()
