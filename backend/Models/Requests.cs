@@ -66,7 +66,14 @@ public sealed record ApplicationSaveResult(int Id, string Auth);
 
 /// <summary>
 /// Result of an application update. <see cref="Changed"/> is false when the
-/// submitted fields were identical to the stored ones, so the write (and its
-/// updated_at trigger) was skipped and the caller should suppress side effects.
+/// submitted fields were identical to the latest stored version, so no new
+/// snapshot was written and the caller should suppress side effects (no new
+/// version, no Discord ping).
+///
+/// When <see cref="Changed"/> is true, <see cref="NewVersionNo"/> is the version
+/// just created and <see cref="PreviousVersionNo"/> is the one before it, so the
+/// caller can build "view this version" and "diff prev..new" links. On a no-op
+/// both version numbers describe the unchanged latest version.
 /// </summary>
-public sealed record ApplicationUpdateResult(int Id, string Auth, bool Changed);
+public sealed record ApplicationUpdateResult(
+    int Id, string Auth, bool Changed, int NewVersionNo, int PreviousVersionNo);

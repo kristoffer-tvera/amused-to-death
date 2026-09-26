@@ -38,3 +38,36 @@ public sealed class ApplicationDetail
     [JsonPropertyName("added_date")] public DateTime CreatedAt { get; set; }
     [JsonPropertyName("change_date")] public DateTime UpdatedAt { get; set; }
 }
+
+/// <summary>
+/// One immutable snapshot of an application's editable fields. Reviewer-only:
+/// this is never exposed to anonymous applicants, who only ever see the latest
+/// state via <see cref="ApplicationDetail"/>. Field JSON names mirror
+/// ApplicationDetail so the reviewer UI can render a version and the latest view
+/// with the same component.
+/// </summary>
+public sealed class ApplicationVersion
+{
+    public int VersionNo { get; set; }
+
+    public string? Name { get; set; }
+    public string? Server { get; set; }
+    [JsonPropertyName("btag")] public string? BattleTag { get; set; }
+    public string? Spec { get; set; }
+    [JsonPropertyName("ui")] public string? UiScreenshotUrl { get; set; }
+    public string? Reason { get; set; }
+    public string? History { get; set; }
+    public string? Alts { get; set; }
+
+    [JsonPropertyName("version_date")] public DateTime CreatedAt { get; set; }
+}
+
+/// <summary>
+/// Lightweight entry for the reviewer's revision list: which versions exist and
+/// when each was captured. Reviewer-only.
+/// </summary>
+public sealed class ApplicationVersionSummary
+{
+    public int VersionNo { get; set; }
+    [JsonPropertyName("version_date")] public DateTime CreatedAt { get; set; }
+}
