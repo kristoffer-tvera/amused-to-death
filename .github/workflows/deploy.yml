@@ -1,63 +1,73 @@
-name: Deploy
+name: Deploy Frontend
 
 on:
-    push:
-        branches: [master]
-    pull_request:
-        branches: [master]
+  push:
+    branches: [master]
+    paths:
+      - "frontend/**"
+      - ".github/workflows/deploy.yml"
+  pull_request:
+    branches: [master]
+    paths:
+      - "frontend/**"
+  workflow_dispatch:
 
 jobs:
-    build-and-deploy:
-        runs-on: ubuntu-latest
+  build-and-deploy:
+    runs-on: ubuntu-latest
 
-        steps:
-            - name: Checkout
-              uses: actions/checkout@v4
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
 
-            - name: Set up Node
-              uses: actions/setup-node@v4
-              with:
-                  node-version: 22
-                  cache: npm
-                  cache-dependency-path: frontend/package-lock.json
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
 
-            - name: Install frontend dependencies
-              working-directory: frontend
-              run: npm ci
+      - name: Install frontend dependencies
+        working-directory: frontend
+        run: npm ci
 
-            - name: Build frontend
-              working-directory: frontend
-              run: npm run build
+      - name: Build frontend
+        working-directory: frontend
+        run: npm run build
 
-            - name: Set up PHP
-              uses: shivammathur/setup-php@v2
-              with:
-                  php-version: "8.3"
-                  extensions: mysqli
+      # Everything below only runs on pushes to master, not on PRs.
+      - name: Upload build to staging directory
+        if: github.event_name == 'push'
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.DO_HOST }}
+          username: ${{ secrets.DO_USERNAME }}
+          key: ${{ secrets.DO_SSH_KEY }}
+          port: 22
+          source: "frontend/dist/*"
+          target: "/var/www/amusedtodeath.eu-staging"
+          strip_components: 2
+          overwrite: true
+          rm: true
+          timeout: 120s
+          command_timeout: 10m
 
-            - name: Lint backend PHP
-              run: find backend -name '*.php' ! -name 'secrets.php' -print0 | xargs -0 -n1 php -l
+      - name: Swap staging into web root
+        if: github.event_name == 'push'
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.DO_HOST }}
+          username: ${{ secrets.DO_USERNAME }}
+          key: ${{ secrets.DO_SSH_KEY }}
+          port: 22
+          script: |
+            set -e
 
-            - name: Populate backend secrets
-              if: github.event_name == 'push'
-              run: 'echo "$PHP_SECRET" > ./backend/secrets.php'
-              shell: bash
-              env:
-                  PHP_SECRET: ${{ secrets.PHP }}
-
-            - name: Prepare deploy artifact
-              if: github.event_name == 'push'
-              run: |
-                  mkdir -p deploy
-                  cp -R backend deploy/backend
-                  cp -R frontend/dist/. deploy/
-
-            - name: Deploy over FTP
-              if: github.event_name == 'push'
-              uses: SamKirkland/FTP-Deploy-Action@v4.3.4
-              with:
-                  server: 134.209.176.222
-                  username: webroot
-                  password: ${{ secrets.FTP_PASSWORD }}
-                  local-dir: ./deploy/
-                  server-dir: ./www.amusedtodeath.eu/
+            # Swap the freshly uploaded build into the live web root, keeping the
+            # previous build for rollback. Atomic enough that nginx never serves
+            # a half-uploaded SPA.
+            rm -rf /var/www/amusedtodeath.eu-old
+            if [ -d /var/www/amusedtodeath.eu ]; then
+              mv /var/www/amusedtodeath.eu /var/www/amusedtodeath.eu-old
+            fi
+            mv /var/www/amusedtodeath.eu-staging /var/www/amusedtodeath.eu

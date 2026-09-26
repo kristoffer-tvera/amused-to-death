@@ -1,0 +1,7 @@
+# Build artifacts
+bin/
+obj/
+
+# Local secrets — never commit real credentials
+appsettings.Development.json
+appsettings.Local.json

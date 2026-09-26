@@ -1,0 +1,18 @@
+[Unit]
+Description=Amused to Death API
+After=network.target
+
+[Service]
+Type=exec
+WorkingDirectory=/opt/a2d-api
+ExecStart=/opt/a2d-api/AmusedToDeath.Api
+Restart=always
+RestartSec=5
+# Secrets and config live here, off git and out of this unit file.
+# See a2d-api.env.sample for the expected keys.
+EnvironmentFile=/etc/a2d-api.env
+Environment=ASPNETCORE_ENVIRONMENT=Production
+Environment=ASPNETCORE_URLS=http://localhost:5200
+
+[Install]
+WantedBy=multi-user.target

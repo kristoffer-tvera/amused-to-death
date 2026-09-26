@@ -26,7 +26,6 @@ const navItems = [
     { label: "Characters", path: "/characters", auth: true, admin: false },
     { label: "Applications", path: "/apps", auth: true, admin: false },
     { label: "Battle.net", path: "/bnet", auth: true, admin: true },
-    { label: "Log", path: "/log", auth: true, admin: true },
     { label: "Apply", path: "/apply", auth: false, adminHide: true },
 ];
 

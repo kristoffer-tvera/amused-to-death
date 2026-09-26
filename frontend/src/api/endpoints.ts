@@ -1,167 +1,247 @@
-const BASE = "/backend/actions";
+// API client for the .NET 10 backend.
+//
+// The backend is a minimal API mounted under /api, replacing the old PHP
+// endpoints. Requests send credentials so the session cookie (a2d_session)
+// flows on same-origin calls. Reads are JSON GETs; writes are JSON bodies.
+const BASE = "/api";
 
-// Generic fetch helper that handles form-encoded POST (matching PHP $_POST expectations)
-async function postForm(
-    url: string,
-    data: Record<string, string>,
-): Promise<Response> {
-    return fetch(url, {
-        method: "POST",
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        body: new URLSearchParams(data),
-        credentials: "same-origin",
-    });
+// Returns `any` to match the loose contract the pages relied on with the old
+// `res.json()` calls (the pages store results in `any`/`any[]` state).
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+async function getJson(url: string): Promise<any> {
+    const res = await fetch(`${BASE}${url}`, { credentials: "include" });
+    return res.json();
 }
 
 async function get(url: string): Promise<Response> {
-    return fetch(url, { credentials: "same-origin" });
+    return fetch(`${BASE}${url}`, { credentials: "include" });
+}
+
+async function postJson(url: string, body: unknown): Promise<Response> {
+    return fetch(`${BASE}${url}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body ?? {}),
+        credentials: "include",
+    });
+}
+
+async function putJson(url: string, body: unknown): Promise<Response> {
+    return fetch(`${BASE}${url}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body ?? {}),
+        credentials: "include",
+    });
+}
+
+async function del(url: string): Promise<Response> {
+    return fetch(`${BASE}${url}`, { method: "DELETE", credentials: "include" });
+}
+
+// The pages pass string-valued form maps (a legacy of the form-encoded PHP API).
+// Normalise those into the JSON types the .NET endpoints expect.
+function num(v: string | number | undefined, fallback = 0): number {
+    if (v === undefined || v === "") return fallback;
+    const n = Number(v);
+    return Number.isNaN(n) ? fallback : n;
+}
+
+function bool(v: string | number | boolean | undefined): boolean {
+    return v === true || v === "1" || v === 1;
 }
 
 // ─── Auth ────────────────────────────────────────────────────────────────────
 
 export async function getMe() {
-    const res = await get(`${BASE}/data.php?action=me`);
+    const res = await get(`/auth/me`);
     if (!res.ok) return null;
     return res.json() as Promise<{ user: string; admin: boolean } | null>;
 }
 
 export function getDiscordLoginUrl() {
-    return `${BASE}/auth.php?discord=true`;
+    return `${BASE}/auth/discord/login`;
 }
 
-export async function loginWithToken(token: string) {
-    const res = await get(
-        `${BASE}/auth.php?token=${encodeURIComponent(token)}`,
-    );
-    return res;
+export async function logout() {
+    return postJson(`/auth/logout`, {});
 }
 
 // ─── Characters ──────────────────────────────────────────────────────────────
 
 export async function getMyCharacters() {
-    const res = await get(`${BASE}/data.php?action=my_characters`);
-    return res.json();
+    return getJson(`/characters/mine`);
 }
 
 export async function getCharacters() {
-    const res = await get(`${BASE}/data.php?action=characters`);
-    return res.json();
+    return getJson(`/characters`);
 }
 
 export async function getCharacter(id: number) {
-    const res = await get(`${BASE}/data.php?action=character&id=${id}`);
-    return res.json();
+    return getJson(`/characters/${id}`);
 }
 
 export async function getAltsForCharacter(id: number) {
-    const res = await get(`${BASE}/data.php?action=alts&id=${id}`);
-    return res.json();
+    return getJson(`/characters/${id}/alts`);
 }
 
 export async function addOrUpdateCharacter(data: Record<string, string>) {
-    return postForm(`${BASE}/characters.php?action=save`, data);
+    const body = {
+        id: num(data.id),
+        name: data.name ?? "",
+        realm: data.realm ?? "",
+        class: num(data.class),
+        main: num(data.main, -1),
+        role_tank: bool(data.role_tank),
+        role_heal: bool(data.role_heal),
+        role_dps: bool(data.role_dps),
+        raider: bool(data.raider),
+        vip: bool(data.vip),
+        discord: data.discord || undefined,
+    };
+    return body.id > 0
+        ? putJson(`/characters/${body.id}`, body)
+        : postJson(`/characters`, body);
 }
 
 export async function hideCharacter(id: number) {
-    return get(`${BASE}/characters.php?action=hide&id=${id}`);
+    return postJson(`/characters/${id}/hide`, {});
 }
 
 export async function updateCharacterFromBNet(id: number) {
-    const res = await get(
-        `${BASE}/bnet.php?action=update_character&id=${id}&ajax=true`,
-    );
+    const res = await postJson(`/characters/${id}/refresh-ilvl`, {});
     return res.json();
 }
 
 // ─── Raids ───────────────────────────────────────────────────────────────────
 
 export async function getRaids() {
-    const res = await get(`${BASE}/data.php?action=raids`);
-    return res.json();
+    return getJson(`/raids`);
 }
 
 export async function getRaid(id: number) {
-    const res = await get(`${BASE}/data.php?action=raid&id=${id}`);
-    return res.json();
+    return getJson(`/raids/${id}`);
 }
 
 export async function addOrUpdateRaid(data: Record<string, string>) {
-    return postForm(`${BASE}/raids.php?action=save`, data);
+    const body = {
+        id: num(data.id),
+        name: data.name ?? "",
+        gold: num(data.gold),
+        paid: bool(data.paid),
+        comment: data.comment ?? "",
+    };
+    return body.id > 0
+        ? putJson(`/raids/${body.id}`, body)
+        : postJson(`/raids`, body);
 }
 
 export async function addAllRaiders(raidId: number) {
-    return get(`${BASE}/raids.php?action=add_all_raiders&raidId=${raidId}`);
+    return postJson(`/raids/${raidId}/add-all-raiders`, {});
 }
 
 export async function removeAttendeesWithNoBosses(raidId: number) {
-    return get(`${BASE}/raids.php?action=remove_zero_bosses&raidId=${raidId}`);
+    return postJson(`/raids/${raidId}/remove-zero-bosses`, {});
 }
 
 export async function setAllPaid(raidId: number) {
-    const res = await get(
-        `${BASE}/raids.php?action=set_all_paid&raidId=${raidId}`,
-    );
+    const res = await postJson(`/raids/${raidId}/set-all-paid`, {});
     return res.json();
 }
 
 // ─── Attendance ──────────────────────────────────────────────────────────────
 
 export async function getAttendanceForRaid(raidId: number) {
-    const res = await get(
-        `${BASE}/data.php?action=attendance_for_raid&raidId=${raidId}`,
-    );
-    return res.json();
+    return getJson(`/raids/${raidId}/attendance`);
 }
 
 export async function getAttendanceForCharacter(characterId: number) {
-    const res = await get(
-        `${BASE}/data.php?action=attendance_for_character&characterId=${characterId}`,
-    );
-    return res.json();
+    return getJson(`/characters/${characterId}/attendance`);
 }
 
 export async function addAttendance(data: Record<string, string>) {
-    return postForm(`${BASE}/attendance.php?action=add`, data);
+    return postJson(`/attendance`, {
+        character: num(data.character),
+        raid: num(data.raid),
+        bosses: num(data.bosses),
+    });
 }
 
 export async function updateAttendance(data: Record<string, string>) {
-    const res = await postForm(`${BASE}/attendance.php?action=update`, data);
+    const res = await putJson(`/attendance`, {
+        character_id: num(data.characterId),
+        raid_id: num(data.raidId),
+        bosses: num(data.bosses),
+        paid: bool(data.paid),
+    });
     return res.json();
 }
 
 export async function deleteAttendance(characterId: number, raidId: number) {
-    return get(
-        `${BASE}/attendance.php?action=delete&characterId=${characterId}&raidId=${raidId}`,
-    );
+    return del(`/attendance?characterId=${characterId}&raidId=${raidId}`);
 }
 
 // ─── Applications ────────────────────────────────────────────────────────────
 
 export async function getApps() {
-    const res = await get(`${BASE}/data.php?action=apps`);
-    return res.json();
+    return getJson(`/applications`);
 }
 
 export async function getApp(id: number, auth?: string) {
-    const params = new URLSearchParams({ action: "app", id: String(id) });
-    if (auth) params.set("auth", auth);
-    const res = await get(`${BASE}/data.php?${params}`);
-    return res.json();
+    const query = auth ? `?auth=${encodeURIComponent(auth)}` : "";
+    return getJson(`/applications/${id}${query}`);
 }
 
+// Submits/updates an application. The backend now returns JSON { id, auth }
+// instead of a 302 redirect, so we synthesise a Response-like object whose
+// `redirected`/`url` fields let the existing Apply/AppView pages keep working
+// unchanged (they read res.ok / res.redirected / res.url).
 export async function processApplication(data: Record<string, string>) {
-    return postForm(`${BASE}/applications.php`, data);
+    const res = await postJson(`/applications`, {
+        id: num(data.id),
+        auth: data.auth || undefined,
+        name: data.name ?? "",
+        server: data.server ?? "",
+        btag: data.btag ?? "",
+        spec: data.spec ?? "",
+        ui: data.ui ?? "",
+        reason: data.reason ?? "",
+        history: data.history ?? "",
+        alts: data.alts ?? "",
+        pepe: data.pepe ?? "",
+    });
+
+    if (!res.ok) {
+        return { ok: false, redirected: false, url: "" };
+    }
+
+    const result = (await res.json()) as { id?: number; auth?: string };
+    const url =
+        result.id && result.auth
+            ? `${window.location.origin}/app/${result.id}?auth=${result.auth}`
+            : "";
+
+    return { ok: true, redirected: !!url, url };
 }
 
 // ─── Battle.net ──────────────────────────────────────────────────────────────
 
 export async function getBNetTokenStatus() {
-    const res = await get(`${BASE}/data.php?action=bnet_status`);
-    return res.json();
+    return getJson(`/bnet/status`);
 }
 
+// Acquiring a token is now a POST (an app-level action), but the BattleNet page
+// links to this as an href. Keep a URL-returning helper that points at a small
+// GET shim is unnecessary — instead expose an async trigger the page can call.
 export function getBNetTokenUrl() {
-    return `${BASE}/bnet.php?action=token&return=/bnet`;
+    // Kept for compatibility with the existing <Link href>. Points at the SPA
+    // route; the page also has requestBNetToken() for the actual call.
+    return `${BASE}/bnet/token`;
+}
+
+export async function requestBNetToken() {
+    const res = await postJson(`/bnet/token`, {});
+    return res.json();
 }
 
 export async function updateAllCharactersFromBNet(ids: number[]) {
@@ -184,9 +264,4 @@ export async function updateAllCharactersFromBNet(ids: number[]) {
     return results;
 }
 
-// ─── Log ─────────────────────────────────────────────────────────────────────
 
-export async function getLog() {
-    const res = await get(`${BASE}/data.php?action=log`);
-    return res.json();
-}

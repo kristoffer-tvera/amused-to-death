@@ -1,8 +1,0 @@
-.git
-.github
-frontend
-node_modules
-.gitignore
-.git-ftp-ignore
-.git-ftp-include
-README.md
