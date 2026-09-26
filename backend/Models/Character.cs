@@ -24,6 +24,9 @@ public sealed class Character
     public bool Vip { get; set; }
     public string? Discord { get; set; }
 
+    /// <summary>Blizzard account id (OAuth sub) that owns this character, if claimed.</summary>
+    public string? OwnerId { get; set; }
+
     [JsonPropertyName("added_date")] public DateTime CreatedAt { get; set; }
     [JsonPropertyName("change_date")] public DateTime UpdatedAt { get; set; }
 }

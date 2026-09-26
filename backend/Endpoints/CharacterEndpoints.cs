@@ -14,39 +14,47 @@ public static class CharacterEndpoints
 {
     public static IEndpointRouteBuilder MapCharacterEndpoints(this IEndpointRouteBuilder app)
     {
-        var group = app.MapGroup("/api/characters");
+        var group = app.MapGroup("/api/characters").WithTags("Characters");
 
         group.MapGet("/", async (CharacterRepository repo, CancellationToken ct) =>
             Results.Ok(await repo.ListAsync(ownerDiscord: null, ct)))
-            .RequireAuth();
+            .RequireAuth()
+            .WithSummary("List all visible characters");
 
         group.MapGet("/mine", async (CharacterRepository repo, ICurrentUser user, CancellationToken ct) =>
             Results.Ok(await repo.ListAsync(ownerDiscord: user.Name, ct)))
-            .RequireAuth();
+            .RequireAuth()
+            .WithSummary("List the current user's characters");
 
         group.MapGet("/{id:int}", async (int id, CharacterRepository repo, CancellationToken ct) =>
         {
             var character = await repo.GetAsync(id, ct);
             return character is null ? Results.Ok<Character?>(null) : Results.Ok(character);
-        }).RequireAuth();
+        }).RequireAuth()
+            .WithSummary("Get a character by id");
 
         group.MapGet("/{id:int}/alts", async (int id, CharacterRepository repo, CancellationToken ct) =>
             Results.Ok(await repo.AltsAsync(id, ct)))
-            .RequireAuth();
+            .RequireAuth()
+            .WithSummary("List a character's alts");
 
-        group.MapPost("/", SaveCharacter).RequireAuth();
+        group.MapPost("/", SaveCharacter).RequireAuth()
+            .WithSummary("Create a character");
         group.MapPut("/{id:int}", async (int id, CharacterSaveRequest body, CharacterRepository repo,
             ICurrentUser user, CancellationToken ct) =>
         {
             body.Id = id;
             return await SaveCharacterCore(body, repo, user, ct);
-        }).RequireAuth();
+        }).RequireAuth()
+            .WithSummary("Update a character")
+            .WithDescription("Non-admins may only edit their own character; only admins may reassign ownership.");
 
         group.MapPost("/{id:int}/hide", async (int id, CharacterRepository repo, CancellationToken ct) =>
         {
             await repo.HideAsync(id, ct);
             return Results.Ok(new { success = true });
-        }).RequireAdmin();
+        }).RequireAdmin()
+            .WithSummary("Hide a character (admin)");
 
         return app;
     }

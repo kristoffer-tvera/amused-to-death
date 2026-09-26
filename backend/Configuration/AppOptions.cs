@@ -14,9 +14,6 @@ public sealed class AppOptions
     /// <summary>Origins allowed by CORS (the SPA origin(s)).</summary>
     public string[] CorsOrigins { get; set; } = [];
 
-    /// <summary>Usernames (Discord for now) that are granted admin access.</summary>
-    public string[] Admins { get; set; } = [];
-
     public DiscordOptions Discord { get; set; } = new();
     public BattleNetOptions BattleNet { get; set; } = new();
     public WebhookOptions Webhooks { get; set; } = new();
@@ -36,6 +33,26 @@ public sealed class BattleNetOptions
 
     /// <summary>Battle.net region, e.g. "eu" -> eu.battle.net / eu.api.blizzard.com.</summary>
     public string Region { get; set; } = "eu";
+
+    /// <summary>
+    /// OAuth redirect URI registered in the Blizzard application. Where Blizzard
+    /// sends the browser back after the user authorizes login.
+    /// </summary>
+    public string RedirectUri { get; set; } = "";
+
+    /// <summary>
+    /// The guild a character must belong to for the account to be allowed in.
+    /// Compared case-insensitively against the character's guild name.
+    /// </summary>
+    public string GuildName { get; set; } = "Amused to Death";
+
+    /// <summary>
+    /// Highest guild-rank NUMBER that still grants admin. Blizzard ranks are
+    /// 0-based with 0 = Guild Master (most authority) ascending. So a value of 3
+    /// means ranks 0..3 are admins and 4+ are regular users. Tunable so the
+    /// cutoff can be corrected without a redeploy.
+    /// </summary>
+    public int AdminMaxRank { get; set; } = 3;
 }
 
 public sealed class WebhookOptions

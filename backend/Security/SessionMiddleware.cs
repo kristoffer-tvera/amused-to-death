@@ -1,9 +1,9 @@
 namespace AmusedToDeath.Api.Security;
 
 /// <summary>
-/// Runs on every request (like the old bootstrap.php). Reads the session cookie,
-/// resolves it against the auth table, and populates ICurrentUser for the request.
-/// Anonymous requests simply leave ICurrentUser unset.
+/// Runs on every request. Reads the session cookie, resolves it against the
+/// sessions table, and populates ICurrentUser (username + stored admin flag) for
+/// the request. Anonymous requests simply leave ICurrentUser unset.
 /// </summary>
 public sealed class SessionMiddleware
 {
@@ -19,10 +19,10 @@ public sealed class SessionMiddleware
         var token = context.Request.Cookies[SessionService.CookieName];
         if (!string.IsNullOrEmpty(token))
         {
-            var username = await sessions.ResolveUserAsync(token, context.RequestAborted);
-            if (username is not null)
+            var principal = await sessions.ResolveUserAsync(token, context.RequestAborted);
+            if (principal is not null)
             {
-                currentUser.Set(username, sessions.IsAdmin(username));
+                currentUser.Set(principal.Value.Username, principal.Value.IsAdmin);
             }
         }
 

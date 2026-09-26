@@ -26,13 +26,15 @@ public static class AuthEndpoints
 
     public static IEndpointRouteBuilder MapAuthEndpoints(this IEndpointRouteBuilder app)
     {
-        var group = app.MapGroup("/api/auth");
+        var group = app.MapGroup("/api/auth").WithTags("Auth");
 
         // Current principal. Public — returns null when anonymous.
         group.MapGet("/me", (ICurrentUser user) =>
             user.IsAuthenticated
                 ? Results.Ok(new MeResponse(user.Name!, user.IsAdmin))
-                : Results.Ok<MeResponse?>(null));
+                : Results.Ok<MeResponse?>(null))
+            .WithSummary("Get the current user")
+            .WithDescription("Returns { user, admin } when logged in, or null when anonymous.");
 
         // Logout: destroy the session token and clear the cookie.
         group.MapPost("/logout", async (HttpContext ctx, SessionService sessions, CancellationToken ct) =>
@@ -44,11 +46,14 @@ public static class AuthEndpoints
             }
             sessions.ClearCookie(ctx.Response);
             return Results.Ok(new { success = true });
-        });
+        })
+            .WithSummary("Log out");
 
         // Begin Discord OAuth (browser navigation).
         group.MapGet("/discord/login", (DiscordOAuthService discord) =>
-            Results.Redirect(discord.BuildAuthorizeUrl()));
+            Results.Redirect(discord.BuildAuthorizeUrl()))
+            .WithSummary("Start Discord login")
+            .WithDescription("Redirects the browser to Discord's OAuth consent screen.");
 
         // Discord OAuth callback.
         group.MapGet("/discord/callback", async (string? code, HttpContext ctx,
@@ -66,20 +71,22 @@ public static class AuthEndpoints
                 return Results.Json(new { error = "Discord OAuth failed" }, statusCode: StatusCodes.Status401Unauthorized);
             }
 
-            var isAdmin = sessions.IsAdmin(username);
-
-            // Legacy gate: non-admins must already have a character row.
-            if (!isAdmin && !await characters.ExistsForDiscordAsync(username, ct))
+            // Legacy gate: the user must already have a character row.
+            if (!await characters.ExistsForDiscordAsync(username, ct))
             {
                 return Results.Json(
                     new { error = "You have no characters. Have an officer make one for you." },
                     statusCode: StatusCodes.Status401Unauthorized);
             }
 
-            var token = await sessions.CreateSessionAsync(username, SessionLifetime, ct);
+            // Admin now comes from guild rank (Battle.net login). Discord login
+            // grants a regular session only.
+            var token = await sessions.CreateSessionAsync(username, isAdmin: false, SessionLifetime, ct);
             sessions.WriteCookie(ctx.Response, token, SessionLifetime);
             return Results.Redirect(options.Value.FrontendBaseUrl + "/");
-        });
+        })
+            .WithSummary("Discord OAuth callback")
+            .WithDescription("Exchanges the OAuth code, establishes a session, and redirects to the frontend.");
 
         return app;
     }

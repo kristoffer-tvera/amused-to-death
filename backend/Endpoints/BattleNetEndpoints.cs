@@ -15,7 +15,7 @@ public static class BattleNetEndpoints
 {
     public static IEndpointRouteBuilder MapBattleNetEndpoints(this IEndpointRouteBuilder app)
     {
-        var group = app.MapGroup("/api/bnet");
+        var group = app.MapGroup("/api/bnet").WithTags("Battle.net");
 
         group.MapPost("/token", async (BattleNetService bnet, CancellationToken ct) =>
         {
@@ -24,11 +24,13 @@ public static class BattleNetEndpoints
                 ? Results.Ok(new { success = true, remaining = bnet.RemainingSeconds })
                 : Results.Json(new { error = "Failed to create Battle.net access token" },
                     statusCode: StatusCodes.Status502BadGateway);
-        }).RequireAuth();
+        }).RequireAuth()
+            .WithSummary("Acquire a Battle.net access token");
 
         group.MapGet("/status", (BattleNetService bnet) =>
             Results.Ok(new BNetStatus(bnet.HasToken, bnet.RemainingSeconds)))
-            .RequireAuth();
+            .RequireAuth()
+            .WithSummary("Battle.net token status");
 
         app.MapPost("/api/characters/{id:int}/refresh-ilvl",
             async (int id, CharacterRepository characters, BattleNetService bnet, CancellationToken ct) =>
@@ -55,7 +57,9 @@ public static class BattleNetEndpoints
 
             await characters.SetIlvlAsync(id, result.Value.Ilvl, ct);
             return Results.Ok(new { ilvl = result.Value.Ilvl });
-        }).RequireAuth();
+        }).RequireAuth()
+            .WithTags("Battle.net")
+            .WithSummary("Refresh a character's item level from Battle.net");
 
         return app;
     }

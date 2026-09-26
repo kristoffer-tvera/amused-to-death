@@ -105,4 +105,49 @@ public sealed class CharacterRepository
             "SELECT EXISTS(SELECT 1 FROM characters WHERE discord = @discord)",
             new { discord }, cancellationToken: ct));
     }
+
+    // ─── Battle.net import support ───────────────────────────────────────────
+
+    /// <summary>Finds a character by name + realm (case-insensitive), or null.</summary>
+    public async Task<Character?> FindByNameRealmAsync(string name, string realm, CancellationToken ct = default)
+    {
+        await using var db = await _connections.OpenConnectionAsync(ct);
+        return await db.QuerySingleOrDefaultAsync<Character>(new CommandDefinition(
+            "SELECT * FROM characters WHERE lower(name) = lower(@name) AND lower(realm) = lower(@realm) LIMIT 1",
+            new { name, realm }, cancellationToken: ct));
+    }
+
+    /// <summary>Inserts a Battle.net-imported character owned by the given account.</summary>
+    public async Task<int> InsertOwnedAsync(string name, string realm, int classId, string ownerId,
+        int? main, CancellationToken ct = default)
+    {
+        await using var db = await _connections.OpenConnectionAsync(ct);
+        return await db.ExecuteScalarAsync<int>(new CommandDefinition(
+            """
+            INSERT INTO characters (name, class, realm, owner_id, main)
+            VALUES (@name, @classId, @realm, @ownerId, @main)
+            RETURNING id
+            """,
+            new { name, classId, realm, ownerId, main }, cancellationToken: ct));
+    }
+
+    /// <summary>Claims an existing character for an account (the "migrate" path):
+    /// sets owner_id, and optionally the class and main, without disturbing other
+    /// data on the record.</summary>
+    public async Task ClaimAsync(int id, string ownerId, int? main, CancellationToken ct = default)
+    {
+        await using var db = await _connections.OpenConnectionAsync(ct);
+        await db.ExecuteAsync(new CommandDefinition(
+            "UPDATE characters SET owner_id = @ownerId, main = @main WHERE id = @id",
+            new { id, ownerId, main }, cancellationToken: ct));
+    }
+
+    /// <summary>Sets which character is a given character's main (change-main later).</summary>
+    public async Task SetMainAsync(int id, int? main, CancellationToken ct = default)
+    {
+        await using var db = await _connections.OpenConnectionAsync(ct);
+        await db.ExecuteAsync(new CommandDefinition(
+            "UPDATE characters SET main = @main WHERE id = @id",
+            new { id, main }, cancellationToken: ct));
+    }
 }

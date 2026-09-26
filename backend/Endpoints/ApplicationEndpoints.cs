@@ -19,11 +19,12 @@ public static class ApplicationEndpoints
 {
     public static IEndpointRouteBuilder MapApplicationEndpoints(this IEndpointRouteBuilder app)
     {
-        var group = app.MapGroup("/api/applications");
+        var group = app.MapGroup("/api/applications").WithTags("Applications");
 
         group.MapGet("/", async (ApplicationRepository repo, CancellationToken ct) =>
             Results.Ok(await repo.ListAsync(ct)))
-            .RequireAuth();
+            .RequireAuth()
+            .WithSummary("List applications (admin)");
 
         // Public route: admins get full access; applicants must supply their
         // matching auth token via ?auth=. Not gated by RequireAuth because
@@ -39,7 +40,9 @@ public static class ApplicationEndpoints
             }
             var result = await repo.GetAsync(id, effectiveAuth, ct);
             return Results.Ok(result);
-        });
+        })
+            .WithSummary("Get an application")
+            .WithDescription("Admins see any application; applicants must pass their edit token as ?auth=.");
 
         // Public submit. Honeypot: pepe must equal "meme" or we no-op silently.
         group.MapPost("/", async (ApplicationSaveRequest body, ApplicationRepository repo,
@@ -72,7 +75,9 @@ public static class ApplicationEndpoints
             await webhooks.SendAsync(options.Value.Webhooks.Recruitment, title, ct: ct);
 
             return Results.Ok(result);
-        });
+        })
+            .WithSummary("Submit or update an application (public)")
+            .WithDescription("Honeypot-protected. Returns { id, auth } so the applicant can revisit their application at /app/{id}?auth={token}.");
 
         return app;
     }

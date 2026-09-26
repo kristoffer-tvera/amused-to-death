@@ -16,33 +16,40 @@ public static class AttendanceEndpoints
         app.MapGet("/api/raids/{raidId:int}/attendance",
             async (int raidId, AttendanceRepository repo, CancellationToken ct) =>
                 Results.Ok(await repo.ForRaidAsync(raidId, ct)))
-            .RequireAuth();
+            .RequireAuth()
+            .WithTags("Attendance")
+            .WithSummary("Get a raid's attendance roster");
 
         app.MapGet("/api/characters/{characterId:int}/attendance",
             async (int characterId, AttendanceRepository repo, CancellationToken ct) =>
                 Results.Ok(await repo.ForCharacterAsync(characterId, ct)))
-            .RequireAuth();
+            .RequireAuth()
+            .WithTags("Attendance")
+            .WithSummary("Get a character's attendance history");
 
-        var group = app.MapGroup("/api/attendance");
+        var group = app.MapGroup("/api/attendance").WithTags("Attendance");
 
         group.MapPost("/", async (AttendanceAddRequest body, AttendanceRepository repo, CancellationToken ct) =>
         {
             await repo.AddAsync(body.Character, body.Raid, body.Bosses, ct);
             return Results.Ok(new { success = true });
-        }).RequireAuth();
+        }).RequireAuth()
+            .WithSummary("Sign a character up for a raid");
 
         group.MapPut("/", async (AttendanceUpdateRequest body, AttendanceRepository repo, CancellationToken ct) =>
         {
             await repo.UpdateAsync(body.CharacterId, body.RaidId, body.Bosses, body.Paid, ct);
             // Legacy returned a bare boolean; preserve that shape.
             return Results.Ok(true);
-        }).RequireAuth();
+        }).RequireAuth()
+            .WithSummary("Update an attendance record (bosses / paid)");
 
         group.MapDelete("/", async (int characterId, int raidId, AttendanceRepository repo, CancellationToken ct) =>
         {
             await repo.DeleteAsync(characterId, raidId, ct);
             return Results.Ok(new { success = true });
-        }).RequireAuth();
+        }).RequireAuth()
+            .WithSummary("Remove a character from a raid");
 
         return app;
     }
