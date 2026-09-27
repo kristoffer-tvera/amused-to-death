@@ -78,21 +78,16 @@ public static class BattleNetAuthEndpoints
             if (!forceReimport && await characters.HasOwnedAsync(identity.Sub, ct))
             {
                 var ownedNames = await characters.OwnedNamesAsync(identity.Sub, ct);
+                var ownedSet = new HashSet<string>(ownedNames, StringComparer.OrdinalIgnoreCase);
 
-                // Strict re-verify: at least one owned character must still be in the
-                // guild. Use the max-level realm for the roster lookup (falls back to
-                // the guild's configured realm via the first owned character's realm).
-                var realmSlug = maxLevelChars.Count > 0 ? maxLevelChars[0].RealmSlug : "stormscale";
-                var ranks = await gameData.GetGuildRanksAsync(realmSlug, bnet.GuildName, ct);
-
-                var bestRank = int.MaxValue;
-                foreach (var name in ownedNames)
-                {
-                    if (ranks.TryGetValue(name, out var rank) && rank < bestRank)
-                    {
-                        bestRank = rank;
-                    }
-                }
+                // Strict re-verify: at least one OWNED character must still be in the
+                // guild. Rosters are per-realm, so we check the account's max-level
+                // characters against their own realms' rosters (one fetch per realm,
+                // cached) and keep only those the user actually owns. A single-realm
+                // lookup here wrongly rejected members whose guild character sits on
+                // a different realm than the first max-level character.
+                var ownedInGuild = maxLevelChars.Where(c => ownedSet.Contains(c.Name)).ToList();
+                var bestRank = await BestGuildRankAsync(gameData, bnet.GuildName, ownedInGuild, ct);
 
                 if (bestRank == int.MaxValue)
                 {
@@ -180,22 +175,14 @@ public static class BattleNetAuthEndpoints
                 resolved.Add(match);
             }
 
-            // Guild gate + rank: pull the guild roster once (cached) and check the
-            // chosen characters against it. Admin status = best (lowest) rank among
-            // the chosen guild characters is within the configured admin cutoff.
-            // Assumes the picks share a realm (they come from one account); use the
-            // first pick's realm for the roster lookup.
-            var realmSlug = resolved[0].RealmSlug;
-            var ranks = await gameData.GetGuildRanksAsync(realmSlug, bnet.GuildName, ct);
-
-            var bestRank = int.MaxValue;
-            foreach (var c in resolved)
-            {
-                if (ranks.TryGetValue(c.Name, out var rank) && rank < bestRank)
-                {
-                    bestRank = rank;
-                }
-            }
+            // Guild gate + rank: find the best (lowest) guild rank across the
+            // chosen characters. Rosters are per-realm, so we look each character up
+            // against its OWN realm's roster — picks can span multiple realms, and a
+            // single-realm lookup would miss a guild character on another realm.
+            // Admin status = best rank among the chosen guild characters is within
+            // the configured admin cutoff. Requiring only one guild character to
+            // match matches the "at least one" membership rule.
+            var bestRank = await BestGuildRankAsync(gameData, bnet.GuildName, resolved, ct);
 
             if (bestRank == int.MaxValue)
             {
@@ -246,6 +233,32 @@ public static class BattleNetAuthEndpoints
             .WithDescription("Requires at least one selected max-level character to be in the configured guild.");
 
         return app;
+    }
+
+    /// <summary>
+    /// Best (lowest) guild rank across the given characters, or int.MaxValue if
+    /// none are in the guild. Guild rosters are per-realm, so characters are
+    /// grouped by realm slug and each realm's roster is fetched once (cached in
+    /// the service). This keeps the "at least one character in the guild" rule
+    /// working even when a user's characters span multiple realms.
+    /// </summary>
+    private static async Task<int> BestGuildRankAsync(
+        BattleNetService gameData, string guildName,
+        IEnumerable<BattleNetCharacter> chars, CancellationToken ct)
+    {
+        var bestRank = int.MaxValue;
+        foreach (var byRealm in chars.GroupBy(c => c.RealmSlug, StringComparer.OrdinalIgnoreCase))
+        {
+            var ranks = await gameData.GetGuildRanksAsync(byRealm.Key, guildName, ct);
+            foreach (var c in byRealm)
+            {
+                if (ranks.TryGetValue(c.Name, out var rank) && rank < bestRank)
+                {
+                    bestRank = rank;
+                }
+            }
+        }
+        return bestRank;
     }
 
     private static PendingLogin? ReadPending(HttpContext ctx, PendingLoginStore pending)
