@@ -26,6 +26,7 @@ import {
     addOrUpdateRaid,
     deleteAttendance,
     getAttendanceForRaid,
+    getCharacters,
     getMyCharacters,
     getRaid,
     removeAttendeesWithNoBosses,
@@ -56,8 +57,12 @@ export default function Raid() {
         paid: false,
     });
     const [myCharacters, setMyCharacters] = useState<any[]>([]);
+    const [allCharacters, setAllCharacters] = useState<any[]>([]);
     const [bulkDialog, setBulkDialog] = useState(false);
     const [bulkText, setBulkText] = useState("");
+    const [rosterDialog, setRosterDialog] = useState(false);
+    const [rosterText, setRosterText] = useState("");
+    const [importing, setImporting] = useState(false);
 
     useEffect(() => {
         if (!isNew && id) {
@@ -78,7 +83,12 @@ export default function Raid() {
                 .finally(() => setLoading(false));
         }
         getMyCharacters().then(setMyCharacters);
-    }, [id, isNew]);
+        // Admins need the full character list to resolve pasted roster names
+        // (from the /a2d raidlist addon output) to character ids.
+        if (isAdmin) {
+            getCharacters().then(setAllCharacters);
+        }
+    }, [id, isNew, isAdmin]);
 
     const reload = async () => {
         if (!id || isNew) return;
@@ -144,11 +154,111 @@ export default function Raid() {
         reload();
     };
 
+    // Roster import: takes the comma-separated names produced by the addon's
+    // `/a2d raidlist` command and signs each matching character up for the raid.
+    // Names already in the raid are skipped; unknown names are reported. Boss
+    // counts are left at 0 (fill them in afterwards via Bulk Update).
+    const handleImportRoster = async () => {
+        setImporting(true);
+        try {
+            // Accept commas, newlines, or semicolons as separators; trim blanks.
+            const names = rosterText
+                .split(/[,\n;]+/)
+                .map((n) => n.trim())
+                .filter(Boolean);
+
+            const seen = new Set<string>();
+            let added = 0;
+            const unknown: string[] = [];
+
+            for (const name of names) {
+                const key = name.toLowerCase();
+                if (seen.has(key)) continue;
+                seen.add(key);
+
+                // Already signed up for this raid? Skip.
+                if (
+                    attendance.some(
+                        (a) => a.character_name?.toLowerCase() === key,
+                    )
+                ) {
+                    continue;
+                }
+
+                const match = allCharacters.find(
+                    (c) => c.name?.toLowerCase() === key,
+                );
+                if (!match) {
+                    unknown.push(name);
+                    continue;
+                }
+
+                await addAttendance({
+                    character: String(match.id),
+                    raid: String(id),
+                    bosses: "0",
+                    return: "",
+                });
+                added += 1;
+            }
+
+            setRosterDialog(false);
+            setRosterText("");
+            await reload();
+            setToast(
+                unknown.length > 0
+                    ? `Added ${added}. Unknown: ${unknown.join(", ")}`
+                    : `Added ${added} character${added === 1 ? "" : "s"}`,
+            );
+        } finally {
+            setImporting(false);
+        }
+    };
+
     const totalBosses = attendance.reduce(
         (sum, a) => sum + (Number(a.bosses) || 0),
         0,
     );
     const gold = Number(form.gold) || 0;
+
+    // Payment string for the addon's `/a2d mail` command: "Name=Gold;Name=Gold;".
+    // Each attendee's cut = floor(gold / totalBosses * bosses) — the same figure
+    // shown in the "Cut" column. Alt cuts are folded onto their main so each
+    // player is mailed once (the addon mails one recipient per name). Only
+    // positive cuts are included.
+    const paymentString = (() => {
+        if (!gold || !totalBosses) return "";
+
+        // Map every attendee's character id to its name, so an alt can resolve
+        // its main's name when the main is also in the roster.
+        const nameById = new Map<number, string>();
+        for (const a of attendance) {
+            nameById.set(a.characterId, a.character_name);
+        }
+
+        const cutByName = new Map<string, number>();
+        for (const a of attendance) {
+            const cut = Math.floor(
+                (gold / totalBosses) * (Number(a.bosses) || 0),
+            );
+            if (cut <= 0) continue;
+
+            // Fold onto the main's name when known; otherwise the alt's own name.
+            const mainId =
+                a.character_main && a.character_main !== a.characterId
+                    ? a.character_main
+                    : a.characterId;
+            const payeeName = nameById.get(mainId) ?? a.character_name;
+
+            cutByName.set(payeeName, (cutByName.get(payeeName) ?? 0) + cut);
+        }
+
+        return (
+            [...cutByName.entries()]
+                .map(([name, cut]) => `${name}=${cut}`)
+                .join(";") + ";"
+        );
+    })();
 
     const attendanceColumns: GridColDef[] = [
         { field: "character_name", headerName: "Character", flex: 1 },
@@ -311,11 +421,70 @@ export default function Raid() {
                                 >
                                     Bulk Update
                                 </Button>
+                                <Button
+                                    variant="outlined"
+                                    size="small"
+                                    onClick={() => {
+                                        setRosterText("");
+                                        setRosterDialog(true);
+                                    }}
+                                >
+                                    Import Roster
+                                </Button>
                             </Box>
                         </>
                     )}
                 </CardContent>
             </Card>
+
+            {isAdmin && !isNew && (
+                <Card sx={{ mt: 2 }}>
+                    <CardContent>
+                        <Typography variant="subtitle2" gutterBottom>
+                            Payment String (for the Amused2Death addon)
+                        </Typography>
+                        <Typography
+                            variant="body2"
+                            color="text.secondary"
+                            sx={{ mb: 1 }}
+                        >
+                            Copy this and paste it into the game with
+                            <code> /a2d mail</code>. Each player's cut is folded
+                            onto their main. Requires a gold pot and at least one
+                            boss.
+                        </Typography>
+                        <TextField
+                            multiline
+                            fullWidth
+                            minRows={2}
+                            maxRows={6}
+                            value={
+                                paymentString ||
+                                "No payable cuts yet (set gold and boss counts)."
+                            }
+                            slotProps={{ input: { readOnly: true } }}
+                            sx={{ mb: 1, fontFamily: "monospace" }}
+                        />
+                        <Button
+                            variant="outlined"
+                            size="small"
+                            disabled={!paymentString}
+                            onClick={async () => {
+                                try {
+                                    await navigator.clipboard.writeText(
+                                        paymentString,
+                                    );
+                                    setToast("Payment string copied");
+                                } catch {
+                                    setToast("Copy failed — select and copy manually");
+                                }
+                            }}
+                        >
+                            Copy
+                        </Button>
+                    </CardContent>
+                </Card>
+            )}
 
             {!isNew && myCharsNotInRaid.length > 0 && (
                 <Card sx={{ mt: 2 }}>
@@ -473,6 +642,50 @@ export default function Raid() {
                         }}
                     >
                         Apply
+                    </Button>
+                </DialogActions>
+            </Dialog>
+
+            {/* Roster import dialog (from the addon's /a2d raidlist output) */}
+            <Dialog
+                open={rosterDialog}
+                onClose={() => setRosterDialog(false)}
+                maxWidth="sm"
+                fullWidth
+            >
+                <DialogTitle>Import Raid Roster</DialogTitle>
+                <DialogContent>
+                    <Typography
+                        variant="body2"
+                        color="text.secondary"
+                        gutterBottom
+                    >
+                        Paste the comma-separated names from the game's
+                        <code> /a2d raidlist</code> command. Matching characters
+                        are signed up for this raid with 0 bosses; set boss counts
+                        afterwards with Bulk Update. Names already in the raid are
+                        skipped, and unknown names are reported.
+                    </Typography>
+                    <TextField
+                        multiline
+                        rows={6}
+                        fullWidth
+                        value={rosterText}
+                        onChange={(e) => setRosterText(e.target.value)}
+                        placeholder={"Reen,Dumble,Boven,Vivon"}
+                        sx={{ mt: 1 }}
+                    />
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={() => setRosterDialog(false)}>
+                        Cancel
+                    </Button>
+                    <Button
+                        variant="contained"
+                        onClick={handleImportRoster}
+                        disabled={importing || !rosterText.trim()}
+                    >
+                        {importing ? "Importing..." : "Import"}
                     </Button>
                 </DialogActions>
             </Dialog>
