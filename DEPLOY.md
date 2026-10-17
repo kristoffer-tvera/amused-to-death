@@ -25,7 +25,7 @@ images.env
 nginx/
 ```
 
-`images.env` contains only the web and API image digests. The workflow uploads the bundle as user `deploy` using strict SSH host verification, then invokes only `/usr/local/sbin/site-deploy apply`. In normal mode, an external HTTPS smoke failure triggers a guarded rollback. `DEPLOY_PUBLIC_CHECKS` must explicitly be `true` or `false`; use `true` for normal deployments. Diagnostic `false` skips public DNS smoke checks, not ACME validation.
+`images.env` contains only the web and API image digests. The workflow uploads the bundle as user `deploy` using strict SSH host verification, then invokes only `/usr/local/sbin/site-deploy apply`. In normal mode, an external HTTPS smoke failure triggers a guarded rollback. On the initial release there is no prior version to restore; the job fails and leaves the active release for operator repair. `DEPLOY_PUBLIC_CHECKS` must explicitly be `true` or `false`; use `true` for normal deployments. Diagnostic `false` skips public DNS smoke checks, not ACME validation.
 
 ## Operator Setup
 

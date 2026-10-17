@@ -219,7 +219,7 @@ jobs:
                   curl --fail --silent "$base$asset" >/dev/null
                   missing_status="$(curl --silent --output "$RUNNER_TEMP/missing-asset" --write-out '%{http_code}' "$base/assets/__pipeline_missing__.js")"
                   test "$missing_status" = 404
-                  ! grep -qi '<html' "$RUNNER_TEMP/missing-asset"
+                  ! grep -q '<div id="root"></div>' "$RUNNER_TEMP/missing-asset"
                   test "$(docker inspect --format '{{.State.Health.Status}}' "$container")" = healthy
 
             - name: Configure verified SSH
@@ -314,13 +314,13 @@ jobs:
                   fi
 
                   missing_status="$(curl --silent --show-error --output "$RUNNER_TEMP/smoke-body" --write-out '%{http_code}' https://amusedtodeath.eu/assets/__pipeline_missing__.js)" || missing_status=000
-                  if [[ "$missing_status" != 404 ]] || grep -qi '<html' "$RUNNER_TEMP/smoke-body"; then
+                  if [[ "$missing_status" != 404 ]] || grep -q '<div id="root"></div>' "$RUNNER_TEMP/smoke-body"; then
                     echo "Missing static assets must return 404, not the SPA" >&2
                     failed=1
                   fi
 
                   api_status="$(curl --silent --show-error --output "$RUNNER_TEMP/smoke-body" --write-out '%{http_code}' https://amusedtodeath.eu/api/__pipeline_not_found__)" || api_status=000
-                  if [[ "$api_status" != 404 ]] || grep -qi '<html' "$RUNNER_TEMP/smoke-body"; then
+                  if [[ "$api_status" != 404 ]] || grep -q '<div id="root"></div>' "$RUNNER_TEMP/smoke-body"; then
                     echo "Unknown API routes must remain API 404 responses" >&2
                     failed=1
                   fi
@@ -332,7 +332,11 @@ jobs:
                   fi
                   redirect_status="$(awk 'NR == 1 { print $2 }' "$RUNNER_TEMP/redirect-headers" 2>/dev/null || true)"
                   redirect_location="$(awk 'tolower($1) == "location:" { gsub("\r", ""); print $2; exit }' "$RUNNER_TEMP/redirect-headers" 2>/dev/null || true)"
-                  if [[ "$redirect_status" != 308 || "$redirect_location" != '/api/?probe=1' ]]; then
+                  case "$redirect_location" in
+                    https://amusedtodeath.eu/*) redirect_path="${redirect_location#https://amusedtodeath.eu}" ;;
+                    *) redirect_path="$redirect_location" ;;
+                  esac
+                  if [[ "$redirect_status" != 308 || "$redirect_path" != '/api/?probe=1' ]]; then
                     echo "Bare /api must preserve its method and query with a 308 redirect" >&2
                     failed=1
                   fi
@@ -348,10 +352,12 @@ jobs:
                   fi
 
                   if [[ "$failed" != 0 ]]; then
-                    if ! ssh "${ssh_options[@]}" "$target" "sudo -n /usr/local/sbin/site-deploy rollback '$SITE_ID' '$RELEASE_ID' --public"; then
-                      echo "Rollback failed; deployment requires operator attention" >&2
-                    else
+                    if rollback_output="$(ssh "${ssh_options[@]}" "$target" "sudo -n /usr/local/sbin/site-deploy rollback '$SITE_ID' '$RELEASE_ID' --public" 2>&1)"; then
                       echo "Public verification failed; rollback completed" >&2
+                    elif grep -Fq 'No previous release' <<< "$rollback_output"; then
+                      echo "Public verification failed on the initial release; no previous release exists to roll back to. The active release needs operator attention." >&2
+                    else
+                      echo "Rollback failed; deployment requires operator attention" >&2
                     fi
                     exit 1
                   fi
