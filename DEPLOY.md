@@ -1,154 +1,59 @@
 # Deployment
 
-The stack is a React SPA (`frontend/`) plus a .NET 10 minimal API (`backend/`,
-assembly `AmusedToDeath.Api`) backed by Neon Postgres. The API runs directly on
-the droplet under systemd — no containers. The SPA is static files served by
-nginx, which also reverse-proxies `/api` to the API process.
+Production uses the shared Docker Compose droplet contract. This repository builds the application images and submits an immutable release bundle; it does not provision the droplet or change shared infrastructure.
 
-## Topology
+## Site Configuration
 
+- Site/project ID: `amused-to-death`
+- Canonical hostname: `amusedtodeath.eu`
+- Redirect hostname: `www.amusedtodeath.eu` (separate Nginx file and certificate)
+- Published ports: `127.0.0.1:18060` web and `127.0.0.1:18061` API
+- Compose bridge: `172.30.60.0/24`, gateway `172.30.60.1`
+
+Before first deployment, the operator must verify that the bridge subnet does not overlap the droplet, VPC, or another project. The API trusts forwarded headers only from `172.30.60.1`; verify the source address observed by the container matches the host Nginx-to-published-port path. If the range must change, update the Compose subnet and API trusted proxy address together, then rebuild.
+
+Host Nginx routes `/api/` to the API without stripping the prefix and all other paths to the web container. `/api` receives a 308 to `/api/`, preserving the query and request method. `www` has its own certificate and redirects to the canonical hostname; its `/healthz` path returns 200 for host readiness checks.
+
+## Workflow
+
+`.github/workflows/deploy.yml` runs build checks on pull requests but publishes/deploys only on `master` or a manual dispatch of `master`. The publishing job requires the protected GitHub environment named `production` and serializes releases for this site. It builds `linux/amd64` images, publishes unique release tags, scans for fixable high/critical vulnerabilities, records SBOM/provenance, and creates a bundle containing only:
+
+```text
+compose.yaml
+manifest.json
+images.env
+nginx/
 ```
-                    ┌────────────────────────── droplet ──────────────────────────┐
-browser ── https ──►│ nginx                                                        │
-                    │   / ............ serves the SPA (frontend/dist)              │
-                    │   /api .......... reverse-proxy ─► http://localhost:5200 ────┼─► a2d-api (systemd)
-                    └──────────────────────────────────────────────────────────────┘
-                                                                       │
-                                                                       └─ Neon Postgres (SSL)
-```
 
-## One-time server setup
+`images.env` contains only the web and API image digests. The workflow uploads the bundle as user `deploy` using strict SSH host verification, then invokes only `/usr/local/sbin/site-deploy apply`. In normal mode, an external HTTPS smoke failure triggers a guarded rollback. `DEPLOY_PUBLIC_CHECKS` must explicitly be `true` or `false`; use `true` for normal deployments. Diagnostic `false` skips public DNS smoke checks, not ACME validation.
 
-The API is deployed as a **self-contained** `linux-x64` build, so the droplet
-does **not** need the .NET runtime installed.
+## Operator Setup
 
-1. Install the systemd unit:
+Complete these steps outside this repository:
 
-   ```bash
-   sudo cp a2d-api.service /etc/systemd/system/a2d-api.service
-   ```
+1. Configure the GitHub `production` environment and require approval/branch restrictions appropriate to production. Add secrets `DEPLOY_HOST` (droplet IPv4 address), `DEPLOY_SSH_KEY`, and `DEPLOY_KNOWN_HOSTS`. Set `DEPLOY_PUBLIC_CHECKS=true`.
+2. Authorize the host's registry identity to pull this repository's GHCR packages. Keep registry credentials and SSH material out of workflow output and source control.
+3. Create `/etc/sites/amused-to-death/runtime.env` as root-owned mode `0600`, using [deploy/runtime.env.example](deploy/runtime.env.example) as the key list. Required values are the Neon connection string and Battle.net client ID/secret; webhook URLs are optional. Allowlist the droplet at Neon and verify TLS. Register `https://amusedtodeath.eu/api/auth/bnet/callback` with Battle.net.
+4. Point A records for both hostnames to the droplet, remove stale AAAA records, and ensure public ports 80/443 reach the shared Nginx listener. DNS changes are manual. The host must keep resolving both names here for HTTP-01 issuance and renewal.
+5. Confirm the shared host's Nginx snippets and deployment helper are installed. Initial certificate issuance requires public DNS and reachable port 80. No app TLS keys or DNS credentials belong in the containers.
 
-2. Create the environment file from the sample, fill in real values, and lock
-   it down. Secrets live only here — never in git or the unit file:
+The Compose resource limits are initial budgets, not capacity guarantees. Measure memory/CPU after cutover. HSTS is intentionally not enabled until HTTPS is stable.
 
-   ```bash
-   sudo cp a2d-api.env.sample /etc/a2d-api.env
-   sudo nano /etc/a2d-api.env          # fill in real values
-   sudo chown root:root /etc/a2d-api.env
-   sudo chmod 600 /etc/a2d-api.env
-   ```
+## Schema Changes
 
-   Keys the API binds (double underscore maps to nested config):
-   - `ConnectionStrings__Neon`
-   - `App__FrontendBaseUrl`
-   - `App__CorsOrigins__0`
-   - `App__Admins__0`, `App__Admins__1`, ...
-   - `App__Discord__ClientId`, `App__Discord__ClientSecret`, `App__Discord__RedirectUri`
-   - `App__BattleNet__ClientId`, `App__BattleNet__ClientSecret`, `App__BattleNet__Region`
-   - `App__Webhooks__Announcement`, `App__Webhooks__Recruitment`
-
-3. Enable the service (the deploy workflow does the first `start` once files land):
-
-   ```bash
-   sudo systemctl daemon-reload
-   sudo systemctl enable a2d-api
-   ```
-
-4. Point nginx at the API. Serve the SPA and reverse-proxy `/api`:
-
-   ```nginx
-   # SPA
-   location / {
-       try_files $uri $uri/ /index.html;
-   }
-
-   # .NET API
-   location /api/ {
-       proxy_pass http://localhost:5200;
-       proxy_http_version 1.1;
-       proxy_set_header Host $host;
-       proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-       proxy_set_header X-Forwarded-Proto $scheme;
-       proxy_set_header Upgrade $http_upgrade;
-       proxy_set_header Connection "upgrade";
-   }
-   ```
-
-   Reload nginx: `sudo nginx -t && sudo systemctl reload nginx`.
-
-## API deployment (automated)
-
-`.github/workflows/deploy-api.yml` runs on pushes to `master` that touch
-`backend/**` (or via manual dispatch). It:
-
-1. Publishes `backend/AmusedToDeath.Api.csproj` self-contained for `linux-x64`.
-2. SCPs the output to `/opt/a2d-api-staging`.
-3. Over SSH: stops `a2d-api`, swaps staging into `/opt/a2d-api` (keeping the
-   previous build at `/opt/a2d-api-old` for rollback), marks the binary
-   executable, and starts the service.
-
-Required GitHub repository secrets:
-
-| Secret | Purpose |
-| --- | --- |
-| `DO_HOST` | Droplet host/IP |
-| `DO_USERNAME` | SSH user |
-| `DO_SSH_KEY` | SSH private key for that user |
-
-The SSH user needs passwordless `sudo systemctl stop/start a2d-api` and write
-access to `/opt/a2d-api*`.
-
-## API deployment (manual)
-
-If you need to deploy by hand:
+Normal API startup never applies migrations. For a release with pending migrations, review the SQL and its compatibility/rollback behavior, take the required database backup, then deliberately run the exact release API image with `/etc/sites/amused-to-death/runtime.env` and `--migrate` before activation. For example, using the API digest from that release's `images.env`:
 
 ```bash
-# From a machine with the .NET 10 SDK
-dotnet publish backend/AmusedToDeath.Api.csproj -c Release -r linux-x64 --self-contained true -o ./publish
-
-# Copy to the droplet
-scp -r publish/* user@host:/opt/a2d-api-staging/
-
-# On the droplet
-sudo systemctl stop a2d-api || true
-rm -rf /opt/a2d-api-old
-[ -d /opt/a2d-api ] && mv /opt/a2d-api /opt/a2d-api-old
-mv /opt/a2d-api-staging /opt/a2d-api
-chmod +x /opt/a2d-api/AmusedToDeath.Api
-sudo systemctl start a2d-api
+docker run --rm \
+  --env-file /etc/sites/amused-to-death/runtime.env \
+  ghcr.io/OWNER/REPOSITORY-api@sha256:DIGEST \
+  --migrate
 ```
 
-## Frontend deployment
+This is an operator gate, not an automated workflow stage. The migration runner is DbUp and records applied scripts. Some historical migrations drop columns or update stored data; inspect every new script before running it. Image rollback does not reverse schema changes or restore data.
 
-The SPA is built with `npm run build` (output in `frontend/dist/`) and served
-by nginx from the web root `/var/www/www.amusedtodeath.eu`. This is automated by
-`.github/workflows/deploy.yml` (frontend-only): on pushes to `master` touching
-`frontend/**`, it builds the SPA, SCPs it to
-`/var/www/www.amusedtodeath.eu-staging`, then swaps it into the live root
-(keeping `-old` for rollback).
+## Validation Boundaries
 
-## Operations
+CI runs the frontend production build and configured lint command (lint is advisory because of existing debt), builds the API, publishes/scans both images, validates Compose/manifest agreement, and runs a read-only rootless web-image smoke check. No test project or frontend test command exists. API readiness is checked against the real database/schema during deployment; CI does not create a fixture database or inject production credentials.
 
-```bash
-# Status / logs
-sudo systemctl status a2d-api
-journalctl -u a2d-api -f
-
-# Restart after an env change
-sudo systemctl restart a2d-api
-
-# Roll back to the previous build
-sudo systemctl stop a2d-api
-rm -rf /opt/a2d-api
-mv /opt/a2d-api-old /opt/a2d-api
-sudo systemctl start a2d-api
-```
-
-## Notes
-
-- The API listens on `http://localhost:5200` (set in `a2d-api.service`); it is
-  not exposed publicly — nginx is the only thing that talks to it.
-- `ASPNETCORE_ENVIRONMENT=Production` means `appsettings.Development.json` is not
-  read on the server (and it is excluded from the publish output anyway).
-- Rotate the Neon password and update `ConnectionStrings__Neon` in
-  `/etc/a2d-api.env`, then `sudo systemctl restart a2d-api`.
+A real droplet deployment, certificate issuance, DNS propagation, firewall reachability, observed proxy source address, and rollback behavior have not been verified from this repository workspace.

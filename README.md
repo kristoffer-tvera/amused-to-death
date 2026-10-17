@@ -1,188 +1,49 @@
 # Amused to Death
 
-Guild management app for the World of Warcraft guild **Amused to Death**. The current app is split into a React frontend and a PHP backend backed by MariaDB/MySQL.
+Guild management for the World of Warcraft guild Amused to Death. The React SPA talks to a .NET 10 minimal API backed by Neon Postgres. Authentication uses Battle.net OAuth and database-backed sessions.
 
-## Tech Stack
+## Stack
 
-- **Frontend:** React, TypeScript, Vite, Wouter, Material UI, MUI Data Grid
-- **Backend:** PHP 8, mysqli
-- **Database:** MariaDB/MySQL
-- **Auth:** Discord OAuth plus token-based bot auth
-- **Integrations:** Battle.net profile API, Discord webhooks
-- **Containers:** Podman commands are included below for local MariaDB and PHP backend hosting
+- Frontend: React 19, TypeScript, Vite, Wouter, Material UI
+- API: ASP.NET Core 10 minimal API, Dapper, Npgsql
+- Database: Neon Postgres
+- Production: digest-pinned Docker images; host Nginx and the shared site-deploy helper
 
-## App Pages
+The API owns its `/api` prefix. Browser requests use the same-origin relative `/api` path. Local Vite development proxies that prefix to the backend at `http://localhost:5191`.
 
-- `/` — Home dashboard. Public login/apply entry point, and authenticated user's character overview.
-- `/apply` — Public recruitment application flow with a multi-step form.
-- `/app/:id` — Application detail/edit view, including private auth-token update links.
-- `/apps` — Authenticated application list.
-- `/characters` — Guild character directory with raiders, socials, mains, and alts.
-- `/character/:id` — Character create/edit/detail screen.
-- `/raids` — Raid list.
-- `/raid/:id` — Raid detail, attendance, payment/cut handling, and admin tools.
-- `/bnet` — Admin Battle.net token/status and character ilvl update tools.
-- `/log` — Admin activity log.
-- `/debug` — Admin session/debug utilities.
+## Local Development
 
-## Project Layout
-
-```text
-backend/
-	actions/          PHP endpoints used by the React app
-	core/             Shared auth, database, input, response, and service helpers
-	database/init.php Database initialization script
-	legacy/           Thin wrappers for the old endpoint names
-	secrets.sample.php
-frontend/
-	public/           Static frontend assets, including WoW class icons
-	src/              React app source
-	dist/             Production build output after npm run build
-```
-
-## Frontend Setup
+Use Node.js 24 and the .NET 10 SDK.
 
 ```powershell
 cd frontend
-npm install
+npm ci
 npm run dev
 ```
 
-Build for production:
+Run the API from another terminal with local values in the ignored `backend/appsettings.Development.json`:
 
 ```powershell
-cd frontend
-npm run build
+dotnet run --project backend/AmusedToDeath.Api.csproj --launch-profile http
 ```
-
-## Backend Secrets
-
-Copy the sample file and fill in real values:
-
-```powershell
-Copy-Item backend/secrets.sample.php backend/secrets.php
-```
-
-For local containers, the DB settings usually look like this:
-
-```php
-$dbservername = 'a2d-db';
-$dbusername = 'a2d_user';
-$dbpassword = 'a2d_password';
-$dbname = 'amused_to_death';
-```
-
-`backend/secrets.php` is ignored and should not be committed.
-
-## Local Database With Podman
-
-Create a shared network:
-
-```powershell
-podman network create a2d-net
-```
-
-Pull MariaDB:
-
-```powershell
-podman pull docker.io/library/mariadb:11
-```
-
-Start MariaDB:
-
-```powershell
-podman run --name a2d-db --network a2d-net -d `
-	-e MARIADB_ROOT_PASSWORD=root_password `
-	-e MARIADB_DATABASE=amused_to_death `
-	-e MARIADB_USER=a2d_user `
-	-e MARIADB_PASSWORD=a2d_password `
-	-p 3306:3306 `
-	-v a2d-db-data:/var/lib/mysql `
-	docker.io/library/mariadb:11
-```
-
-Initialize tables after the PHP container is running:
-
-```powershell
-podman exec -it a2d-php php backend/database/init.php
-```
-
-Useful DB commands:
-
-```powershell
-podman logs -f a2d-db
-podman stop a2d-db
-podman start a2d-db
-```
-
-## PHP Backend Container With Podman
-
-Build the PHP/Apache image:
-
-```powershell
-podman build -t a2d-php -f backend/Containerfile .
-```
-
-Run the backend container on the same network as MariaDB:
-
-```powershell
-podman run --name a2d-php --network a2d-net -d `
-	-p 8000:80 `
-	-v ${PWD}:/var/www/html:Z `
-	a2d-php
-```
-
-The backend is then available at:
-
-```text
-http://localhost:8000/backend/actions/data.php?action=me
-```
-
-During frontend development, Vite proxies `/backend` to `http://localhost:8000`.
-
-Useful PHP container commands:
-
-```powershell
-podman logs -f a2d-php
-podman exec -it a2d-php php -v
-podman exec -it a2d-php php backend/database/init.php
-podman stop a2d-php
-podman start a2d-php
-```
-
-## Local Development Flow
-
-1. Copy `backend/secrets.sample.php` to `backend/secrets.php` and fill in values.
-2. Start MariaDB with Podman.
-3. Build and start the PHP backend container.
-4. Run `podman exec -it a2d-php php backend/database/init.php` once to create tables.
-5. Start the frontend with `npm run dev` from `frontend/`.
-6. Open the Vite dev URL and use the app.
-
-## nginx Hosting
-
-nginx does not read `.htaccess` files. SPA routing and HTTPS redirects should be configured in the nginx site file, usually under `/etc/nginx/sites-available/` and symlinked into `/etc/nginx/sites-enabled/`.
-
-A sample config is available at `.github/nginx-site.sample.conf`. It includes:
-
-- HTTP to HTTPS redirect.
-- React/Vite SPA fallback with `try_files $uri $uri/ /index.html`.
-- Explicit PHP backend handling for `/backend/*.php` endpoints.
-- A deny rule for `backend/secrets.php`.
-
-Adjust the deployed root path, `server_name`, certificate paths, and PHP-FPM socket for the target server.
 
 ## Validation
 
-Frontend build:
-
 ```powershell
 cd frontend
+npm ci
 npm run build
+npm run lint
+cd ..
+dotnet build backend/AmusedToDeath.Api.csproj
 ```
 
-PHP syntax check:
+There is no test project or frontend test command. Frontend lint currently has known debt and is advisory in CI; it is not a deployment gate.
 
-```powershell
-Get-ChildItem backend -Recurse -Filter *.php | ForEach-Object { php -l $_.FullName }
-```
+## Production Deployment
+
+The site ID is `amused-to-death`; `amusedtodeath.eu` is canonical and `www.amusedtodeath.eu` redirects to it. Containers publish only to `127.0.0.1:18060` (web) and `127.0.0.1:18061` (API). Deployment artifacts and per-host Nginx configs are in `deploy/`.
+
+`.github/workflows/deploy.yml` builds, scans, and smoke-checks the images, then sends a digest-only release bundle to the shared deploy helper. Configure the protected GitHub `production` environment with `DEPLOY_HOST`, `DEPLOY_SSH_KEY`, and `DEPLOY_KNOWN_HOSTS`; set the repository/environment variable `DEPLOY_PUBLIC_CHECKS` explicitly to `true` for normal deployments. See [DEPLOY.md](DEPLOY.md) for DNS, runtime configuration, bridge-network, registry, and migration gates.
+
+API startup does not apply migrations. Review schema changes and run the explicit `--migrate` command as an operator step when a release requires it. Image rollback does not roll back database changes.

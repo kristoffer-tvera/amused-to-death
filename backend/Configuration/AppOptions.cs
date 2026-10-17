@@ -14,6 +14,9 @@ public sealed class AppOptions
     /// <summary>Origins allowed by CORS (the SPA origin(s)).</summary>
     public string[] CorsOrigins { get; set; } = [];
 
+    /// <summary>Only this reverse proxy may supply forwarded headers.</summary>
+    public string TrustedProxyAddress { get; set; } = "127.0.0.1";
+
     public BattleNetOptions BattleNet { get; set; } = new();
     public WebhookOptions Webhooks { get; set; } = new();
 }

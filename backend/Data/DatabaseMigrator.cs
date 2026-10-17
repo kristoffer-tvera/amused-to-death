@@ -5,16 +5,14 @@ using DbUp.Engine.Output;
 namespace AmusedToDeath.Api.Data;
 
 /// <summary>
-/// Runs pending database migrations on startup using DbUp.
+/// Runs pending database migrations when explicitly invoked with --migrate.
 ///
 /// Scripts live in Migrations/*.sql, embedded in this assembly, named
 /// NNNN_Description.sql and applied in lexical order. DbUp records applied
-/// scripts in a "schemaversions" table and skips anything already run, so
-/// running on every startup is safe and cheap for a small project.
+/// scripts in a "schemaversions" table and skips anything already run.
 ///
-/// The base script (0001) is idempotent, so it is a no-op against the existing
-/// Neon database that already has the schema — that first run simply records
-/// 0001 as applied, and only genuinely new scripts execute thereafter.
+/// Review pending scripts and database compatibility before invoking this
+/// migration command; schema changes are not part of ordinary API startup.
 /// </summary>
 public static class DatabaseMigrator
 {

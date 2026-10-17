@@ -1,0 +1,14 @@
+.git
+.github
+.vscode
+**/node_modules
+**/dist
+**/bin
+**/obj
+**/.env
+**/.env.*
+**/*secrets*
+**/appsettings.Development.json
+deploy/runtime.env.example
+publish
+_pubtest

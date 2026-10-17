@@ -1,0 +1,26 @@
+{
+  "schema": 1,
+  "site": "amused-to-death",
+  "domains": [
+    "amusedtodeath.eu",
+    "www.amusedtodeath.eu"
+  ],
+  "ports": [
+    18060,
+    18061
+  ],
+  "checks": [
+    {
+      "url": "https://amusedtodeath.eu/",
+      "status": 200
+    },
+    {
+      "url": "https://amusedtodeath.eu/api/health",
+      "status": 200
+    },
+    {
+      "url": "https://www.amusedtodeath.eu/healthz",
+      "status": 200
+    }
+  ]
+}

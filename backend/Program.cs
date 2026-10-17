@@ -1,5 +1,7 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Net;
+using Microsoft.AspNetCore.HttpOverrides;
 using AmusedToDeath.Api.Configuration;
 using AmusedToDeath.Api.Data;
 using AmusedToDeath.Api.Endpoints;
@@ -9,7 +11,8 @@ using Dapper;
 using Npgsql;
 using Scalar.AspNetCore;
 
-var builder = WebApplication.CreateBuilder(args);
+var runMigrations = args.Contains("--migrate", StringComparer.Ordinal);
+var builder = WebApplication.CreateBuilder(runMigrations ? Array.Empty<string>() : args);
 
 // ─── Configuration ─────────────────────────────────────────────────────────
 builder
@@ -18,6 +21,13 @@ builder
 
 var appOptions =
     builder.Configuration.GetSection(AppOptions.SectionName).Get<AppOptions>() ?? new AppOptions();
+
+builder.Services.Configure<ForwardedHeadersOptions>(options =>
+{
+    options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+    options.ForwardLimit = 1;
+    options.KnownProxies.Add(IPAddress.Parse(appOptions.TrustedProxyAddress));
+});
 
 // ─── JSON: snake_case to match the existing frontend contract ────────────────
 // The frontend consumes fields like role_tank, added_date, characterId... The
@@ -40,6 +50,13 @@ var connectionString =
 var dataSource = new NpgsqlDataSourceBuilder(connectionString).Build();
 builder.Services.AddSingleton(dataSource);
 builder.Services.AddSingleton<IDbConnectionFactory, NeonConnectionFactory>();
+
+if (runMigrations)
+{
+    using var loggerFactory = LoggerFactory.Create(logging => logging.AddConsole());
+    DatabaseMigrator.Run(connectionString, loggerFactory.CreateLogger("DatabaseMigrator"));
+    return;
+}
 
 // ─── Repositories ────────────────────────────────────────────────────────────
 builder.Services.AddScoped<CharacterRepository>();
@@ -85,11 +102,7 @@ builder.Services.AddOpenApi();
 
 var app = builder.Build();
 
-// ─── Database migrations ─────────────────────────────────────────────────────
-// Apply any pending migrations on startup (DbUp). Small project, so the tiny
-// startup cost is fine; already-applied scripts are skipped. Fails fast if a
-// migration errors, so the app never serves against a half-migrated schema.
-DatabaseMigrator.Run(connectionString, app.Logger);
+app.UseForwardedHeaders();
 
 // OpenAPI document at /openapi/v1.json, with the Scalar API explorer at /scalar.
 app.MapOpenApi();
@@ -111,5 +124,6 @@ app.MapRaidEndpoints();
 app.MapAttendanceEndpoints();
 app.MapApplicationEndpoints();
 app.MapBattleNetEndpoints();
+app.MapHealthEndpoints();
 
 app.Run();

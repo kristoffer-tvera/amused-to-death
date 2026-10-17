@@ -99,16 +99,18 @@ npm run lint
 
 ## Deployment Pipeline
 
-Deployment is documented in `DEPLOY.md`. In short:
+Deployment is documented in `DEPLOY.md`. The single
+`.github/workflows/deploy.yml` builds pinned web/API container images, scans
+them, validates a digest-only release bundle, and deploys only from `master`
+through the host's `/usr/local/sbin/site-deploy` helper. Both containers publish
+loopback-only ports; host Nginx serves `amusedtodeath.eu` and redirects
+`www.amusedtodeath.eu`.
 
-- The API deploys via `.github/workflows/deploy-api.yml` on pushes to `master`
-  touching `backend/**`: it publishes a self-contained `linux-x64` build, SCPs it
-  to the droplet, and swaps it into `/opt/a2d-api` behind the `a2d-api` systemd
-  service (config from `/etc/a2d-api.env`). No containers; the droplet needs no
-  .NET runtime.
-- nginx serves the SPA and reverse-proxies `/api` to `http://localhost:5200`.
-- The old PHP FTP workflow (`.github/workflows/deploy.yml`) is stale and does not
-  apply to the .NET backend; the SPA deploy should be handled separately.
+Production configuration is supplied by
+`/etc/sites/amused-to-death/runtime.env`; never add secrets to workflow inputs,
+build args, or image layers. API schema migrations are explicit (`--migrate`),
+not run during normal startup or deployment. There is no test project; frontend
+lint is advisory until existing lint debt is resolved.
 
 ## Common Gotchas
 
@@ -122,5 +124,5 @@ Deployment is documented in `DEPLOY.md`. In short:
   quote them.
 - If moving frontend public assets, update both source references and
   `frontend/vite.config.ts` if a proxy is involved.
-- `appsettings.Development.json` must never ship to the server; the csproj
-  excludes it from publish and the systemd service runs in Production.
+- `appsettings.Development.json` must never ship to the server; the csproj and
+  Docker build context exclude it, and the API container runs in Production.
