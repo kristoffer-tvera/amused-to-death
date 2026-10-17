@@ -153,11 +153,10 @@ jobs:
                     exit 1
                   fi
 
-                  sudo install -D -m 0600 deploy/runtime.env.example /etc/sites/amused-to-death/runtime.env
                   SITE_ID=amused-to-death docker compose \
                     --env-file "$bundle/images.env" \
                     --file "$bundle/compose.yaml" \
-                    config --format json > "$RUNNER_TEMP/compose.json"
+                    config --no-env-resolution --format json > "$RUNNER_TEMP/compose.json"
 
                   python3 - "$bundle" "$RUNNER_TEMP/compose.json" <<'PY'
                   import json
