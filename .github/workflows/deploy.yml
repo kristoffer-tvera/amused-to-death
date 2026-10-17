@@ -153,9 +153,11 @@ jobs:
                     exit 1
                   fi
 
+                  printf 'services:\n  api:\n    env_file: !reset []\n' > "$RUNNER_TEMP/compose-validation.yaml"
                   SITE_ID=amused-to-death docker compose \
                     --env-file "$bundle/images.env" \
                     --file "$bundle/compose.yaml" \
+                    --file "$RUNNER_TEMP/compose-validation.yaml" \
                     config --no-env-resolution --format json > "$RUNNER_TEMP/compose.json"
 
                   python3 - "$bundle" "$RUNNER_TEMP/compose.json" <<'PY'
