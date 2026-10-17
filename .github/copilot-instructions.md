@@ -9,14 +9,14 @@ fully replaced).
 
 - `frontend/` is the React/Vite/TypeScript/MUI single-page app.
 - `backend/` is the .NET 10 minimal API (assembly/namespace `AmusedToDeath.Api`).
-  - `backend/Endpoints/` — one file per route group, each a `MapXxxEndpoints`
-    extension registered group-by-group in `Program.cs`.
-  - `backend/Data/` — Dapper repositories and the Npgsql connection factory.
-  - `backend/Models/` — request/response DTOs.
-  - `backend/Security/` — session service, current-user accessor, auth filters,
-    input sanitizer, and the per-request session middleware.
-  - `backend/Services/` — Discord OAuth, Discord webhooks, Battle.net client.
-  - `backend/Configuration/` — strongly-typed `AppOptions` bound from config.
+    - `backend/Endpoints/` — one file per route group, each a `MapXxxEndpoints`
+      extension registered group-by-group in `Program.cs`.
+    - `backend/Data/` — Dapper repositories and the Npgsql connection factory.
+    - `backend/Models/` — request/response DTOs.
+    - `backend/Security/` — session service, current-user accessor, auth filters,
+      input sanitizer, and the per-request session middleware.
+    - `backend/Services/` — Discord OAuth, Discord webhooks, Battle.net client.
+    - `backend/Configuration/` — strongly-typed `AppOptions` bound from config.
 - `frontend/public/` contains static frontend assets, including WoW class icons.
 - `migration/` contains the one-time MySQL → Neon Postgres migration scripts.
 
@@ -56,11 +56,11 @@ fully replaced).
 - Authorization uses the endpoint filters `.RequireAuth()` and `.RequireAdmin()`
   from `Security/AuthFilters.cs`. Failures return `{ "error": "..." }` with the
   matching status code — keep that error shape consistent.
-- The API speaks snake_case JSON both directions (global
+- The API speaks snake*case JSON both directions (global
   `JsonNamingPolicy.SnakeCaseLower`). Request bodies from the frontend must use
   snake_case field names. Override per-property with `[JsonPropertyName]` only
   where the frontend expects a specific name (e.g. attendance rows use
-  `raidId`/`characterId` and `character_*`-prefixed fields).
+  `raidId`/`characterId` and `character*\*`-prefixed fields).
 - Sanitize free-text input with `InputSanitizer.Clean` to match the historical
   data treatment (HTML-encoded, tags stripped).
 - Config comes from `AppOptions` (the `App` section) plus the `Neon` connection

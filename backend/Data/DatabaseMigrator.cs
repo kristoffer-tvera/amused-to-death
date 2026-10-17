@@ -18,11 +18,14 @@ public static class DatabaseMigrator
 {
     public static void Run(string connectionString, ILogger logger)
     {
-        var upgrader = DeployChanges.To
-            .PostgresqlDatabase(connectionString)
+        var upgrader = DeployChanges
+            .To.PostgresqlDatabase(connectionString)
             .WithScriptsEmbeddedInAssembly(
                 Assembly.GetExecutingAssembly(),
-                name => name.Contains(".Migrations.") && name.EndsWith(".sql", StringComparison.OrdinalIgnoreCase))
+                name =>
+                    name.Contains(".Migrations.")
+                    && name.EndsWith(".sql", StringComparison.OrdinalIgnoreCase)
+            )
             .WithTransactionPerScript()
             .LogTo(new DbUpLoggerAdapter(logger))
             .Build();
@@ -47,10 +50,18 @@ public static class DatabaseMigrator
     private sealed class DbUpLoggerAdapter(ILogger logger) : IUpgradeLog
     {
         public void LogTrace(string format, params object[] args) => logger.LogTrace(format, args);
+
         public void LogDebug(string format, params object[] args) => logger.LogDebug(format, args);
-        public void LogInformation(string format, params object[] args) => logger.LogInformation(format, args);
-        public void LogWarning(string format, params object[] args) => logger.LogWarning(format, args);
+
+        public void LogInformation(string format, params object[] args) =>
+            logger.LogInformation(format, args);
+
+        public void LogWarning(string format, params object[] args) =>
+            logger.LogWarning(format, args);
+
         public void LogError(string format, params object[] args) => logger.LogError(format, args);
-        public void LogError(Exception ex, string format, params object[] args) => logger.LogError(ex, format, args);
+
+        public void LogError(Exception ex, string format, params object[] args) =>
+            logger.LogError(ex, format, args);
     }
 }

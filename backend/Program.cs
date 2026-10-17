@@ -1,13 +1,13 @@
+using System.Net;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using System.Net;
-using Microsoft.AspNetCore.HttpOverrides;
 using AmusedToDeath.Api.Configuration;
 using AmusedToDeath.Api.Data;
 using AmusedToDeath.Api.Endpoints;
 using AmusedToDeath.Api.Security;
 using AmusedToDeath.Api.Services;
 using Dapper;
+using Microsoft.AspNetCore.HttpOverrides;
 using Npgsql;
 using Scalar.AspNetCore;
 

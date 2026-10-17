@@ -1,5 +1,5 @@
-using Dapper;
 using AmusedToDeath.Api.Data;
+using Dapper;
 
 namespace AmusedToDeath.Api.Endpoints;
 
@@ -16,22 +16,27 @@ public static class HealthEndpoints
 
     public static void MapHealthEndpoints(this WebApplication app)
     {
-        app.MapGet("/api/health", async (IDbConnectionFactory connections, CancellationToken ct) =>
-        {
-            try
-            {
-                await using var db = await connections.OpenConnectionAsync(ct);
-                var ready = await db.ExecuteScalarAsync<bool>(
-                    new CommandDefinition(ReadinessQuery, cancellationToken: ct));
+        app.MapGet(
+                "/api/health",
+                async (IDbConnectionFactory connections, CancellationToken ct) =>
+                {
+                    try
+                    {
+                        await using var db = await connections.OpenConnectionAsync(ct);
+                        var ready = await db.ExecuteScalarAsync<bool>(
+                            new CommandDefinition(ReadinessQuery, cancellationToken: ct)
+                        );
 
-                return ready
-                    ? (IResult)Results.Ok(new { status = "ready" })
-                    : Results.StatusCode(StatusCodes.Status503ServiceUnavailable);
-            }
-            catch (Npgsql.NpgsqlException)
-            {
-                return Results.StatusCode(StatusCodes.Status503ServiceUnavailable);
-            }
-        }).AllowAnonymous();
+                        return ready
+                            ? (IResult)Results.Ok(new { status = "ready" })
+                            : Results.StatusCode(StatusCodes.Status503ServiceUnavailable);
+                    }
+                    catch (Npgsql.NpgsqlException)
+                    {
+                        return Results.StatusCode(StatusCodes.Status503ServiceUnavailable);
+                    }
+                }
+            )
+            .AllowAnonymous();
     }
 }

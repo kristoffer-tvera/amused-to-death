@@ -1,356 +1,356 @@
 name: Build and deploy containers
 
 on:
-  push:
-    branches: [master]
-  pull_request:
-    branches: [master]
-  workflow_dispatch:
+    push:
+        branches: [master]
+    pull_request:
+        branches: [master]
+    workflow_dispatch:
 
 permissions:
-  contents: read
+    contents: read
 
 jobs:
-  validate:
-    runs-on: ubuntu-latest
-    timeout-minutes: 25
-    steps:
-      - name: Checkout
-        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+    validate:
+        runs-on: ubuntu-latest
+        timeout-minutes: 25
+        steps:
+            - name: Checkout
+              uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
 
-      - name: Set up Node.js
-        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
-        with:
-          node-version: 24
-          cache: npm
-          cache-dependency-path: frontend/package-lock.json
+            - name: Set up Node.js
+              uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+              with:
+                  node-version: 24
+                  cache: npm
+                  cache-dependency-path: frontend/package-lock.json
 
-      - name: Set up .NET
-        uses: actions/setup-dotnet@67a3573c9a986a3f9c594539f4ab511d57bb3ce9
-        with:
-          dotnet-version: 10.0.x
+            - name: Set up .NET
+              uses: actions/setup-dotnet@67a3573c9a986a3f9c594539f4ab511d57bb3ce9
+              with:
+                  dotnet-version: 10.0.x
 
-      - name: Install frontend dependencies
-        working-directory: frontend
-        run: npm ci
+            - name: Install frontend dependencies
+              working-directory: frontend
+              run: npm ci
 
-      - name: Audit production frontend dependencies
-        working-directory: frontend
-        run: npm audit --omit=dev --audit-level=high
+            - name: Audit production frontend dependencies
+              working-directory: frontend
+              run: npm audit --omit=dev --audit-level=high
 
-      - name: Build frontend
-        working-directory: frontend
-        run: npm run build
+            - name: Build frontend
+              working-directory: frontend
+              run: npm run build
 
-      - name: Frontend lint (advisory while existing lint debt remains)
-        working-directory: frontend
-        run: npm run lint
-        continue-on-error: true
+            - name: Frontend lint (advisory while existing lint debt remains)
+              working-directory: frontend
+              run: npm run lint
+              continue-on-error: true
 
-      - name: Build API
-        run: dotnet build backend/AmusedToDeath.Api.csproj --configuration Release
+            - name: Build API
+              run: dotnet build backend/AmusedToDeath.Api.csproj --configuration Release
 
-  publish-and-deploy:
-    needs: validate
-    if: github.ref == 'refs/heads/master' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
-    runs-on: ubuntu-latest
-    timeout-minutes: 60
-    environment:
-      name: production
-    concurrency:
-      group: deploy-amused-to-death
-      cancel-in-progress: false
-    permissions:
-      contents: read
-      packages: write
-    steps:
-      - name: Checkout
-        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+    publish-and-deploy:
+        needs: validate
+        if: github.ref == 'refs/heads/master' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+        runs-on: ubuntu-latest
+        timeout-minutes: 60
+        environment:
+            name: production
+        concurrency:
+            group: deploy-amused-to-death
+            cancel-in-progress: false
+        permissions:
+            contents: read
+            packages: write
+        steps:
+            - name: Checkout
+              uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
 
-      - name: Set release identity
-        id: release
-        shell: bash
-        run: |
-          release_id="${GITHUB_SHA}-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
-          image_prefix="ghcr.io/${GITHUB_REPOSITORY,,}"
-          [[ "$release_id" =~ ^[a-f0-9]{40}-[0-9]+-[0-9]+$ ]]
-          echo "release_id=$release_id" >> "$GITHUB_OUTPUT"
-          echo "image_prefix=$image_prefix" >> "$GITHUB_OUTPUT"
-          echo "RELEASE_ID=$release_id" >> "$GITHUB_ENV"
-          echo "IMAGE_PREFIX=ghcr.io/${GITHUB_REPOSITORY,,}" >> "$GITHUB_ENV"
+            - name: Set release identity
+              id: release
+              shell: bash
+              run: |
+                  release_id="${GITHUB_SHA}-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
+                  image_prefix="ghcr.io/${GITHUB_REPOSITORY,,}"
+                  [[ "$release_id" =~ ^[a-f0-9]{40}-[0-9]+-[0-9]+$ ]]
+                  echo "release_id=$release_id" >> "$GITHUB_OUTPUT"
+                  echo "image_prefix=$image_prefix" >> "$GITHUB_OUTPUT"
+                  echo "RELEASE_ID=$release_id" >> "$GITHUB_ENV"
+                  echo "IMAGE_PREFIX=ghcr.io/${GITHUB_REPOSITORY,,}" >> "$GITHUB_ENV"
 
-      - name: Set up Buildx
-        uses: docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f
+            - name: Set up Buildx
+              uses: docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f
 
-      - name: Log in to GHCR
-        env:
-          GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: printf '%s' "$GHCR_TOKEN" | docker login ghcr.io --username "$GITHUB_ACTOR" --password-stdin
+            - name: Log in to GHCR
+              env:
+                  GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+              run: printf '%s' "$GHCR_TOKEN" | docker login ghcr.io --username "$GITHUB_ACTOR" --password-stdin
 
-      - name: Build and publish web image
-        id: web
-        uses: docker/build-push-action@10e90e3645eae34f1e60eeb005ba3a3d33f178e8
-        with:
-          context: .
-          file: frontend/Dockerfile
-          platforms: linux/amd64
-          push: true
-          tags: ${{ steps.release.outputs.image_prefix }}-web:${{ steps.release.outputs.release_id }}
-          cache-from: type=gha,scope=web
-          cache-to: type=gha,mode=max,scope=web
-          provenance: mode=max
-          sbom: true
+            - name: Build and publish web image
+              id: web
+              uses: docker/build-push-action@10e90e3645eae34f1e60eeb005ba3a3d33f178e8
+              with:
+                  context: .
+                  file: frontend/Dockerfile
+                  platforms: linux/amd64
+                  push: true
+                  tags: ${{ steps.release.outputs.image_prefix }}-web:${{ steps.release.outputs.release_id }}
+                  cache-from: type=gha,scope=web
+                  cache-to: type=gha,mode=max,scope=web
+                  provenance: mode=max
+                  sbom: true
 
-      - name: Build and publish API image
-        id: api
-        uses: docker/build-push-action@10e90e3645eae34f1e60eeb005ba3a3d33f178e8
-        with:
-          context: .
-          file: backend/Dockerfile
-          platforms: linux/amd64
-          push: true
-          tags: ${{ steps.release.outputs.image_prefix }}-api:${{ steps.release.outputs.release_id }}
-          cache-from: type=gha,scope=api
-          cache-to: type=gha,mode=max,scope=api
-          provenance: mode=max
-          sbom: true
+            - name: Build and publish API image
+              id: api
+              uses: docker/build-push-action@10e90e3645eae34f1e60eeb005ba3a3d33f178e8
+              with:
+                  context: .
+                  file: backend/Dockerfile
+                  platforms: linux/amd64
+                  push: true
+                  tags: ${{ steps.release.outputs.image_prefix }}-api:${{ steps.release.outputs.release_id }}
+                  cache-from: type=gha,scope=api
+                  cache-to: type=gha,mode=max,scope=api
+                  provenance: mode=max
+                  sbom: true
 
-      - name: Scan web image
-        uses: aquasecurity/trivy-action@57a97c7e7821a5776cebc9bb87c984fa69cba8f1
-        with:
-          image-ref: ${{ steps.release.outputs.image_prefix }}-web:${{ steps.release.outputs.release_id }}
-          vuln-type: os,library
-          severity: CRITICAL,HIGH
-          ignore-unfixed: true
-          exit-code: "1"
+            - name: Scan web image
+              uses: aquasecurity/trivy-action@57a97c7e7821a5776cebc9bb87c984fa69cba8f1
+              with:
+                  image-ref: ${{ steps.release.outputs.image_prefix }}-web:${{ steps.release.outputs.release_id }}
+                  vuln-type: os,library
+                  severity: CRITICAL,HIGH
+                  ignore-unfixed: true
+                  exit-code: "1"
 
-      - name: Scan API image
-        uses: aquasecurity/trivy-action@57a97c7e7821a5776cebc9bb87c984fa69cba8f1
-        with:
-          image-ref: ${{ steps.release.outputs.image_prefix }}-api:${{ steps.release.outputs.release_id }}
-          vuln-type: os,library
-          severity: CRITICAL,HIGH
-          ignore-unfixed: true
-          exit-code: "1"
+            - name: Scan API image
+              uses: aquasecurity/trivy-action@57a97c7e7821a5776cebc9bb87c984fa69cba8f1
+              with:
+                  image-ref: ${{ steps.release.outputs.image_prefix }}-api:${{ steps.release.outputs.release_id }}
+                  vuln-type: os,library
+                  severity: CRITICAL,HIGH
+                  ignore-unfixed: true
+                  exit-code: "1"
 
-      - name: Assemble and validate release bundle
-        env:
-          WEB_DIGEST: ${{ steps.web.outputs.digest }}
-          API_DIGEST: ${{ steps.api.outputs.digest }}
-        shell: bash
-        run: |
-          set -euo pipefail
-          [[ "$WEB_DIGEST" =~ ^sha256:[a-f0-9]{64}$ ]]
-          [[ "$API_DIGEST" =~ ^sha256:[a-f0-9]{64}$ ]]
-          bundle="$RUNNER_TEMP/release"
-          mkdir -p "$bundle/nginx"
-          cp deploy/compose.yaml deploy/manifest.json "$bundle/"
-          cp deploy/nginx/*.conf "$bundle/nginx/"
-          printf 'WEB_IMAGE=%s-web@%s\nAPI_IMAGE=%s-api@%s\n' \
-            "$IMAGE_PREFIX" "$WEB_DIGEST" "$IMAGE_PREFIX" "$API_DIGEST" > "$bundle/images.env"
-          if find "$bundle" -type l -print -quit | grep -q .; then
-            echo "Release bundle must not contain symlinks" >&2
-            exit 1
-          fi
+            - name: Assemble and validate release bundle
+              env:
+                  WEB_DIGEST: ${{ steps.web.outputs.digest }}
+                  API_DIGEST: ${{ steps.api.outputs.digest }}
+              shell: bash
+              run: |
+                  set -euo pipefail
+                  [[ "$WEB_DIGEST" =~ ^sha256:[a-f0-9]{64}$ ]]
+                  [[ "$API_DIGEST" =~ ^sha256:[a-f0-9]{64}$ ]]
+                  bundle="$RUNNER_TEMP/release"
+                  mkdir -p "$bundle/nginx"
+                  cp deploy/compose.yaml deploy/manifest.json "$bundle/"
+                  cp deploy/nginx/*.conf "$bundle/nginx/"
+                  printf 'WEB_IMAGE=%s-web@%s\nAPI_IMAGE=%s-api@%s\n' \
+                    "$IMAGE_PREFIX" "$WEB_DIGEST" "$IMAGE_PREFIX" "$API_DIGEST" > "$bundle/images.env"
+                  if find "$bundle" -type l -print -quit | grep -q .; then
+                    echo "Release bundle must not contain symlinks" >&2
+                    exit 1
+                  fi
 
-          sudo install -D -m 0600 deploy/runtime.env.example /etc/sites/amused-to-death/runtime.env
-          SITE_ID=amused-to-death docker compose \
-            --env-file "$bundle/images.env" \
-            --file "$bundle/compose.yaml" \
-            config --format json > "$RUNNER_TEMP/compose.json"
+                  sudo install -D -m 0600 deploy/runtime.env.example /etc/sites/amused-to-death/runtime.env
+                  SITE_ID=amused-to-death docker compose \
+                    --env-file "$bundle/images.env" \
+                    --file "$bundle/compose.yaml" \
+                    config --format json > "$RUNNER_TEMP/compose.json"
 
-          python3 - "$bundle" "$RUNNER_TEMP/compose.json" <<'PY'
-          import json
-          import pathlib
-          import re
-          import sys
-          from urllib.parse import urlparse
+                  python3 - "$bundle" "$RUNNER_TEMP/compose.json" <<'PY'
+                  import json
+                  import pathlib
+                  import re
+                  import sys
+                  from urllib.parse import urlparse
 
-          bundle = pathlib.Path(sys.argv[1])
-          compose = json.loads(pathlib.Path(sys.argv[2]).read_text())
-          manifest = json.loads((bundle / "manifest.json").read_text())
-          image_lines = (bundle / "images.env").read_text().splitlines()
-          assert set(line.split("=", 1)[0] for line in image_lines) == {"WEB_IMAGE", "API_IMAGE"}
-          assert all(re.fullmatch(r"[A-Z_]+_IMAGE=ghcr.io/[a-z0-9._/-]+@sha256:[a-f0-9]{64}", line) for line in image_lines)
-          assert manifest["schema"] == 1 and manifest["site"] == "amused-to-death"
-          assert compose["name"] == manifest["site"]
-          assert set(compose["services"]) == {"web", "api"}
-          published = []
-          for service in compose["services"].values():
-              for port in service.get("ports", []):
-                  assert port["host_ip"] == "127.0.0.1"
-                  published.append(int(port["published"]))
-          assert sorted(published) == sorted(manifest["ports"])
-          domains = set(manifest["domains"])
-          for domain in domains:
-              config = bundle / "nginx" / f"{domain}.conf"
-              text = config.read_text()
-              assert text.count(f"server_name {domain};") == 2
-              assert any(urlparse(check["url"]).hostname == domain and check["status"] == 200 for check in manifest["checks"])
-          assert "proxy_pass http://127.0.0.1:18061;" in (bundle / "nginx" / "amusedtodeath.eu.conf").read_text()
-          assert all(urlparse(check["url"]).scheme == "https" for check in manifest["checks"])
-          PY
+                  bundle = pathlib.Path(sys.argv[1])
+                  compose = json.loads(pathlib.Path(sys.argv[2]).read_text())
+                  manifest = json.loads((bundle / "manifest.json").read_text())
+                  image_lines = (bundle / "images.env").read_text().splitlines()
+                  assert set(line.split("=", 1)[0] for line in image_lines) == {"WEB_IMAGE", "API_IMAGE"}
+                  assert all(re.fullmatch(r"[A-Z_]+_IMAGE=ghcr.io/[a-z0-9._/-]+@sha256:[a-f0-9]{64}", line) for line in image_lines)
+                  assert manifest["schema"] == 1 and manifest["site"] == "amused-to-death"
+                  assert compose["name"] == manifest["site"]
+                  assert set(compose["services"]) == {"web", "api"}
+                  published = []
+                  for service in compose["services"].values():
+                      for port in service.get("ports", []):
+                          assert port["host_ip"] == "127.0.0.1"
+                          published.append(int(port["published"]))
+                  assert sorted(published) == sorted(manifest["ports"])
+                  domains = set(manifest["domains"])
+                  for domain in domains:
+                      config = bundle / "nginx" / f"{domain}.conf"
+                      text = config.read_text()
+                      assert text.count(f"server_name {domain};") == 2
+                      assert any(urlparse(check["url"]).hostname == domain and check["status"] == 200 for check in manifest["checks"])
+                  assert "proxy_pass http://127.0.0.1:18061;" in (bundle / "nginx" / "amusedtodeath.eu.conf").read_text()
+                  assert all(urlparse(check["url"]).scheme == "https" for check in manifest["checks"])
+                  PY
 
-      - name: Smoke-check rootless web image
-        shell: bash
-        run: |
-          set -euo pipefail
-          image="$IMAGE_PREFIX-web:$RELEASE_ID"
-          docker pull "$image"
-          container="a2d-web-smoke-$GITHUB_RUN_ID"
-          trap 'docker rm -f "$container" >/dev/null 2>&1 || true' EXIT
-          docker run --detach --rm --name "$container" \
-            --publish 127.0.0.1::8080 --read-only \
-            --tmpfs /tmp:rw,noexec,nosuid,size=16m,mode=1777 \
-            --user 101:101 "$image" >/dev/null
-          port="$(docker port "$container" 8080/tcp | awk -F: '{print $NF}')"
-          base="http://127.0.0.1:$port"
-          for attempt in {1..30}; do
-            health="$(docker inspect --format '{{.State.Health.Status}}' "$container")"
-            if [[ "$health" == healthy ]] && curl --fail --silent "$base/healthz" >/dev/null; then break; fi
-            if [[ "$attempt" == 30 ]]; then docker logs "$container"; exit 1; fi
-            sleep 1
-          done
-          page="$(curl --fail --silent "$base/characters")"
-          grep -q '<div id="root"></div>' <<< "$page"
-          asset="$(grep -oE '/assets/[^" ]+\.js' <<< "$page" | head -n 1)"
-          test -n "$asset"
-          curl --fail --silent "$base$asset" >/dev/null
-          missing_status="$(curl --silent --output "$RUNNER_TEMP/missing-asset" --write-out '%{http_code}' "$base/assets/__pipeline_missing__.js")"
-          test "$missing_status" = 404
-          ! grep -qi '<html' "$RUNNER_TEMP/missing-asset"
-          test "$(docker inspect --format '{{.State.Health.Status}}' "$container")" = healthy
+            - name: Smoke-check rootless web image
+              shell: bash
+              run: |
+                  set -euo pipefail
+                  image="$IMAGE_PREFIX-web:$RELEASE_ID"
+                  docker pull "$image"
+                  container="a2d-web-smoke-$GITHUB_RUN_ID"
+                  trap 'docker rm -f "$container" >/dev/null 2>&1 || true' EXIT
+                  docker run --detach --rm --name "$container" \
+                    --publish 127.0.0.1::8080 --read-only \
+                    --tmpfs /tmp:rw,noexec,nosuid,size=16m,mode=1777 \
+                    --user 101:101 "$image" >/dev/null
+                  port="$(docker port "$container" 8080/tcp | awk -F: '{print $NF}')"
+                  base="http://127.0.0.1:$port"
+                  for attempt in {1..30}; do
+                    health="$(docker inspect --format '{{.State.Health.Status}}' "$container")"
+                    if [[ "$health" == healthy ]] && curl --fail --silent "$base/healthz" >/dev/null; then break; fi
+                    if [[ "$attempt" == 30 ]]; then docker logs "$container"; exit 1; fi
+                    sleep 1
+                  done
+                  page="$(curl --fail --silent "$base/characters")"
+                  grep -q '<div id="root"></div>' <<< "$page"
+                  asset="$(grep -oE '/assets/[^" ]+\.js' <<< "$page" | head -n 1)"
+                  test -n "$asset"
+                  curl --fail --silent "$base$asset" >/dev/null
+                  missing_status="$(curl --silent --output "$RUNNER_TEMP/missing-asset" --write-out '%{http_code}' "$base/assets/__pipeline_missing__.js")"
+                  test "$missing_status" = 404
+                  ! grep -qi '<html' "$RUNNER_TEMP/missing-asset"
+                  test "$(docker inspect --format '{{.State.Health.Status}}' "$container")" = healthy
 
-      - name: Configure verified SSH
-        env:
-          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
-          DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
-          DEPLOY_KNOWN_HOSTS: ${{ secrets.DEPLOY_KNOWN_HOSTS }}
-        run: |
-          set -euo pipefail
-          python3 -c 'import ipaddress, os; address = ipaddress.ip_address(os.environ["DEPLOY_HOST"]); assert address.version == 4'
-          install -d -m 0700 "$HOME/.ssh"
-          printf '%s\n' "$DEPLOY_SSH_KEY" > "$HOME/.ssh/deploy_key"
-          printf '%s\n' "$DEPLOY_KNOWN_HOSTS" > "$HOME/.ssh/known_hosts"
-          chmod 0600 "$HOME/.ssh/deploy_key" "$HOME/.ssh/known_hosts"
+            - name: Configure verified SSH
+              env:
+                  DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+                  DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+                  DEPLOY_KNOWN_HOSTS: ${{ secrets.DEPLOY_KNOWN_HOSTS }}
+              run: |
+                  set -euo pipefail
+                  python3 -c 'import ipaddress, os; address = ipaddress.ip_address(os.environ["DEPLOY_HOST"]); assert address.version == 4'
+                  install -d -m 0700 "$HOME/.ssh"
+                  printf '%s\n' "$DEPLOY_SSH_KEY" > "$HOME/.ssh/deploy_key"
+                  printf '%s\n' "$DEPLOY_KNOWN_HOSTS" > "$HOME/.ssh/known_hosts"
+                  chmod 0600 "$HOME/.ssh/deploy_key" "$HOME/.ssh/known_hosts"
 
-      - name: Upload bundle and apply release
-        env:
-          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
-          DEPLOY_PUBLIC_CHECKS: ${{ vars.DEPLOY_PUBLIC_CHECKS }}
-          SITE_ID: amused-to-death
-          RELEASE_ID: ${{ steps.release.outputs.release_id }}
-        shell: bash
-        run: |
-          set -euo pipefail
-          [[ "$SITE_ID" =~ ^[a-z][a-z0-9-]{0,39}$ ]]
-          [[ "$RELEASE_ID" =~ ^[a-f0-9]{40}-[0-9]+-[0-9]+$ ]]
-          case "$DEPLOY_PUBLIC_CHECKS" in
-            true) public_flag=--public ;;
-            false) public_flag= ;;
-            *) echo "DEPLOY_PUBLIC_CHECKS must be explicitly true or false" >&2; exit 1 ;;
-          esac
-          ssh_options=(-i "$HOME/.ssh/deploy_key" -p 22 -o BatchMode=yes -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes -o UserKnownHostsFile="$HOME/.ssh/known_hosts" -o ConnectTimeout=10)
-          scp_options=(-i "$HOME/.ssh/deploy_key" -P 22 -o BatchMode=yes -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes -o UserKnownHostsFile="$HOME/.ssh/known_hosts" -o ConnectTimeout=10)
-          target="deploy@$DEPLOY_HOST"
-          remote_dir="/srv/deploy/incoming/$SITE_ID/$RELEASE_ID"
-          ssh "${ssh_options[@]}" "$target" "install -d -m 0700 -- '$remote_dir'"
-          scp "${scp_options[@]}" "$RUNNER_TEMP/release/compose.yaml" "$RUNNER_TEMP/release/manifest.json" "$RUNNER_TEMP/release/images.env" "$target:$remote_dir/"
-          scp -r "${scp_options[@]}" "$RUNNER_TEMP/release/nginx" "$target:$remote_dir/"
-          ssh "${ssh_options[@]}" "$target" "sudo -n /usr/local/sbin/site-deploy apply '$SITE_ID' '$RELEASE_ID' $public_flag"
+            - name: Upload bundle and apply release
+              env:
+                  DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+                  DEPLOY_PUBLIC_CHECKS: ${{ vars.DEPLOY_PUBLIC_CHECKS }}
+                  SITE_ID: amused-to-death
+                  RELEASE_ID: ${{ steps.release.outputs.release_id }}
+              shell: bash
+              run: |
+                  set -euo pipefail
+                  [[ "$SITE_ID" =~ ^[a-z][a-z0-9-]{0,39}$ ]]
+                  [[ "$RELEASE_ID" =~ ^[a-f0-9]{40}-[0-9]+-[0-9]+$ ]]
+                  case "$DEPLOY_PUBLIC_CHECKS" in
+                    true) public_flag=--public ;;
+                    false) public_flag= ;;
+                    *) echo "DEPLOY_PUBLIC_CHECKS must be explicitly true or false" >&2; exit 1 ;;
+                  esac
+                  ssh_options=(-i "$HOME/.ssh/deploy_key" -p 22 -o BatchMode=yes -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes -o UserKnownHostsFile="$HOME/.ssh/known_hosts" -o ConnectTimeout=10)
+                  scp_options=(-i "$HOME/.ssh/deploy_key" -P 22 -o BatchMode=yes -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes -o UserKnownHostsFile="$HOME/.ssh/known_hosts" -o ConnectTimeout=10)
+                  target="deploy@$DEPLOY_HOST"
+                  remote_dir="/srv/deploy/incoming/$SITE_ID/$RELEASE_ID"
+                  ssh "${ssh_options[@]}" "$target" "install -d -m 0700 -- '$remote_dir'"
+                  scp "${scp_options[@]}" "$RUNNER_TEMP/release/compose.yaml" "$RUNNER_TEMP/release/manifest.json" "$RUNNER_TEMP/release/images.env" "$target:$remote_dir/"
+                  scp -r "${scp_options[@]}" "$RUNNER_TEMP/release/nginx" "$target:$remote_dir/"
+                  ssh "${ssh_options[@]}" "$target" "sudo -n /usr/local/sbin/site-deploy apply '$SITE_ID' '$RELEASE_ID' $public_flag"
 
-      - name: Verify public routes or roll back
-        if: ${{ vars.DEPLOY_PUBLIC_CHECKS == 'true' }}
-        env:
-          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
-          SITE_ID: amused-to-death
-          RELEASE_ID: ${{ steps.release.outputs.release_id }}
-        shell: bash
-        run: |
-          set -euo pipefail
-          ssh_options=(-i "$HOME/.ssh/deploy_key" -p 22 -o BatchMode=yes -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes -o UserKnownHostsFile="$HOME/.ssh/known_hosts" -o ConnectTimeout=10)
-          target="deploy@$DEPLOY_HOST"
-          failed=0
-          check_status() {
-            expected="$1"
-            url="$2"
-            actual="$(curl --silent --show-error --output "$RUNNER_TEMP/smoke-body" --write-out '%{http_code}' "$url")" || actual=000
-            if [[ "$actual" != "$expected" ]]; then
-              echo "Expected HTTP $expected from $url; received $actual" >&2
-              failed=1
-            fi
-          }
+            - name: Verify public routes or roll back
+              if: ${{ vars.DEPLOY_PUBLIC_CHECKS == 'true' }}
+              env:
+                  DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+                  SITE_ID: amused-to-death
+                  RELEASE_ID: ${{ steps.release.outputs.release_id }}
+              shell: bash
+              run: |
+                  set -euo pipefail
+                  ssh_options=(-i "$HOME/.ssh/deploy_key" -p 22 -o BatchMode=yes -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes -o UserKnownHostsFile="$HOME/.ssh/known_hosts" -o ConnectTimeout=10)
+                  target="deploy@$DEPLOY_HOST"
+                  failed=0
+                  check_status() {
+                    expected="$1"
+                    url="$2"
+                    actual="$(curl --silent --show-error --output "$RUNNER_TEMP/smoke-body" --write-out '%{http_code}' "$url")" || actual=000
+                    if [[ "$actual" != "$expected" ]]; then
+                      echo "Expected HTTP $expected from $url; received $actual" >&2
+                      failed=1
+                    fi
+                  }
 
-          check_status 200 https://amusedtodeath.eu/
-          api_health="$(curl --fail --silent --show-error https://amusedtodeath.eu/api/health || true)"
-          if [[ "$api_health" != *'"status":"ready"'* ]]; then
-            echo "API readiness response was not ready" >&2
-            failed=1
-          fi
-          check_status 200 https://www.amusedtodeath.eu/healthz
-          check_status 200 https://amusedtodeath.eu/characters
+                  check_status 200 https://amusedtodeath.eu/
+                  api_health="$(curl --fail --silent --show-error https://amusedtodeath.eu/api/health || true)"
+                  if [[ "$api_health" != *'"status":"ready"'* ]]; then
+                    echo "API readiness response was not ready" >&2
+                    failed=1
+                  fi
+                  check_status 200 https://www.amusedtodeath.eu/healthz
+                  check_status 200 https://amusedtodeath.eu/characters
 
-          if ! curl --silent --show-error --dump-header "$RUNNER_TEMP/http-headers" --output /dev/null \
-            'http://amusedtodeath.eu/characters?http-smoke=1'; then
-            failed=1
-          fi
-          http_status="$(awk 'NR == 1 { print $2 }' "$RUNNER_TEMP/http-headers" 2>/dev/null || true)"
-          http_location="$(awk 'tolower($1) == "location:" { gsub("\r", ""); print $2; exit }' "$RUNNER_TEMP/http-headers" 2>/dev/null || true)"
-          if [[ "$http_status" != 308 || "$http_location" != 'https://amusedtodeath.eu/characters?http-smoke=1' ]]; then
-            echo "Canonical HTTP traffic must redirect to HTTPS" >&2
-            failed=1
-          fi
+                  if ! curl --silent --show-error --dump-header "$RUNNER_TEMP/http-headers" --output /dev/null \
+                    'http://amusedtodeath.eu/characters?http-smoke=1'; then
+                    failed=1
+                  fi
+                  http_status="$(awk 'NR == 1 { print $2 }' "$RUNNER_TEMP/http-headers" 2>/dev/null || true)"
+                  http_location="$(awk 'tolower($1) == "location:" { gsub("\r", ""); print $2; exit }' "$RUNNER_TEMP/http-headers" 2>/dev/null || true)"
+                  if [[ "$http_status" != 308 || "$http_location" != 'https://amusedtodeath.eu/characters?http-smoke=1' ]]; then
+                    echo "Canonical HTTP traffic must redirect to HTTPS" >&2
+                    failed=1
+                  fi
 
-          if ! curl --silent --show-error --dump-header "$RUNNER_TEMP/www-http-headers" --output /dev/null \
-            'http://www.amusedtodeath.eu/apply?http-smoke=1'; then
-            failed=1
-          fi
-          www_http_status="$(awk 'NR == 1 { print $2 }' "$RUNNER_TEMP/www-http-headers" 2>/dev/null || true)"
-          www_http_location="$(awk 'tolower($1) == "location:" { gsub("\r", ""); print $2; exit }' "$RUNNER_TEMP/www-http-headers" 2>/dev/null || true)"
-          if [[ "$www_http_status" != 308 || "$www_http_location" != 'https://amusedtodeath.eu/apply?http-smoke=1' ]]; then
-            echo "www HTTP traffic must redirect to the canonical HTTPS hostname" >&2
-            failed=1
-          fi
+                  if ! curl --silent --show-error --dump-header "$RUNNER_TEMP/www-http-headers" --output /dev/null \
+                    'http://www.amusedtodeath.eu/apply?http-smoke=1'; then
+                    failed=1
+                  fi
+                  www_http_status="$(awk 'NR == 1 { print $2 }' "$RUNNER_TEMP/www-http-headers" 2>/dev/null || true)"
+                  www_http_location="$(awk 'tolower($1) == "location:" { gsub("\r", ""); print $2; exit }' "$RUNNER_TEMP/www-http-headers" 2>/dev/null || true)"
+                  if [[ "$www_http_status" != 308 || "$www_http_location" != 'https://amusedtodeath.eu/apply?http-smoke=1' ]]; then
+                    echo "www HTTP traffic must redirect to the canonical HTTPS hostname" >&2
+                    failed=1
+                  fi
 
-          missing_status="$(curl --silent --show-error --output "$RUNNER_TEMP/smoke-body" --write-out '%{http_code}' https://amusedtodeath.eu/assets/__pipeline_missing__.js)" || missing_status=000
-          if [[ "$missing_status" != 404 ]] || grep -qi '<html' "$RUNNER_TEMP/smoke-body"; then
-            echo "Missing static assets must return 404, not the SPA" >&2
-            failed=1
-          fi
+                  missing_status="$(curl --silent --show-error --output "$RUNNER_TEMP/smoke-body" --write-out '%{http_code}' https://amusedtodeath.eu/assets/__pipeline_missing__.js)" || missing_status=000
+                  if [[ "$missing_status" != 404 ]] || grep -qi '<html' "$RUNNER_TEMP/smoke-body"; then
+                    echo "Missing static assets must return 404, not the SPA" >&2
+                    failed=1
+                  fi
 
-          api_status="$(curl --silent --show-error --output "$RUNNER_TEMP/smoke-body" --write-out '%{http_code}' https://amusedtodeath.eu/api/__pipeline_not_found__)" || api_status=000
-          if [[ "$api_status" != 404 ]] || grep -qi '<html' "$RUNNER_TEMP/smoke-body"; then
-            echo "Unknown API routes must remain API 404 responses" >&2
-            failed=1
-          fi
+                  api_status="$(curl --silent --show-error --output "$RUNNER_TEMP/smoke-body" --write-out '%{http_code}' https://amusedtodeath.eu/api/__pipeline_not_found__)" || api_status=000
+                  if [[ "$api_status" != 404 ]] || grep -qi '<html' "$RUNNER_TEMP/smoke-body"; then
+                    echo "Unknown API routes must remain API 404 responses" >&2
+                    failed=1
+                  fi
 
-          if ! curl --silent --show-error --request POST --data 'probe=1' \
-            --dump-header "$RUNNER_TEMP/redirect-headers" --output /dev/null \
-            https://amusedtodeath.eu/api?probe=1; then
-            failed=1
-          fi
-          redirect_status="$(awk 'NR == 1 { print $2 }' "$RUNNER_TEMP/redirect-headers" 2>/dev/null || true)"
-          redirect_location="$(awk 'tolower($1) == "location:" { gsub("\r", ""); print $2; exit }' "$RUNNER_TEMP/redirect-headers" 2>/dev/null || true)"
-          if [[ "$redirect_status" != 308 || "$redirect_location" != '/api/?probe=1' ]]; then
-            echo "Bare /api must preserve its method and query with a 308 redirect" >&2
-            failed=1
-          fi
+                  if ! curl --silent --show-error --request POST --data 'probe=1' \
+                    --dump-header "$RUNNER_TEMP/redirect-headers" --output /dev/null \
+                    https://amusedtodeath.eu/api?probe=1; then
+                    failed=1
+                  fi
+                  redirect_status="$(awk 'NR == 1 { print $2 }' "$RUNNER_TEMP/redirect-headers" 2>/dev/null || true)"
+                  redirect_location="$(awk 'tolower($1) == "location:" { gsub("\r", ""); print $2; exit }' "$RUNNER_TEMP/redirect-headers" 2>/dev/null || true)"
+                  if [[ "$redirect_status" != 308 || "$redirect_location" != '/api/?probe=1' ]]; then
+                    echo "Bare /api must preserve its method and query with a 308 redirect" >&2
+                    failed=1
+                  fi
 
-          if ! curl --silent --show-error --dump-header "$RUNNER_TEMP/www-headers" --output /dev/null \
-            'https://www.amusedtodeath.eu/apply?smoke=1'; then
-            failed=1
-          fi
-          www_location="$(awk 'tolower($1) == "location:" { gsub("\r", ""); print $2; exit }' "$RUNNER_TEMP/www-headers" 2>/dev/null || true)"
-          if [[ "$www_location" != 'https://amusedtodeath.eu/apply?smoke=1' ]]; then
-            echo "www hostname did not redirect to the canonical host" >&2
-            failed=1
-          fi
+                  if ! curl --silent --show-error --dump-header "$RUNNER_TEMP/www-headers" --output /dev/null \
+                    'https://www.amusedtodeath.eu/apply?smoke=1'; then
+                    failed=1
+                  fi
+                  www_location="$(awk 'tolower($1) == "location:" { gsub("\r", ""); print $2; exit }' "$RUNNER_TEMP/www-headers" 2>/dev/null || true)"
+                  if [[ "$www_location" != 'https://amusedtodeath.eu/apply?smoke=1' ]]; then
+                    echo "www hostname did not redirect to the canonical host" >&2
+                    failed=1
+                  fi
 
-          if [[ "$failed" != 0 ]]; then
-            if ! ssh "${ssh_options[@]}" "$target" "sudo -n /usr/local/sbin/site-deploy rollback '$SITE_ID' '$RELEASE_ID' --public"; then
-              echo "Rollback failed; deployment requires operator attention" >&2
-            else
-              echo "Public verification failed; rollback completed" >&2
-            fi
-            exit 1
-          fi
+                  if [[ "$failed" != 0 ]]; then
+                    if ! ssh "${ssh_options[@]}" "$target" "sudo -n /usr/local/sbin/site-deploy rollback '$SITE_ID' '$RELEASE_ID' --public"; then
+                      echo "Rollback failed; deployment requires operator attention" >&2
+                    else
+                      echo "Public verification failed; rollback completed" >&2
+                    fi
+                    exit 1
+                  fi
