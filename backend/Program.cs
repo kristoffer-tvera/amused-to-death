@@ -104,12 +104,18 @@ var app = builder.Build();
 
 app.UseForwardedHeaders();
 
-// OpenAPI document at /openapi/v1.json, with the Scalar API explorer at /scalar.
-app.MapOpenApi();
-app.MapScalarApiReference(options =>
-{
-    options.WithTitle("Amused to Death API").WithTheme(ScalarTheme.Purple);
-});
+// Keep API documentation under the production proxy's /api prefix.
+app.MapOpenApi("/api/openapi/{documentName}.json");
+app.MapScalarApiReference(
+    "/api/scalar",
+    options =>
+    {
+        options
+            .WithTitle("Amused to Death API")
+            .WithTheme(ScalarTheme.Purple)
+            .WithOpenApiRoutePattern("/api/openapi/{documentName}.json");
+    }
+);
 
 app.UseCors(CorsPolicy);
 
