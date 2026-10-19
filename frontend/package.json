@@ -17,7 +17,7 @@
         "@mui/x-data-grid": "^9.3.0",
         "react": "^19.3.0",
         "react-dom": "^19.3.0",
-        "wouter": "^3.10.0"
+        "wouter": "^3.13.0"
     },
     "devDependencies": {
         "@types/node": "^24.19.2",
