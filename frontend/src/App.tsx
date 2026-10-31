@@ -12,6 +12,7 @@ import Raid from "./pages/Raid";
 import BattleNet from "./pages/BattleNet";
 import BattleNetPick from "./pages/BattleNetPick";
 import Debug from "./pages/Debug";
+import Videos from "./pages/Videos";
 import { Typography } from "@mui/material";
 
 export default function App() {
@@ -19,6 +20,7 @@ export default function App() {
         <Layout>
             <Switch>
                 <Route path="/" component={Home} />
+                <Route path="/videos" component={Videos} />
                 <Route path="/apply" component={Apply} />
                 <Route path="/app/:id/diff" component={AppDiff} />
                 <Route path="/app/:id" component={AppView} />

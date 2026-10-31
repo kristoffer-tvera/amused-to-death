@@ -9,19 +9,15 @@
     <ItemGroup>
         <PackageReference Include="Dapper" Version="2.1.89" />
         <PackageReference Include="dbup-postgresql" Version="7.0.1" />
-        <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.12" />
+        <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.14" />
         <PackageReference Include="Npgsql" Version="10.0.3" />
-        <PackageReference Include="Scalar.AspNetCore" Version="2.17.10" />
+        <PackageReference Include="Scalar.AspNetCore" Version="2.18.7" />
     </ItemGroup>
     <ItemGroup>
         <EmbeddedResource Include="Migrations\*.sql" />
     </ItemGroup>
     <ItemGroup>
         <Content Remove="appsettings.Development.json" />
-        <None
-            Include="appsettings.Development.json"
-            CopyToOutputDirectory="Never"
-            CopyToPublishDirectory="Never"
-        />
+        <None Include="appsettings.Development.json" CopyToOutputDirectory="Never" CopyToPublishDirectory="Never" />
     </ItemGroup>
 </Project>

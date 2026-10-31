@@ -8,6 +8,7 @@ using AmusedToDeath.Api.Security;
 using AmusedToDeath.Api.Services;
 using Dapper;
 using Microsoft.AspNetCore.HttpOverrides;
+using Microsoft.Extensions.Options;
 using Npgsql;
 using Scalar.AspNetCore;
 
@@ -17,16 +18,23 @@ var builder = WebApplication.CreateBuilder(runMigrations ? Array.Empty<string>()
 // ─── Configuration ─────────────────────────────────────────────────────────
 builder
     .Services.AddOptions<AppOptions>()
-    .Bind(builder.Configuration.GetSection(AppOptions.SectionName));
+    .Bind(builder.Configuration.GetSection(AppOptions.SectionName))
+    .ValidateOnStart();
+builder.Services.AddSingleton<IValidateOptions<AppOptions>, AppOptionsValidator>();
 
 var appOptions =
     builder.Configuration.GetSection(AppOptions.SectionName).Get<AppOptions>() ?? new AppOptions();
+
+if (!IPAddress.TryParse(appOptions.TrustedProxyAddress, out var trustedProxyAddress))
+{
+    throw new InvalidOperationException("App:TrustedProxyAddress must be a valid IP address.");
+}
 
 builder.Services.Configure<ForwardedHeadersOptions>(options =>
 {
     options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
     options.ForwardLimit = 1;
-    options.KnownProxies.Add(IPAddress.Parse(appOptions.TrustedProxyAddress));
+    options.KnownProxies.Add(trustedProxyAddress);
 });
 
 // ─── JSON: snake_case to match the existing frontend contract ────────────────
@@ -71,6 +79,7 @@ builder.Services.AddScoped<SessionService>();
 // ─── External services ───────────────────────────────────────────────────────
 builder.Services.AddHttpClient<DiscordWebhookService>();
 builder.Services.AddHttpClient<BattleNetAuthService>();
+builder.Services.AddSingleton<AuditLogService>();
 
 // Battle.net token is application-scoped and cached in the service instance, so
 // the service is a singleton that pulls a pooled HttpClient from the factory.

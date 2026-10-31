@@ -1,5 +1,6 @@
 using AmusedToDeath.Api.Models;
 using AmusedToDeath.Api.Security;
+using AmusedToDeath.Api.Services;
 
 namespace AmusedToDeath.Api.Endpoints;
 
@@ -18,24 +19,42 @@ public static class AuthEndpoints
         var group = app.MapGroup("/api/auth").WithTags("Auth");
 
         // Current principal. Public — returns null when anonymous.
-        group.MapGet("/me", (ICurrentUser user) =>
-            user.IsAuthenticated
-                ? Results.Ok(new MeResponse(user.Name!, user.IsAdmin))
-                : Results.Ok<MeResponse?>(null))
+        group
+            .MapGet(
+                "/me",
+                (ICurrentUser user) =>
+                    user.IsAuthenticated
+                        ? Results.Ok(new MeResponse(user.Name!, user.IsAdmin))
+                        : Results.Ok<MeResponse?>(null)
+            )
             .WithSummary("Get the current user")
             .WithDescription("Returns { user, admin } when logged in, or null when anonymous.");
 
         // Logout: destroy the session token and clear the cookie.
-        group.MapPost("/logout", async (HttpContext ctx, SessionService sessions, CancellationToken ct) =>
-        {
-            var token = ctx.Request.Cookies[SessionService.CookieName];
-            if (!string.IsNullOrEmpty(token))
-            {
-                await sessions.DestroySessionAsync(token, ct);
-            }
-            sessions.ClearCookie(ctx.Response);
-            return Results.Ok(new { success = true });
-        })
+        group
+            .MapPost(
+                "/logout",
+                async (
+                    HttpContext ctx,
+                    SessionService sessions,
+                    ICurrentUser user,
+                    AuditLogService audit,
+                    CancellationToken ct
+                ) =>
+                {
+                    var token = ctx.Request.Cookies[SessionService.CookieName];
+                    if (!string.IsNullOrEmpty(token))
+                    {
+                        await sessions.DestroySessionAsync(token, ct);
+                        if (user.IsAuthenticated)
+                        {
+                            audit.Record("auth.logout", user, "account", user.OwnerId);
+                        }
+                    }
+                    sessions.ClearCookie(ctx.Response);
+                    return Results.Ok(new { success = true });
+                }
+            )
             .WithSummary("Log out");
 
         return app;

@@ -22,6 +22,7 @@ import { getBattleNetLoginUrl } from "../api/endpoints";
 
 const navItems = [
     { label: "Home", path: "/", auth: false, admin: false },
+    { label: "Videos", path: "/videos", auth: false, admin: false },
     { label: "Raids", path: "/raids", auth: true, admin: false },
     { label: "Characters", path: "/characters", auth: true, admin: false },
     { label: "Applications", path: "/apps", auth: true, admin: false },

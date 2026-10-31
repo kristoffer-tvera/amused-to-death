@@ -1,10 +1,10 @@
 using System.Security.Cryptography;
-using Microsoft.Extensions.Options;
 using AmusedToDeath.Api.Configuration;
 using AmusedToDeath.Api.Data;
 using AmusedToDeath.Api.Models;
 using AmusedToDeath.Api.Security;
 using AmusedToDeath.Api.Services;
+using Microsoft.Extensions.Options;
 
 namespace AmusedToDeath.Api.Endpoints;
 
@@ -26,6 +26,8 @@ public static class BattleNetAuthEndpoints
 {
     private static readonly TimeSpan SessionLifetime = TimeSpan.FromDays(30);
     private static readonly TimeSpan PendingCookieLifetime = TimeSpan.FromMinutes(10);
+    private static readonly TimeSpan OAuthStateLifetime = TimeSpan.FromMinutes(10);
+    private const string OAuthStateCookieName = "a2d_bnet_oauth_state";
 
     public static IEndpointRouteBuilder MapBattleNetAuthEndpoints(this IEndpointRouteBuilder app)
     {
@@ -33,204 +35,360 @@ public static class BattleNetAuthEndpoints
 
         // 1. Begin login (browser navigation). ?reimport=true forces the character
         //    picker even for a returning account (used by the Home "Re-import" button).
-        group.MapGet("/login", (bool? reimport, BattleNetAuthService bnet) =>
-        {
-            var state = reimport == true
-                ? "reimport"
-                : Convert.ToHexString(RandomNumberGenerator.GetBytes(8)).ToLowerInvariant();
-            return Results.Redirect(bnet.BuildAuthorizeUrl(state));
-        })
+        group
+            .MapGet(
+                "/login",
+                (bool? reimport, HttpContext ctx, BattleNetAuthService bnet) =>
+                {
+                    var state = Convert
+                        .ToHexString(RandomNumberGenerator.GetBytes(32))
+                        .ToLowerInvariant();
+                    WriteOAuthStateCookie(ctx.Response, state, reimport == true);
+                    return Results.Redirect(bnet.BuildAuthorizeUrl(state));
+                }
+            )
             .WithSummary("Start Battle.net login");
 
         // 2. OAuth callback. Returning users (who already own characters) are
         //    logged straight in after a strict guild re-verify; only accounts with
         //    no characters — or an explicit ?reimport=true — see the picker.
-        group.MapGet("/callback", async (string? code, string? state, HttpContext ctx,
-            BattleNetAuthService bnet, BattleNetService gameData, PendingLoginStore pending,
-            SessionService sessions, CharacterRepository characters, IOptions<AppOptions> options,
-            CancellationToken ct) =>
-        {
-            if (string.IsNullOrEmpty(code))
-            {
-                return Results.Json(new { error = "Missing OAuth code" }, statusCode: StatusCodes.Status400BadRequest);
-            }
-
-            var accessToken = await bnet.ExchangeCodeAsync(code, ct);
-            if (accessToken is null)
-            {
-                return Results.Json(new { error = "Battle.net login failed" }, statusCode: StatusCodes.Status401Unauthorized);
-            }
-
-            var identity = await bnet.GetIdentityAsync(accessToken, ct);
-            if (identity is null)
-            {
-                return Results.Json(new { error = "Could not read Battle.net account" }, statusCode: StatusCodes.Status401Unauthorized);
-            }
-
-            var maxLevelChars = await bnet.GetMaxLevelCharactersAsync(accessToken, ct);
-
-            // "reimport" is carried through the OAuth state param so the Home button
-            // can force the picker even for an account that already has characters.
-            var forceReimport = state == "reimport";
-
-            // Returning user fast-path: already owns characters and isn't forcing a
-            // re-import. Re-verify guild membership and log straight in.
-            if (!forceReimport && await characters.HasOwnedAsync(identity.Sub, ct))
-            {
-                var ownedNames = await characters.OwnedNamesAsync(identity.Sub, ct);
-                var ownedSet = new HashSet<string>(ownedNames, StringComparer.OrdinalIgnoreCase);
-
-                // Strict re-verify: at least one OWNED character must still be in the
-                // guild. Rosters are per-realm, so we check the account's max-level
-                // characters against their own realms' rosters (one fetch per realm,
-                // cached) and keep only those the user actually owns. A single-realm
-                // lookup here wrongly rejected members whose guild character sits on
-                // a different realm than the first max-level character.
-                var ownedInGuild = maxLevelChars.Where(c => ownedSet.Contains(c.Name)).ToList();
-                var bestRank = await BestGuildRankAsync(gameData, bnet.GuildName, ownedInGuild, ct);
-
-                if (bestRank == int.MaxValue)
+        group
+            .MapGet(
+                "/callback",
+                async (
+                    string? code,
+                    string? state,
+                    HttpContext ctx,
+                    BattleNetAuthService bnet,
+                    BattleNetService gameData,
+                    PendingLoginStore pending,
+                    SessionService sessions,
+                    AuditLogService audit,
+                    CharacterRepository characters,
+                    IOptions<AppOptions> options,
+                    CancellationToken ct
+                ) =>
                 {
-                    return Results.Redirect(options.Value.FrontendBaseUrl + "/?error=not-in-guild");
+                    if (!TryValidateOAuthState(ctx, state, out var forceReimport))
+                    {
+                        return Results.Json(
+                            new { error = "Invalid OAuth state" },
+                            statusCode: StatusCodes.Status400BadRequest
+                        );
+                    }
+
+                    if (string.IsNullOrEmpty(code))
+                    {
+                        return Results.Json(
+                            new { error = "Missing OAuth code" },
+                            statusCode: StatusCodes.Status400BadRequest
+                        );
+                    }
+
+                    var accessToken = await bnet.ExchangeCodeAsync(code, ct);
+                    if (accessToken is null)
+                    {
+                        return Results.Json(
+                            new { error = "Battle.net login failed" },
+                            statusCode: StatusCodes.Status401Unauthorized
+                        );
+                    }
+
+                    var identity = await bnet.GetIdentityAsync(accessToken, ct);
+                    if (identity is null)
+                    {
+                        return Results.Json(
+                            new { error = "Could not read Battle.net account" },
+                            statusCode: StatusCodes.Status401Unauthorized
+                        );
+                    }
+
+                    var maxLevelChars = await bnet.GetMaxLevelCharactersAsync(accessToken, ct);
+
+                    // Returning user fast-path: already owns characters and isn't forcing a
+                    // re-import. Re-verify guild membership and log straight in.
+                    if (!forceReimport && await characters.HasOwnedAsync(identity.Sub, ct))
+                    {
+                        var ownedNames = await characters.OwnedNamesAsync(identity.Sub, ct);
+                        var ownedSet = new HashSet<string>(
+                            ownedNames,
+                            StringComparer.OrdinalIgnoreCase
+                        );
+
+                        // Strict re-verify: at least one OWNED character must still be in the
+                        // guild. Rosters are per-realm, so we check the account's max-level
+                        // characters against their own realms' rosters (one fetch per realm,
+                        // cached) and keep only those the user actually owns. A single-realm
+                        // lookup here wrongly rejected members whose guild character sits on
+                        // a different realm than the first max-level character.
+                        var ownedInGuild = maxLevelChars
+                            .Where(c => ownedSet.Contains(c.Name))
+                            .ToList();
+                        var bestRank = await BestGuildRankAsync(
+                            gameData,
+                            bnet.GuildName,
+                            ownedInGuild,
+                            ct
+                        );
+
+                        if (bestRank == int.MaxValue)
+                        {
+                            return Results.Redirect(
+                                options.Value.FrontendBaseUrl + "/?error=not-in-guild"
+                            );
+                        }
+
+                        var admin = bestRank <= options.Value.BattleNet.AdminMaxRank;
+                        var sessionToken = await sessions.CreateSessionAsync(
+                            identity.BattleTag,
+                            identity.Sub,
+                            admin,
+                            SessionLifetime,
+                            ct
+                        );
+                        sessions.WriteCookie(ctx.Response, sessionToken, SessionLifetime);
+                        audit.Record(
+                            "auth.login.succeeded",
+                            "battle_net",
+                            identity.BattleTag,
+                            identity.Sub,
+                            admin,
+                            "account",
+                            identity.Sub
+                        );
+                        return Results.Redirect(options.Value.FrontendBaseUrl + "/");
+                    }
+
+                    // First-time (or forced re-import): park the login and show the picker.
+                    var pendingToken = Convert
+                        .ToHexString(RandomNumberGenerator.GetBytes(16))
+                        .ToLowerInvariant();
+                    pending.Set(
+                        pendingToken,
+                        new PendingLogin(
+                            identity.Sub,
+                            identity.BattleTag,
+                            accessToken,
+                            maxLevelChars
+                        )
+                    );
+                    WritePendingCookie(ctx.Response, pendingToken);
+                    return Results.Redirect(options.Value.FrontendBaseUrl + "/bnet/pick");
                 }
-
-                var admin = bestRank <= options.Value.BattleNet.AdminMaxRank;
-                var sessionToken = await sessions.CreateSessionAsync(identity.BattleTag, identity.Sub, admin, SessionLifetime, ct);
-                sessions.WriteCookie(ctx.Response, sessionToken, SessionLifetime);
-                return Results.Redirect(options.Value.FrontendBaseUrl + "/");
-            }
-
-            // First-time (or forced re-import): park the login and show the picker.
-            var pendingToken = Convert.ToHexString(RandomNumberGenerator.GetBytes(16)).ToLowerInvariant();
-            pending.Set(pendingToken, new PendingLogin(identity.Sub, identity.BattleTag, accessToken, maxLevelChars));
-            WritePendingCookie(ctx.Response, pendingToken);
-            return Results.Redirect(options.Value.FrontendBaseUrl + "/bnet/pick");
-        })
+            )
             .WithSummary("Battle.net OAuth callback");
 
         // 3. The picker payload: max-level characters + guild membership flags.
-        group.MapGet("/characters", async (HttpContext ctx, BattleNetAuthService bnet, BattleNetService gameData,
-            PendingLoginStore pending, CancellationToken ct) =>
-        {
-            var login = ReadPending(ctx, pending);
-            if (login is null)
-            {
-                return Results.Json(new { error = "No login in progress" }, statusCode: StatusCodes.Status401Unauthorized);
-            }
+        group
+            .MapGet(
+                "/characters",
+                async (
+                    HttpContext ctx,
+                    BattleNetAuthService bnet,
+                    BattleNetService gameData,
+                    PendingLoginStore pending,
+                    CancellationToken ct
+                ) =>
+                {
+                    var login = ReadPending(ctx, pending);
+                    if (login is null)
+                    {
+                        return Results.Json(
+                            new { error = "No login in progress" },
+                            statusCode: StatusCodes.Status401Unauthorized
+                        );
+                    }
 
-            // Resolve guild membership from the cached guild roster (one call for
-            // all characters, rather than one profile fetch per character).
-            foreach (var c in login.Characters)
-            {
-                var ranks = await gameData.GetGuildRanksAsync(c.RealmSlug, bnet.GuildName, ct);
-                c.InGuild = ranks.ContainsKey(c.Name);
-                c.Guild = c.InGuild ? bnet.GuildName : null;
-            }
+                    // Resolve guild membership from the cached guild roster (one call for
+                    // all characters, rather than one profile fetch per character).
+                    foreach (var c in login.Characters)
+                    {
+                        var ranks = await gameData.GetGuildRanksAsync(
+                            c.RealmSlug,
+                            bnet.GuildName,
+                            ct
+                        );
+                        c.InGuild = ranks.ContainsKey(c.Name);
+                        c.Guild = c.InGuild ? bnet.GuildName : null;
+                    }
 
-            var payload = new BattleNetCharacterList
-            {
-                BattleTag = login.BattleTag,
-                MaxLevel = login.Characters.Count > 0 ? login.Characters.Max(c => c.Level) : 0,
-                Characters = login.Characters,
-                HasGuildCharacter = login.Characters.Any(c => c.InGuild),
-            };
-            return Results.Ok(payload);
-        })
+                    var payload = new BattleNetCharacterList
+                    {
+                        BattleTag = login.BattleTag,
+                        MaxLevel =
+                            login.Characters.Count > 0 ? login.Characters.Max(c => c.Level) : 0,
+                        Characters = login.Characters,
+                        HasGuildCharacter = login.Characters.Any(c => c.InGuild),
+                    };
+                    return Results.Ok(payload);
+                }
+            )
             .WithSummary("List the logged-in account's max-level characters")
-            .WithDescription("Requires a Battle.net login in progress (pending-login cookie set by the callback).");
+            .WithDescription(
+                "Requires a Battle.net login in progress (pending-login cookie set by the callback)."
+            );
 
         // 4. Import chosen characters and establish the session.
-        group.MapPost("/import", async (BattleNetImportRequest body, HttpContext ctx,
-            BattleNetAuthService bnet, BattleNetService gameData, PendingLoginStore pending, SessionService sessions,
-            CharacterRepository characters, IOptions<AppOptions> options, CancellationToken ct) =>
-        {
-            var login = ReadPending(ctx, pending);
-            if (login is null)
-            {
-                return Results.Json(new { error = "No login in progress" }, statusCode: StatusCodes.Status401Unauthorized);
-            }
-
-            if (body.Picks.Count == 0)
-            {
-                return Results.Json(new { error = "No characters selected" }, statusCode: StatusCodes.Status400BadRequest);
-            }
-            if (body.MainIndex < 0 || body.MainIndex >= body.Picks.Count)
-            {
-                return Results.Json(new { error = "Invalid main selection" }, statusCode: StatusCodes.Status400BadRequest);
-            }
-
-            // Resolve the picks against the characters we discovered for this account,
-            // so a caller can't import arbitrary characters they don't own.
-            var resolved = new List<BattleNetCharacter>();
-            foreach (var pick in body.Picks)
-            {
-                var match = login.Characters.FirstOrDefault(c =>
-                    string.Equals(c.Name, pick.Name, StringComparison.OrdinalIgnoreCase) &&
-                    string.Equals(c.Realm, pick.Realm, StringComparison.OrdinalIgnoreCase));
-                if (match is null)
+        group
+            .MapPost(
+                "/import",
+                async (
+                    BattleNetImportRequest body,
+                    HttpContext ctx,
+                    BattleNetAuthService bnet,
+                    BattleNetService gameData,
+                    PendingLoginStore pending,
+                    SessionService sessions,
+                    AuditLogService audit,
+                    CharacterRepository characters,
+                    IOptions<AppOptions> options,
+                    CancellationToken ct
+                ) =>
                 {
-                    return Results.Json(new { error = $"Character not on your account: {pick.Name}-{pick.Realm}" },
-                        statusCode: StatusCodes.Status400BadRequest);
+                    var login = ReadPending(ctx, pending);
+                    if (login is null)
+                    {
+                        return Results.Json(
+                            new { error = "No login in progress" },
+                            statusCode: StatusCodes.Status401Unauthorized
+                        );
+                    }
+
+                    if (body.Picks.Count == 0)
+                    {
+                        return Results.Json(
+                            new { error = "No characters selected" },
+                            statusCode: StatusCodes.Status400BadRequest
+                        );
+                    }
+                    if (body.MainIndex < 0 || body.MainIndex >= body.Picks.Count)
+                    {
+                        return Results.Json(
+                            new { error = "Invalid main selection" },
+                            statusCode: StatusCodes.Status400BadRequest
+                        );
+                    }
+
+                    // Resolve the picks against the characters we discovered for this account,
+                    // so a caller can't import arbitrary characters they don't own.
+                    var resolved = new List<BattleNetCharacter>();
+                    foreach (var pick in body.Picks)
+                    {
+                        var match = login.Characters.FirstOrDefault(c =>
+                            string.Equals(c.Name, pick.Name, StringComparison.OrdinalIgnoreCase)
+                            && string.Equals(
+                                c.Realm,
+                                pick.Realm,
+                                StringComparison.OrdinalIgnoreCase
+                            )
+                        );
+                        if (match is null)
+                        {
+                            return Results.Json(
+                                new
+                                {
+                                    error = $"Character not on your account: {pick.Name}-{pick.Realm}",
+                                },
+                                statusCode: StatusCodes.Status400BadRequest
+                            );
+                        }
+                        resolved.Add(match);
+                    }
+
+                    // Guild gate + rank: find the best (lowest) guild rank across the
+                    // chosen characters. Rosters are per-realm, so we look each character up
+                    // against its OWN realm's roster — picks can span multiple realms, and a
+                    // single-realm lookup would miss a guild character on another realm.
+                    // Admin status = best rank among the chosen guild characters is within
+                    // the configured admin cutoff. Requiring only one guild character to
+                    // match matches the "at least one" membership rule.
+                    var bestRank = await BestGuildRankAsync(gameData, bnet.GuildName, resolved, ct);
+
+                    if (bestRank == int.MaxValue)
+                    {
+                        return Results.Json(
+                            new
+                            {
+                                error = $"None of your selected characters are in the guild \"{bnet.GuildName}\".",
+                            },
+                            statusCode: StatusCodes.Status403Forbidden
+                        );
+                    }
+
+                    var isAdmin = bestRank <= options.Value.BattleNet.AdminMaxRank;
+
+                    // Import/migrate each pick. First pass creates/claims rows and records ids
+                    // so we can wire up the main relationship in a second pass.
+                    var ids = new int[resolved.Count];
+                    for (var i = 0; i < resolved.Count; i++)
+                    {
+                        var c = resolved[i];
+                        var existing = await characters.FindByNameRealmAsync(c.Name, c.Realm, ct);
+                        if (existing is not null)
+                        {
+                            // Migrate: keep the original record, attach ownership.
+                            await characters.ClaimAsync(existing.Id, login.Sub, existing.Main, ct);
+                            ids[i] = existing.Id;
+                        }
+                        else
+                        {
+                            ids[i] = await characters.InsertOwnedAsync(
+                                c.Name,
+                                c.Realm,
+                                c.ClassId,
+                                login.Sub,
+                                main: null,
+                                ct
+                            );
+                        }
+                    }
+
+                    // Set the main relationship: every pick points its main at the chosen main
+                    // (the main points at itself, which the frontend treats as "is a main").
+                    var mainId = ids[body.MainIndex];
+                    for (var i = 0; i < ids.Length; i++)
+                    {
+                        await characters.SetMainAsync(ids[i], mainId, ct);
+                    }
+
+                    // Establish the real session: BattleTag as display name, Blizzard sub
+                    // as the owner id (matches characters.owner_id), admin from guild rank.
+                    var token = await sessions.CreateSessionAsync(
+                        login.BattleTag,
+                        login.Sub,
+                        isAdmin,
+                        SessionLifetime,
+                        ct
+                    );
+                    sessions.WriteCookie(ctx.Response, token, SessionLifetime);
+                    audit.Record(
+                        "battlenet.characters.imported",
+                        "battle_net",
+                        login.BattleTag,
+                        login.Sub,
+                        isAdmin,
+                        "account",
+                        login.Sub,
+                        $"count={ids.Length}; main_character_id={mainId}"
+                    );
+                    ClearPendingCookie(ctx.Response);
+                    pending.Remove(ReadPendingToken(ctx)!);
+
+                    return Results.Ok(
+                        new
+                        {
+                            success = true,
+                            imported = ids.Length,
+                            main_id = mainId,
+                            admin = isAdmin,
+                        }
+                    );
                 }
-                resolved.Add(match);
-            }
-
-            // Guild gate + rank: find the best (lowest) guild rank across the
-            // chosen characters. Rosters are per-realm, so we look each character up
-            // against its OWN realm's roster — picks can span multiple realms, and a
-            // single-realm lookup would miss a guild character on another realm.
-            // Admin status = best rank among the chosen guild characters is within
-            // the configured admin cutoff. Requiring only one guild character to
-            // match matches the "at least one" membership rule.
-            var bestRank = await BestGuildRankAsync(gameData, bnet.GuildName, resolved, ct);
-
-            if (bestRank == int.MaxValue)
-            {
-                return Results.Json(
-                    new { error = $"None of your selected characters are in the guild \"{bnet.GuildName}\"." },
-                    statusCode: StatusCodes.Status403Forbidden);
-            }
-
-            var isAdmin = bestRank <= options.Value.BattleNet.AdminMaxRank;
-
-            // Import/migrate each pick. First pass creates/claims rows and records ids
-            // so we can wire up the main relationship in a second pass.
-            var ids = new int[resolved.Count];
-            for (var i = 0; i < resolved.Count; i++)
-            {
-                var c = resolved[i];
-                var existing = await characters.FindByNameRealmAsync(c.Name, c.Realm, ct);
-                if (existing is not null)
-                {
-                    // Migrate: keep the original record, attach ownership.
-                    await characters.ClaimAsync(existing.Id, login.Sub, existing.Main, ct);
-                    ids[i] = existing.Id;
-                }
-                else
-                {
-                    ids[i] = await characters.InsertOwnedAsync(c.Name, c.Realm, c.ClassId, login.Sub, main: null, ct);
-                }
-            }
-
-            // Set the main relationship: every pick points its main at the chosen main
-            // (the main points at itself, which the frontend treats as "is a main").
-            var mainId = ids[body.MainIndex];
-            for (var i = 0; i < ids.Length; i++)
-            {
-                await characters.SetMainAsync(ids[i], mainId, ct);
-            }
-
-            // Establish the real session: BattleTag as display name, Blizzard sub
-            // as the owner id (matches characters.owner_id), admin from guild rank.
-            var token = await sessions.CreateSessionAsync(login.BattleTag, login.Sub, isAdmin, SessionLifetime, ct);
-            sessions.WriteCookie(ctx.Response, token, SessionLifetime);
-            ClearPendingCookie(ctx.Response);
-            pending.Remove(ReadPendingToken(ctx)!);
-
-            return Results.Ok(new { success = true, imported = ids.Length, main_id = mainId, admin = isAdmin });
-        })
+            )
             .WithSummary("Import chosen characters and finish login")
-            .WithDescription("Requires at least one selected max-level character to be in the configured guild.");
+            .WithDescription(
+                "Requires at least one selected max-level character to be in the configured guild."
+            );
 
         return app;
     }
@@ -243,8 +401,11 @@ public static class BattleNetAuthEndpoints
     /// working even when a user's characters span multiple realms.
     /// </summary>
     private static async Task<int> BestGuildRankAsync(
-        BattleNetService gameData, string guildName,
-        IEnumerable<BattleNetCharacter> chars, CancellationToken ct)
+        BattleNetService gameData,
+        string guildName,
+        IEnumerable<BattleNetCharacter> chars,
+        CancellationToken ct
+    )
     {
         var bestRank = int.MaxValue;
         foreach (var byRealm in chars.GroupBy(c => c.RealmSlug, StringComparer.OrdinalIgnoreCase))
@@ -268,24 +429,102 @@ public static class BattleNetAuthEndpoints
     }
 
     private static string? ReadPendingToken(HttpContext ctx) =>
-        ctx.Request.Cookies.TryGetValue(PendingLoginStore.CookieName, out var t) && !string.IsNullOrEmpty(t) ? t : null;
+        ctx.Request.Cookies.TryGetValue(PendingLoginStore.CookieName, out var t)
+        && !string.IsNullOrEmpty(t)
+            ? t
+            : null;
 
     private static void WritePendingCookie(HttpResponse response, string token) =>
-        response.Cookies.Append(PendingLoginStore.CookieName, token, new CookieOptions
-        {
-            HttpOnly = true,
-            Secure = true,
-            SameSite = SameSiteMode.Lax,
-            Path = "/",
-            MaxAge = PendingCookieLifetime,
-        });
+        response.Cookies.Append(
+            PendingLoginStore.CookieName,
+            token,
+            new CookieOptions
+            {
+                HttpOnly = true,
+                Secure = true,
+                SameSite = SameSiteMode.Lax,
+                Path = "/",
+                MaxAge = PendingCookieLifetime,
+            }
+        );
 
     private static void ClearPendingCookie(HttpResponse response) =>
-        response.Cookies.Delete(PendingLoginStore.CookieName, new CookieOptions
+        response.Cookies.Delete(
+            PendingLoginStore.CookieName,
+            new CookieOptions
+            {
+                HttpOnly = true,
+                Secure = true,
+                SameSite = SameSiteMode.Lax,
+                Path = "/",
+            }
+        );
+
+    private static void WriteOAuthStateCookie(HttpResponse response, string state, bool reimport) =>
+        response.Cookies.Append(
+            OAuthStateCookieName,
+            $"{state}.{(reimport ? 'r' : 'n')}",
+            new CookieOptions
+            {
+                HttpOnly = true,
+                Secure = true,
+                SameSite = SameSiteMode.Lax,
+                Path = "/api/auth/bnet",
+                MaxAge = OAuthStateLifetime,
+            }
+        );
+
+    private static bool TryValidateOAuthState(
+        HttpContext ctx,
+        string? state,
+        out bool forceReimport
+    )
+    {
+        forceReimport = false;
+        var storedValue = ctx.Request.Cookies[OAuthStateCookieName];
+        ctx.Response.Cookies.Delete(
+            OAuthStateCookieName,
+            new CookieOptions
+            {
+                HttpOnly = true,
+                Secure = true,
+                SameSite = SameSiteMode.Lax,
+                Path = "/api/auth/bnet",
+            }
+        );
+
+        if (string.IsNullOrEmpty(storedValue) || string.IsNullOrEmpty(state))
         {
-            HttpOnly = true,
-            Secure = true,
-            SameSite = SameSiteMode.Lax,
-            Path = "/",
-        });
+            return false;
+        }
+
+        var separator = storedValue.LastIndexOf('.');
+        if (separator != storedValue.Length - 2 || separator <= 0)
+        {
+            return false;
+        }
+
+        var expectedState = storedValue[..separator];
+        var mode = storedValue[^1];
+        if (
+            (mode != 'r' && mode != 'n')
+            || expectedState.Length != 64
+            || state.Length != 64
+            || !expectedState.All(Uri.IsHexDigit)
+            || !state.All(Uri.IsHexDigit)
+        )
+        {
+            return false;
+        }
+
+        var expectedBytes = Convert.FromHexString(expectedState);
+        var actualBytes = Convert.FromHexString(state);
+        if (!CryptographicOperations.FixedTimeEquals(expectedBytes, actualBytes))
+        {
+            return false;
+        }
+
+        forceReimport = mode == 'r';
+        return true;
+    }
 }
