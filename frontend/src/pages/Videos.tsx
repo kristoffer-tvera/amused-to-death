@@ -5,7 +5,7 @@ import YouTubeIcon from "@mui/icons-material/YouTube";
 const channelUrl = "https://www.youtube.com/channel/UC71iQLKzqkGCgG_emhFWySw";
 const playlistUrl = "https://www.youtube.com/playlist?list=PLRms08srxYdk";
 const playerUrl =
-    "https://www.youtube-nocookie.com/embed/hyQa4o9o7s0?list=PLRms08srxYdk&rel=0";
+    "https://www.youtube-nocookie.com/embed/WJhgkS3Elwc?list=PLRms08srxYdk&rel=0";
 
 export default function Videos() {
     return (
