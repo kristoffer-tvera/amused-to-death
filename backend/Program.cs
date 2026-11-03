@@ -67,6 +67,13 @@ if (runMigrations)
 }
 
 // ─── Repositories ────────────────────────────────────────────────────────────
+// Read-through cache in front of the repositories. We are the sole writer to the
+// database, so reads are cached for 24h and invalidated immediately when we write
+// to a table they depend on (see RepositoryCache). Singleton so the cache and its
+// generation counters are shared across all requests.
+builder.Services.AddMemoryCache();
+builder.Services.AddSingleton<RepositoryCache>();
+
 builder.Services.AddScoped<CharacterRepository>();
 builder.Services.AddScoped<RaidRepository>();
 builder.Services.AddScoped<AttendanceRepository>();
@@ -86,8 +93,8 @@ builder.Services.AddSingleton<AuditLogService>();
 builder.Services.AddHttpClient("battlenet");
 builder.Services.AddSingleton<BattleNetService>();
 
-// In-memory cache + pending-login store for the Battle.net login/import flow.
-builder.Services.AddMemoryCache();
+// Pending-login store for the Battle.net login/import flow. (MemoryCache is
+// registered above with the repository cache.)
 builder.Services.AddSingleton<PendingLoginStore>();
 
 // ─── CORS ────────────────────────────────────────────────────────────────────

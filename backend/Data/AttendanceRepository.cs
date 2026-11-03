@@ -6,43 +6,56 @@ namespace AmusedToDeath.Api.Data;
 public sealed class AttendanceRepository
 {
     private readonly IDbConnectionFactory _connections;
+    private readonly RepositoryCache _cache;
 
-    public AttendanceRepository(IDbConnectionFactory connections)
+    // Attendance reads JOIN characters and raids, but character and raid writes
+    // both invalidate the Attendance region (see those repos' WriteTables), so
+    // tagging attendance reads with Attendance alone covers every dependency.
+    private static readonly CacheTable[] Tables = [CacheTable.Attendance];
+
+    public AttendanceRepository(IDbConnectionFactory connections, RepositoryCache cache)
     {
         _connections = connections;
+        _cache = cache;
     }
 
-    public async Task<IReadOnlyList<RaidAttendanceRow>> ForRaidAsync(int raidId, CancellationToken ct = default)
+    public Task<IReadOnlyList<RaidAttendanceRow>> ForRaidAsync(int raidId, CancellationToken ct = default)
     {
-        await using var db = await _connections.OpenConnectionAsync(ct);
-        var rows = await db.QueryAsync<RaidAttendanceRow>(new CommandDefinition(
-            """
-            SELECT a.id, a.created_at, a.bosses, a.paid, a.raid_id, a.character_id,
-                   c.name, c.class, c.main, c.ilvl,
-                   c.role_tank, c.role_heal, c.role_dps
-            FROM attendance a
-            INNER JOIN characters c ON a.character_id = c.id
-            WHERE a.raid_id = @raidId
-            ORDER BY a.created_at ASC
-            """,
-            new { raidId }, cancellationToken: ct));
-        return rows.AsList();
+        return _cache.GetOrCreateAsync($"attendance:for-raid:{raidId}", Tables, async () =>
+        {
+            await using var db = await _connections.OpenConnectionAsync(ct);
+            var rows = await db.QueryAsync<RaidAttendanceRow>(new CommandDefinition(
+                """
+                SELECT a.id, a.created_at, a.bosses, a.paid, a.raid_id, a.character_id,
+                       c.name, c.class, c.main, c.ilvl,
+                       c.role_tank, c.role_heal, c.role_dps
+                FROM attendance a
+                INNER JOIN characters c ON a.character_id = c.id
+                WHERE a.raid_id = @raidId
+                ORDER BY a.created_at ASC
+                """,
+                new { raidId }, cancellationToken: ct));
+            return (IReadOnlyList<RaidAttendanceRow>)rows.AsList();
+        });
     }
 
-    public async Task<IReadOnlyList<CharacterAttendanceRow>> ForCharacterAsync(int characterId, CancellationToken ct = default)
+    public Task<IReadOnlyList<CharacterAttendanceRow>> ForCharacterAsync(int characterId, CancellationToken ct = default)
     {
-        await using var db = await _connections.OpenConnectionAsync(ct);
-        var rows = await db.QueryAsync<CharacterAttendanceRow>(new CommandDefinition(
-            """
-            SELECT a.id, a.character_id, a.raid_id, a.bosses, a.paid,
-                   a.created_at, a.updated_at,
-                   r.name, r.gold, r.comment
-            FROM attendance a
-            INNER JOIN raids r ON a.raid_id = r.id
-            WHERE a.character_id = @characterId
-            """,
-            new { characterId }, cancellationToken: ct));
-        return rows.AsList();
+        return _cache.GetOrCreateAsync($"attendance:for-character:{characterId}", Tables, async () =>
+        {
+            await using var db = await _connections.OpenConnectionAsync(ct);
+            var rows = await db.QueryAsync<CharacterAttendanceRow>(new CommandDefinition(
+                """
+                SELECT a.id, a.character_id, a.raid_id, a.bosses, a.paid,
+                       a.created_at, a.updated_at,
+                       r.name, r.gold, r.comment
+                FROM attendance a
+                INNER JOIN raids r ON a.raid_id = r.id
+                WHERE a.character_id = @characterId
+                """,
+                new { characterId }, cancellationToken: ct));
+            return (IReadOnlyList<CharacterAttendanceRow>)rows.AsList();
+        });
     }
 
     public async Task AddAsync(int characterId, int raidId, int bosses, CancellationToken ct = default)
@@ -54,6 +67,7 @@ public sealed class AttendanceRepository
             VALUES (@characterId, @raidId, @bosses)
             """,
             new { characterId, raidId, bosses }, cancellationToken: ct));
+        _cache.Invalidate(Tables);
     }
 
     public async Task UpdateAsync(int characterId, int raidId, int bosses, bool paid, CancellationToken ct = default)
@@ -65,6 +79,7 @@ public sealed class AttendanceRepository
             WHERE character_id = @characterId AND raid_id = @raidId
             """,
             new { characterId, raidId, bosses, paid }, cancellationToken: ct));
+        _cache.Invalidate(Tables);
     }
 
     public async Task DeleteAsync(int characterId, int raidId, CancellationToken ct = default)
@@ -73,6 +88,7 @@ public sealed class AttendanceRepository
         await db.ExecuteAsync(new CommandDefinition(
             "DELETE FROM attendance WHERE character_id = @characterId AND raid_id = @raidId",
             new { characterId, raidId }, cancellationToken: ct));
+        _cache.Invalidate(Tables);
     }
 
     /// <summary>Adds every owned, non-hidden MAIN character to the raid, ignoring
@@ -90,6 +106,7 @@ public sealed class AttendanceRepository
             ON CONFLICT (raid_id, character_id) DO NOTHING
             """,
             new { raidId }, cancellationToken: ct));
+        _cache.Invalidate(Tables);
     }
 
     public async Task RemoveZeroBossesAsync(int raidId, CancellationToken ct = default)
@@ -98,6 +115,7 @@ public sealed class AttendanceRepository
         await db.ExecuteAsync(new CommandDefinition(
             "DELETE FROM attendance WHERE bosses = 0 AND raid_id = @raidId",
             new { raidId }, cancellationToken: ct));
+        _cache.Invalidate(Tables);
     }
 
     public async Task SetAllPaidAsync(int raidId, CancellationToken ct = default)
@@ -106,5 +124,6 @@ public sealed class AttendanceRepository
         await db.ExecuteAsync(new CommandDefinition(
             "UPDATE attendance SET paid = true WHERE raid_id = @raidId",
             new { raidId }, cancellationToken: ct));
+        _cache.Invalidate(Tables);
     }
 }

@@ -21,19 +21,28 @@ namespace AmusedToDeath.Api.Data;
 public sealed class ApplicationRepository
 {
     private readonly IDbConnectionFactory _connections;
+    private readonly RepositoryCache _cache;
 
-    public ApplicationRepository(IDbConnectionFactory connections)
+    // Both the applications row and its application_versions snapshots live under
+    // the single Applications region; any write to either invalidates all reads.
+    private static readonly CacheTable[] Tables = [CacheTable.Applications];
+
+    public ApplicationRepository(IDbConnectionFactory connections, RepositoryCache cache)
     {
         _connections = connections;
+        _cache = cache;
     }
 
     /// <summary>Public list — no secrets. updated_at maps to UpdatedAt.</summary>
-    public async Task<IReadOnlyList<ApplicationSummary>> ListAsync(CancellationToken ct = default)
+    public Task<IReadOnlyList<ApplicationSummary>> ListAsync(CancellationToken ct = default)
     {
-        await using var db = await _connections.OpenConnectionAsync(ct);
-        var rows = await db.QueryAsync<ApplicationSummary>(new CommandDefinition(
-            "SELECT id, name, server, spec, updated_at FROM applications", cancellationToken: ct));
-        return rows.AsList();
+        return _cache.GetOrCreateAsync("applications:list", Tables, async () =>
+        {
+            await using var db = await _connections.OpenConnectionAsync(ct);
+            var rows = await db.QueryAsync<ApplicationSummary>(new CommandDefinition(
+                "SELECT id, name, server, spec, updated_at FROM applications", cancellationToken: ct));
+            return (IReadOnlyList<ApplicationSummary>)rows.AsList();
+        });
     }
 
     /// <summary>
@@ -42,54 +51,65 @@ public sealed class ApplicationRepository
     /// caller is treated as admin (unrestricted). The edit_token is never selected
     /// into the result model, so it cannot leak to the client.
     /// </summary>
-    public async Task<ApplicationDetail?> GetAsync(int id, string? editToken, CancellationToken ct = default)
+    public Task<ApplicationDetail?> GetAsync(int id, string? editToken, CancellationToken ct = default)
     {
-        await using var db = await _connections.OpenConnectionAsync(ct);
-        const string cols = "id, name, server, battle_tag, spec, ui_screenshot_url, reason, history, alts, created_at, updated_at";
-        if (editToken is not null)
+        // The result depends on the token (token-gated vs. admin-unrestricted), so
+        // the token is part of the cache key. "*" denotes the admin (null) path.
+        return _cache.GetOrCreateAsync($"applications:get:{id}:{editToken ?? "*"}", Tables, async () =>
         {
-            return await db.QuerySingleOrDefaultAsync<ApplicationDetail>(new CommandDefinition(
-                $"SELECT {cols} FROM applications WHERE id = @id AND edit_token = @editToken",
-                new { id, editToken }, cancellationToken: ct));
-        }
+            await using var db = await _connections.OpenConnectionAsync(ct);
+            const string cols = "id, name, server, battle_tag, spec, ui_screenshot_url, reason, history, alts, created_at, updated_at";
+            if (editToken is not null)
+            {
+                return await db.QuerySingleOrDefaultAsync<ApplicationDetail>(new CommandDefinition(
+                    $"SELECT {cols} FROM applications WHERE id = @id AND edit_token = @editToken",
+                    new { id, editToken }, cancellationToken: ct));
+            }
 
-        return await db.QuerySingleOrDefaultAsync<ApplicationDetail>(new CommandDefinition(
-            $"SELECT {cols} FROM applications WHERE id = @id",
-            new { id }, cancellationToken: ct));
+            return await db.QuerySingleOrDefaultAsync<ApplicationDetail>(new CommandDefinition(
+                $"SELECT {cols} FROM applications WHERE id = @id",
+                new { id }, cancellationToken: ct));
+        });
     }
 
     /// <summary>
     /// Lists the revision history for an application, newest first. Reviewer-only —
     /// callers must have already authorized the request (endpoints use RequireAuth).
     /// </summary>
-    public async Task<IReadOnlyList<ApplicationVersionSummary>> ListVersionsAsync(int applicationId, CancellationToken ct = default)
+    public Task<IReadOnlyList<ApplicationVersionSummary>> ListVersionsAsync(int applicationId, CancellationToken ct = default)
     {
-        await using var db = await _connections.OpenConnectionAsync(ct);
-        var rows = await db.QueryAsync<ApplicationVersionSummary>(new CommandDefinition(
-            """
-            SELECT version_no, created_at
-            FROM application_versions
-            WHERE application_id = @applicationId
-            ORDER BY version_no DESC
-            """,
-            new { applicationId }, cancellationToken: ct));
-        return rows.AsList();
+        return _cache.GetOrCreateAsync($"applications:versions:{applicationId}", Tables, async () =>
+        {
+            await using var db = await _connections.OpenConnectionAsync(ct);
+            var rows = await db.QueryAsync<ApplicationVersionSummary>(new CommandDefinition(
+                """
+                SELECT version_no, created_at
+                FROM application_versions
+                WHERE application_id = @applicationId
+                ORDER BY version_no DESC
+                """,
+                new { applicationId }, cancellationToken: ct));
+            return (IReadOnlyList<ApplicationVersionSummary>)rows.AsList();
+        });
     }
 
     /// <summary>
     /// Fetches a single snapshot by version number. Reviewer-only. Returns null if
     /// the application or that version number does not exist.
     /// </summary>
-    public async Task<ApplicationVersion?> GetVersionAsync(int applicationId, int versionNo, CancellationToken ct = default)
+    public Task<ApplicationVersion?> GetVersionAsync(int applicationId, int versionNo, CancellationToken ct = default)
     {
-        await using var db = await _connections.OpenConnectionAsync(ct);
-        return await db.QuerySingleOrDefaultAsync<ApplicationVersion>(new CommandDefinition(
-            """
-            SELECT version_no, name, server, battle_tag, spec, ui_screenshot_url, reason, history, alts, created_at
-            FROM application_versions
-            WHERE application_id = @applicationId AND version_no = @versionNo
-            """,
-            new { applicationId, versionNo }, cancellationToken: ct));
+        return _cache.GetOrCreateAsync($"applications:version:{applicationId}:{versionNo}", Tables, async () =>
+        {
+            await using var db = await _connections.OpenConnectionAsync(ct);
+            return await db.QuerySingleOrDefaultAsync<ApplicationVersion>(new CommandDefinition(
+                """
+                SELECT version_no, name, server, battle_tag, spec, ui_screenshot_url, reason, history, alts, created_at
+                FROM application_versions
+                WHERE application_id = @applicationId AND version_no = @versionNo
+                """,
+                new { applicationId, versionNo }, cancellationToken: ct));
+        });
     }
 
     /// <summary>
@@ -119,6 +139,7 @@ public sealed class ApplicationRepository
             new { versionId, id }, tx, cancellationToken: ct));
 
         await tx.CommitAsync(ct);
+        _cache.Invalidate(Tables);
         return new ApplicationSaveResult(id, editToken);
     }
 
@@ -186,6 +207,10 @@ public sealed class ApplicationRepository
             tx, cancellationToken: ct));
 
         await tx.CommitAsync(ct);
+
+        // A real change was committed; drop cached application reads. (The two
+        // no-op returns above intentionally do NOT invalidate — nothing changed.)
+        _cache.Invalidate(Tables);
 
         return new ApplicationUpdateResult(
             r.Id, r.Auth ?? "", Changed: true,
