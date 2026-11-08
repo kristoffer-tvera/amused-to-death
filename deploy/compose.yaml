@@ -45,6 +45,9 @@ services:
     tmpfs:
       - /tmp:rw,noexec,nosuid,size=32m,mode=1777
     healthcheck:
+      # Liveness only — must NOT hit the database, or the frequent poll keeps the
+      # metered Neon compute awake 24/7. Deep DB readiness lives at /api/health
+      # and is checked on demand by the deploy pipeline, not on this loop.
       test:
         [
           CMD,
@@ -53,7 +56,7 @@ services:
           --silent,
           --max-time,
           "3",
-          http://127.0.0.1:8080/api/health,
+          http://127.0.0.1:8080/api/health/live,
         ]
       interval: 10s
       timeout: 5s

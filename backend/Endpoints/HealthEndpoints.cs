@@ -16,10 +16,22 @@ public static class HealthEndpoints
 
     public static void MapHealthEndpoints(this WebApplication app)
     {
+        // Liveness: "is the process up and serving?" — deliberately does NOT touch
+        // the database. Container healthchecks poll this frequently (every few
+        // seconds), so hitting Postgres here would keep a scale-to-zero database
+        // (e.g. Neon) permanently awake and burn metered compute around the clock.
+        app.MapGet("/api/health/live", () => Results.Ok(new { status = "alive" }))
+            .AllowAnonymous();
+
+        // Readiness: "can the app actually reach its dependencies?" — opens a DB
+        // connection and verifies the schema. This WAKES the database, so it must
+        // only be called on demand (e.g. post-deploy verification), never on a
+        // short polling loop. Do not point a container healthcheck at it.
         app.MapGet(
                 "/api/health",
-                async (IDbConnectionFactory connections, CancellationToken ct) =>
+                async (IDbConnectionFactory connections, ILoggerFactory loggerFactory, CancellationToken ct) =>
                 {
+                    var logger = loggerFactory.CreateLogger("Health");
                     try
                     {
                         await using var db = await connections.OpenConnectionAsync(ct);
@@ -27,12 +39,17 @@ public static class HealthEndpoints
                             new CommandDefinition(ReadinessQuery, cancellationToken: ct)
                         );
 
-                        return ready
-                            ? (IResult)Results.Ok(new { status = "ready" })
-                            : Results.StatusCode(StatusCodes.Status503ServiceUnavailable);
+                        if (!ready)
+                        {
+                            logger.LogWarning("Readiness check failed: expected schema objects are missing.");
+                            return Results.StatusCode(StatusCodes.Status503ServiceUnavailable);
+                        }
+
+                        return (IResult)Results.Ok(new { status = "ready" });
                     }
-                    catch (Npgsql.NpgsqlException)
+                    catch (Npgsql.NpgsqlException ex)
                     {
+                        logger.LogError(ex, "Readiness check failed: could not query the database.");
                         return Results.StatusCode(StatusCodes.Status503ServiceUnavailable);
                     }
                 }

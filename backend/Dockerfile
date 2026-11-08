@@ -15,5 +15,5 @@ COPY --from=publish --chown=1654:1654 /out/ ./
 ENV ASPNETCORE_HTTP_PORTS=8080
 EXPOSE 8080
 USER 1654:1654
-HEALTHCHECK --interval=10s --timeout=5s --start-period=20s --retries=6 CMD curl --fail --silent --max-time 3 http://127.0.0.1:8080/api/health || exit 1
+HEALTHCHECK --interval=10s --timeout=5s --start-period=20s --retries=6 CMD curl --fail --silent --max-time 3 http://127.0.0.1:8080/api/health/live || exit 1
 ENTRYPOINT ["dotnet", "AmusedToDeath.Api.dll"]
