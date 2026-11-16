@@ -6,7 +6,7 @@ RUN dotnet restore backend/AmusedToDeath.Api.csproj
 COPY backend/ backend/
 RUN dotnet publish backend/AmusedToDeath.Api.csproj -c Release --no-restore -o /out /p:UseAppHost=false
 
-FROM mcr.microsoft.com/dotnet/aspnet:10.0-alpine@sha256:819bd3649d8bf53f35527c68d62e17b348ef6f24ae73073f497f00a878348062
+FROM mcr.microsoft.com/dotnet/aspnet:11.0-alpine@sha256:d39b72ad1534fa0faf52b488bffb0762df7ba269d120f0338713d4dda2a41bf5
 
 RUN apk add --no-cache curl
 WORKDIR /app
